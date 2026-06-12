@@ -1,0 +1,32 @@
+MyNotifier WIND - Hintergrund
+Was ist MyNotifier WIND
+Eine Web-Anwendung von Liebherr, die bei der Überwachung von Windbedingungen für Mobil- und Raupenkrane unterstützt. Kernfunktionen:
+•	Berechnet die maximal zulässige Windgeschwindigkeit je nach aktueller Kranstellung (je weiter der Ausleger ausgefahren, desto niedriger die erlaubte Windgeschwindigkeit)
+•	Liefert eine Windprognose (bis 72h) basierend auf GPS-Position und Höhe der Windsensoren
+•	Sendet Benachrichtigungen (SMS/E-Mail), wenn Schwellenwerte überschritten werden
+Wichtig nach unserer Analyse: Der Fokus liegt auf Benachrichtigung außerhalb des aktiven Betriebs (über Nacht, Wochenende) – nicht auf der Maschinenbedienung selbst.
+Wer nutzt es
+Der wichtigste Punkt aus der Problemvalidierung: Nicht die Kranfahrer.
+•	Kranfahrer haben keine Firmen-Smartphones und nutzen private nicht
+•	Kranfahrer sehen die Windgeschwindigkeit ohnehin in der Kabine während des Betriebs
+Die eigentlichen Nutzer sind:
+•	Site Manager (Hauptzielgruppe) – verantwortlich für mehrere Krane/Baustellen, abends und am Wochenende nicht vor Ort
+•	Poliere/Foremen – Tagesplanung, Entscheidung über Arbeit am Folgetag
+Aktive Datenverbindung vs. Graceful Degradation
+Das ist der zentrale technische und konzeptionelle Unterschied:
+Aktive Datenverbindung (Idealfall)
+Die Maschine ist online und sendet ihre aktuelle Stellung in Echtzeit. Das System weiß genau:
+•	Wie der Kran gerade steht (z. B. Ausleger ausgefahren 45m)
+•	Welcher Windschwellenwert daher gilt
+•	→ Alerts sind exakt und vertrauenswürdig
+Graceful Degradation (Realfall)
+Die Maschine verliert regelmäßig die Verbindung (schlechtes LTE). Das System kennt die aktuelle Stellung nicht mehr. „Graceful Degradation" bedeutet: das System bricht nicht zusammen oder rät falsch, sondern degradiert kontrolliert und bleibt nützlich.
+Der entscheidende Unterschied liegt im Umgang mit fehlenden Daten:
+Schlechtes Verhalten (aktuelle Version):
+Fällt auf veraltete Daten zurück und alarmiert auf Basis einer 2 Tage alten Stellung – oder fällt auf Null-Werte zurück. Kritisch: Wenn der letzte bekannte Zustand „sicher" war, der aktuelle aber unsicher ist, wird gar nicht alarmiert.
+Graceful Degradation (Ziel):
+Das System macht Transparenz über die Unsicherheit und gibt dem Nutzer Kontrolle:
+•	Zeigt klar an: „Maschine offline seit X Stunden, letzte bekannte Stellung: …"
+•	Erlaubt manuelle Bestätigung/Korrektur der Stellung durch den Site Manager
+•	Alarmiert risikobasiert: Bei objektiv sicherem Wind (unter dem schwächsten Schwellenwert) keine Alerts, auch wenn offline – bei Risiko gestaffelte Warnungen je nach Datenqualität
+Vereinfacht: Aktive Verbindung = das System weiß. Graceful Degradation = das System weiß es nicht, gibt das ehrlich zu und hilft dem Menschen trotzdem, eine sichere Entscheidung zu treffen – statt falsche Sicherheit vorzutäuschen oder mit Spam zu nerven.
