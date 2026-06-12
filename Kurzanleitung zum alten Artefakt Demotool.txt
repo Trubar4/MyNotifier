@@ -1,0 +1,84 @@
+Kurzanleitung zum Demotool
+MyNotifier WIND - Alert Decision Logic Explorer | Claude
+Zweck
+Interaktives Werkzeug zur Validierung der Alert-Entscheidungslogik für MyNotifier WIND. Zeigt, wann das System Benachrichtigungen sendet und wann nicht.
+
+Bedienung
+Oben: Szenario-Konfiguration zur Prüfung der App 
+1.	Windprognose-Slider (0-120 km/h) 
+o	Windgeschwindigkeit eingeben, um unten Verhalten in „App“ zu simulieren
+o	Teste Werte wie 30, 50, 80, 95 km/h
+2.	Kranposition-Dropdown 
+o	Wähle die zuletzt bekannte Kranstellung
+o	Jede Position hat unterschiedliche Schwellenwerte (35-90 km/h)
+3.	Offline-Dauer-Slider (0-168 Stunden) 
+o	Simuliert, wie lange die Maschine keine Verbindung hatte
+o	Bei <5 Min: Verbindung OK
+o	Bei ≥5 Min: Offline-Warnung erscheint
+4.	User-Confirmation-Checkbox 
+o	Wenn aktiviert, nimmt das System an, dass der User die Position innerhalb von den letzten 4 Stunden manuell bestätigt hat oder eben nicht → „App“ unten verhält sich entsprechend
+Mitte: App-Displays
+5.	Status View (links) 
+o	Zeigt, was der Site Manager auf seinem Handy sieht
+o	Aktualisiert sich automatisch bei Änderungen
+o	Zeigt Connection Status nur wenn offline (also nicht wenn Machine Offline Duration ob auf  „0 hours“ gesetzt ist)
+6.	Manual Position Selection (rechts) 
+o	Klickbar! Wähle eine der 4 Kranpositionen
+o	Setze Gültigkeitsdatum (Standard: nächster Werktag 6:00)
+o	Toggle "Machine Override" (an/aus)
+o	"Confirm & Save" → Update wird in Status View sichtbar
+o	Scrollt automatisch zur Status View
+Unten: Benachrichtigungen
+7.	SMS/Email-Vorschau 
+o	Zeigt den tatsächlichen Benachrichtigungsinhalt
+o	Oder "No SMS sent" wenn kein Alert nötig
+
+Was wir damit lernen können?
+1. Intelligente Alert-Logik verstehen
+•	Fall 1: Wind 30 km/h → Keine Alerts (safe für alle Positionen)
+•	Fall 2: Wind 50 km/h, Boom Down → Nur Bestätigungsaufforderung
+•	Fall 3: Wind 80 km/h, Extended → Sofort Alert
+•	Fall 4: Wind 95 km/h → Kritischer Alert (alle Positionen unsafe)
+2. Graceful Degradation testen
+•	Was passiert bei Verbindungsausfall?
+•	Wann werden trotzdem Alerts gesendet?
+•	Wie funktioniert die manuelle Override-Logik?
+3. Weekend-Szenario validieren
+•	Setze Position auf "Montag 6:00"
+•	Deaktiviere "Machine Override"
+→ Keine Alerts am Wochenende, selbst bei Offline-Status
+4. False-Alarm-Reduktion nachweisen
+•	Teste: Wind 30 km/h, Machine offline 48h
+•	Ergebnis: Kein Alert (objektiv safe)
+5. Real-Time-Features erleben
+•	Manuelle Verifikation zählt hoch (0 Sekunden → 1 Minute → 1 Stunde)
+•	Zeigt, wie "frische" manuelle Daten wertvoller sind als 48h alte Machine Data
+
+Empfohlene Test-Szenarien
+Szenario A: Normalbetrieb (keine Alerts)
+•	Wind: 30 km/h
+•	Position: Beliebig
+•	Offline: 48h
+•	Ergebnis: "SAFE (all configurations)" - kein Alert
+Szenario B: Weekend Shutdown
+•	Wind: 60 km/h
+•	Position: Boom Down → Confirm & Save
+•	Gültig bis: Montag 6:00
+•	Machine Override: AUS
+•	Ergebnis: Keine falschen Weekend-Alerts
+Szenario C: Kritische Situation
+•	Wind: 85 km/h
+•	Position: Fully Extended
+•	Offline: 48h
+•	Ergebnis: High-Priority Alert + SMS/Email
+Szenario D: Position abgelaufen
+•	Setze Position mit Gültigkeit in der Vergangenheit
+•	Wind: 50 km/h
+•	Ergebnis: "Position setting expired - please re-verify"
+
+Wichtigste Erkenntnisse
+1.	Kein Alert ≠ Fehler: Bei objektiv sicheren Bedingungen (Wind <35 km/h) sind Alerts Spam
+2.	Confidence-Level wichtig: System unterscheidet zwischen "sicher bestätigt" vs. "wahrscheinlich safe"
+3.	Manual Override löst echtes Problem: Weekend/Holiday-Shutdowns ohne False Alarms
+4.	Position-Gültigkeit ist key: Zeitbasierte Locks verhindern unnötige Alerts
+5.	Machine Override Toggle: Flexibilität zwischen Sicherheit (Auto-Update) und Convenience (Manual Lock)
