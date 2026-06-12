@@ -4,6 +4,7 @@ import { AppFooter } from './components/AppFooter';
 import { AppSidebar } from './components/AppSidebar';
 import type { Page } from './components/AppSidebar';
 import { MachineOverview } from './components/MachineOverview';
+import { MachineDetail } from './components/MachineDetail';
 import type { MachineConfig } from './data/types';
 import { DEFAULT_MACHINES } from './data/machines';
 import './styles/app.css';
@@ -11,8 +12,10 @@ import './styles/app.css';
 export default function App() {
   const [activePage, setActivePage] = useState<Page>('machines');
   const [machines, setMachines] = useState<MachineConfig[]>(DEFAULT_MACHINES);
+  const [detailMachineId, setDetailMachineId] = useState<string | null>(null);
 
   const totalNotifications = machines.reduce((sum, m) => sum + m.notificationCount, 0);
+  const detailMachine = detailMachineId ? machines.find((m) => m.id === detailMachineId) : null;
 
   function handleUpdateMachine(updated: MachineConfig) {
     setMachines((prev) =>
@@ -20,14 +23,27 @@ export default function App() {
     );
   }
 
+  function handleNavigate(page: Page) {
+    setActivePage(page);
+    setDetailMachineId(null);
+  }
+
   return (
     <div className="app-layout">
       <AppHeader totalNotifications={totalNotifications} />
-      <AppSidebar activePage={activePage} onNavigate={setActivePage} />
+      <AppSidebar activePage={activePage} onNavigate={handleNavigate} />
       <main className="app-content">
-        {activePage === 'machines' && (
+        {activePage === 'machines' && !detailMachine && (
           <MachineOverview
             machines={machines}
+            onUpdateMachine={handleUpdateMachine}
+            onOpenMachine={(id) => setDetailMachineId(id)}
+          />
+        )}
+        {activePage === 'machines' && detailMachine && (
+          <MachineDetail
+            machine={detailMachine}
+            onBack={() => setDetailMachineId(null)}
             onUpdateMachine={handleUpdateMachine}
           />
         )}

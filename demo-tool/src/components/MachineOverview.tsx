@@ -6,9 +6,10 @@ import { ScenarioConfig } from './ScenarioConfig';
 interface MachineOverviewProps {
   machines: MachineConfig[];
   onUpdateMachine: (updated: MachineConfig) => void;
+  onOpenMachine: (id: string) => void;
 }
 
-export function MachineOverview({ machines, onUpdateMachine }: MachineOverviewProps) {
+export function MachineOverview({ machines, onUpdateMachine, onOpenMachine }: MachineOverviewProps) {
   const [configMachineId, setConfigMachineId] = useState<string | null>(null);
 
   const configMachine = machines.find((m) => m.id === configMachineId);
@@ -22,7 +23,7 @@ export function MachineOverview({ machines, onUpdateMachine }: MachineOverviewPr
             key={machine.id}
             machine={machine}
             onOpenConfig={() => setConfigMachineId(machine.id)}
-            onOpen={() => {}}
+            onOpen={() => onOpenMachine(machine.id)}
           />
         ))}
       </div>
