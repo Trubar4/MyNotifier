@@ -35,7 +35,7 @@
   grid-row: 2;
   padding: var(--s-7) var(--s-7);
   overflow-y: auto;
-  max-height: calc(100vh - 64px - 60px);
+  min-height: 0;
 }
 
 /* === HEADER === */
@@ -1232,4 +1232,250 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* ============================================================
+   RESPONSIVE — Tablet (≤1024px)
+   ============================================================ */
+@media (max-width: 1024px) {
+  .app-content {
+    padding: var(--s-5) var(--s-5);
+  }
+
+  .page-title {
+    font-size: 32px;
+    line-height: 36px;
+  }
+
+  .machine-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--s-4);
+  }
+
+  .detail__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail__section--wind {
+    grid-column: 1;
+  }
+
+  .detail__title {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .config-modal {
+    width: calc(100vw - 48px);
+    max-width: 480px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — Mobile (≤640px)
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Layout: sidebar becomes bottom nav */
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px 1fr auto 56px;
+  }
+
+  .app-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .app-sidebar {
+    grid-row: 4;
+    grid-column: 1;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0;
+    gap: 0;
+    border-right: none;
+    border-top: 1px solid var(--r-outline-bright);
+    z-index: 50;
+    position: sticky;
+    bottom: 0;
+  }
+
+  .sidebar-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-1);
+  }
+
+  .sidebar-btn--active::before {
+    display: none;
+  }
+
+  .app-content {
+    grid-row: 2;
+    grid-column: 1;
+    padding: var(--s-4) var(--s-4);
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-footer {
+    grid-column: 1;
+    grid-row: 3;
+    padding: var(--s-4) var(--s-4);
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+
+  .app-footer__logo {
+    font-size: 14px;
+  }
+
+  .app-footer__link {
+    font-size: 11px;
+  }
+
+  /* Header compact */
+  .header {
+    height: 56px;
+    padding: 0 var(--s-3);
+    gap: var(--s-3);
+  }
+
+  .header__logo {
+    font-size: 18px;
+  }
+
+  .header__product {
+    font-size: 14px;
+    padding-left: var(--s-3);
+  }
+
+  /* Page title */
+  .page-title {
+    font-size: 24px;
+    line-height: 28px;
+    margin-bottom: var(--s-4);
+  }
+
+  /* Machine cards — single column */
+  .machine-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+
+  .machine-card__header {
+    padding: var(--s-4) var(--s-4) var(--s-3);
+  }
+
+  .machine-card__body {
+    padding: var(--s-3) var(--s-4) var(--s-4);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4) var(--s-3);
+  }
+
+  .machine-card__footer {
+    padding: var(--s-2) var(--s-4);
+  }
+
+  /* Detail view */
+  .detail__header {
+    gap: var(--s-3);
+  }
+
+  .detail__header-icon {
+    display: none;
+  }
+
+  .detail__title {
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  .detail__meta {
+    gap: var(--s-2);
+  }
+
+  .detail__grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+
+  .detail__section--wind {
+    grid-column: 1;
+  }
+
+  .detail__section {
+    padding: var(--s-4);
+  }
+
+  /* Wind detail cards — stack on mobile */
+  .wind-detail-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+
+  .wind-detail-card__value {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .forecast-detail__max-value {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  /* Config modal — full screen on mobile */
+  .config-overlay {
+    padding-top: 0;
+    align-items: stretch;
+  }
+
+  .config-modal {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .config-modal__body {
+    padding: var(--s-4);
+    gap: var(--s-4);
+  }
+
+  .config-chip {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .config-slider__value {
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  /* Info popover — wider on mobile */
+  .info-popover {
+    min-width: 200px;
+    max-width: calc(100vw - 48px);
+    right: 0;
+    left: auto;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — Small phones (≤380px)
+   ============================================================ */
+@media (max-width: 380px) {
+  .machine-card__body {
+    grid-template-columns: 1fr;
+  }
+
+  .header__product {
+    display: none;
+  }
+
+  .detail__meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
