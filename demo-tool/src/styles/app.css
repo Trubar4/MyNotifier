@@ -1479,3 +1479,207 @@
     align-items: flex-start;
   }
 }
+
+/* ============================================================
+   RESPONSIVE — Phone Landscape (short viewport + wide)
+   Targets phones rotated sideways: lots of width, very little height.
+   ============================================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Compact header */
+  .header {
+    height: 44px;
+    padding: 0 var(--s-3);
+  }
+
+  .header__logo {
+    font-size: 16px;
+  }
+
+  .header__avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    line-height: 28px;
+  }
+
+  /* Sidebar → slim left strip instead of bottom nav (more vertical space) */
+  .app-layout {
+    grid-template-columns: 48px 1fr;
+    grid-template-rows: 44px 1fr auto;
+  }
+
+  .app-sidebar {
+    grid-row: 2;
+    grid-column: 1;
+    width: 48px;
+    flex-direction: column;
+    justify-content: flex-start;
+    border-right: 1px solid var(--r-outline-bright);
+    border-top: none;
+    padding: var(--s-2) 0;
+    gap: 0;
+    position: static;
+  }
+
+  .sidebar-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebar-btn--active::before {
+    display: block;
+    left: -4px;
+    top: 6px;
+    bottom: 6px;
+  }
+
+  /* Maximize content area */
+  .app-content {
+    grid-row: 2;
+    grid-column: 2;
+    padding: var(--s-3) var(--s-4);
+    max-height: none;
+  }
+
+  .app-footer {
+    grid-column: 1 / -1;
+    padding: var(--s-2) var(--s-4);
+    gap: var(--s-3);
+  }
+
+  .app-footer__scroll-top {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Page title compact */
+  .page-title {
+    font-size: 20px;
+    line-height: 24px;
+    margin-bottom: var(--s-3);
+  }
+
+  /* Cards: 2 columns in landscape for phone */
+  .machine-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-3);
+  }
+
+  .machine-card__header {
+    padding: var(--s-3) var(--s-3) var(--s-2);
+  }
+
+  .machine-card__title {
+    font-size: 13px;
+  }
+
+  .machine-card__body {
+    padding: var(--s-2) var(--s-3) var(--s-3);
+    gap: var(--s-3) var(--s-2);
+  }
+
+  .machine-card__footer {
+    padding: var(--s-2) var(--s-3);
+  }
+
+  .data-field__value {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .data-field__label {
+    font-size: 11px;
+  }
+
+  /* Detail view: use 2 columns in landscape */
+  .detail__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-3);
+  }
+
+  .detail__section--wind {
+    grid-column: 1 / -1;
+  }
+
+  .detail__section {
+    padding: var(--s-3);
+  }
+
+  .detail__title {
+    font-size: 18px;
+    line-height: 22px;
+  }
+
+  .detail__header {
+    margin-bottom: var(--s-3);
+  }
+
+  .wind-detail-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-3);
+  }
+
+  .wind-detail-card__value {
+    font-size: 22px;
+    line-height: 26px;
+  }
+
+  .forecast-detail__max-value {
+    font-size: 22px;
+    line-height: 26px;
+  }
+
+  /* Config modal: landscape split */
+  .config-overlay {
+    padding-top: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .config-modal {
+    width: 80vw;
+    max-width: 560px;
+    max-height: calc(100vh - 16px);
+    border-radius: var(--radius-2);
+  }
+
+  .config-modal__body {
+    padding: var(--s-3);
+    gap: var(--s-3);
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — Tablet Portrait (600–1024px, portrait)
+   ============================================================ */
+@media (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
+  .machine-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4);
+  }
+
+  .detail__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail__section--wind {
+    grid-column: 1;
+  }
+
+  .wind-detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — Tablet Landscape (600–1024px height, landscape)
+   ============================================================ */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .app-content {
+    padding: var(--s-5) var(--s-6);
+  }
+
+  .machine-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  }
+}
