@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AppHeader } from './components/AppHeader';
+import { AppFooter } from './components/AppFooter';
 import { AppSidebar } from './components/AppSidebar';
 import type { Page } from './components/AppSidebar';
 import { MachineOverview } from './components/MachineOverview';
@@ -44,6 +45,7 @@ export default function App() {
           </div>
         )}
       </main>
+      <AppFooter />
     </div>
   );
 }

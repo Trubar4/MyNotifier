@@ -53,12 +53,18 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
           {machine.notificationCount > 0 && (
             <div className="machine-card__notification-dot">
               <span className="dot dot--error">{machine.notificationCount}</span>
+              {machine.notificationCount > 1 && (
+                <span className="dot dot--warning">{machine.notificationCount}</span>
+              )}
             </div>
           )}
         </div>
-        <span className="machine-card__title">
-          {machine.name} - {machine.serialNumber}
-        </span>
+        <div className="machine-card__title-group">
+          <span className="machine-card__title">
+            {machine.name} - {machine.serialNumber}
+          </span>
+          <span className="machine-card__title-accent" />
+        </div>
         <button
           className="machine-card__config-btn"
           onClick={onOpenConfig}
@@ -80,11 +86,11 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
             <div className="data-field">
               <div className="data-field__header">
                 <MapPin size={14} className="data-field__icon" />
-                <span className="data-field__label">Aktuelle Auslegerposition</span>
               </div>
               <span className="data-field__value">
                 {BOOM_POSITION_LABELS[machine.position.position]}
               </span>
+              <span className="data-field__label">Aktuelle Auslegerposition</span>
               {!isOnline && !machine.position.manuallySet && (
                 <span className="data-field__timestamp">
                   Wert von {formatTimestamp(machine.position.timestamp)}
@@ -92,10 +98,10 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
               )}
               {machine.position.manuallySet && (
                 <span className="data-field__timestamp">
-                  Position manuell gesetzt am {formatTimestamp(machine.position.timestamp)}
+                  Manuell gesetzt am {formatTimestamp(machine.position.timestamp)}
                 </span>
               )}
-              <button className="data-field__action">
+              <button className="data-field__action" onClick={onOpen}>
                 <PenLine size={10} />
                 Position prüfen und manuell setzen
               </button>
@@ -105,7 +111,6 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
             <div className="data-field">
               <div className="data-field__header">
                 {isOnline ? <Wifi size={14} className="data-field__icon" /> : <WifiOff size={14} className="data-field__icon" />}
-                <span className="data-field__label">Maschinenstatus</span>
                 <InfoPopover>
                   <div>
                     <strong>Online</strong> = Master ein + Datenverbindung<br />
@@ -113,41 +118,42 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
                   </div>
                 </InfoPopover>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="data-field__value">
                 <span className={`status-dot ${isOnline ? 'status-dot--online' : 'status-dot--offline'}`} />
-                <span className="data-field__value">
-                  {isOnline ? 'Online' : 'Offline'}
-                </span>
-              </div>
+                {isOnline ? 'Online' : 'Offline'}
+              </span>
+              <span className="data-field__label">Maschinenstatus</span>
             </div>
 
             {/* Aktuelle Windgeschwindigkeit */}
             <div className="data-field">
               <div className="data-field__header">
                 <Wind size={14} className="data-field__icon" />
-                <span className="data-field__label">Aktuelle Windgeschwindigkeit</span>
               </div>
-              <div className="wind-values">
-                <div className="wind-value-row">
-                  <span className="wind-value-row__label">Nadelausleger:</span>
-                  <span className="wind-value-row__value">
-                    {machine.wind.needleBoom.toFixed(1)} m/s
-                  </span>
-                </div>
-                <div className="wind-value-row">
-                  <span className="wind-value-row__label">Hauptausleger:</span>
-                  <span className="wind-value-row__value">
-                    {machine.wind.mainBoom.toFixed(1)} m/s
-                  </span>
+              <div className="data-field__value">
+                <div className="wind-values">
+                  <div className="wind-value-row">
+                    <span className="wind-value-row__label">Nadelausleger:</span>
+                    <span className="wind-value-row__value">
+                      {machine.wind.needleBoom.toFixed(1)} m/s
+                    </span>
+                  </div>
+                  <div className="wind-value-row">
+                    <span className="wind-value-row__label">Hauptausleger:</span>
+                    <span className="wind-value-row__value">
+                      {machine.wind.mainBoom.toFixed(1)} m/s
+                    </span>
+                  </div>
                 </div>
               </div>
+              <span className="data-field__label">Aktuelle Windgeschwindigkeit</span>
               {!isLive(machine.wind.timestamp) && (
                 <span className="data-field__timestamp">
                   Wert von {formatTimestamp(machine.wind.timestamp)}
                 </span>
               )}
               {isLive(machine.wind.timestamp) && (
-                <span className="data-field__timestamp" style={{ color: 'var(--r-on-success-soft)' }}>
+                <span className="data-field__timestamp" style={{ color: 'var(--r-on-success-soft)', fontStyle: 'normal', opacity: 1 }}>
                   Live
                 </span>
               )}
@@ -157,7 +163,6 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
             <div className="data-field">
               <div className="data-field__header">
                 <CloudSun size={14} className="data-field__icon" />
-                <span className="data-field__label">Vorhersage 72h</span>
                 <InfoPopover>
                   Die Vorhersagen stammen von Meteomatics aufgrund der Höhe der Auslegerposition des Maschinenstandorts.
                 </InfoPopover>
@@ -165,6 +170,7 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
               <span className="data-field__value">
                 Max {machine.forecast.max72h.toFixed(1)} m/s
               </span>
+              <span className="data-field__label">Vorhersage 72h</span>
               <span className="data-field__timestamp">
                 Vorhersage von {formatTimestamp(machine.forecast.timestamp)}
               </span>

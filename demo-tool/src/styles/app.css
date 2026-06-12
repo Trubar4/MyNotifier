@@ -10,7 +10,7 @@
 .app-layout {
   display: grid;
   grid-template-columns: 64px 1fr;
-  grid-template-rows: 64px 1fr;
+  grid-template-rows: 64px 1fr auto;
   min-height: 100vh;
   background: var(--r-bg-dim);
 }
@@ -33,9 +33,9 @@
 
 .app-content {
   grid-row: 2;
-  padding: var(--s-6);
+  padding: var(--s-7) var(--s-7);
   overflow-y: auto;
-  max-height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px - 60px);
 }
 
 /* === HEADER === */
@@ -57,10 +57,10 @@
 }
 
 .header__product {
-  font: 400 18px/22px var(--font-head);
+  font: 400 16px/22px var(--font-head);
   border-left: 1px solid var(--p-steel-700);
   padding-left: var(--s-4);
-  color: var(--p-steel-200);
+  color: var(--p-steel-300);
 }
 
 .header__spacer {
@@ -81,6 +81,9 @@
   cursor: pointer;
   padding: var(--s-2);
   border-radius: var(--radius-2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
   transition: color var(--motion-fast), background var(--motion-fast);
 }
 
@@ -91,8 +94,8 @@
 
 .header__badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 0;
+  right: -2px;
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
@@ -153,14 +156,14 @@
 
 /* === MACHINE OVERVIEW === */
 .page-title {
-  font: 900 32px/36px var(--font-head-b);
+  font: 900 40px/44px var(--font-head-b);
   color: var(--r-on-surface-default);
-  margin: 0 0 var(--s-5);
+  margin: 0 0 var(--s-6);
 }
 
 .machine-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: var(--s-5);
 }
 
@@ -179,31 +182,32 @@
 }
 
 .machine-card__header {
-  padding: var(--s-4) var(--s-5);
+  padding: var(--s-5) var(--s-5) var(--s-4);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--s-3);
-  border-bottom: 3px solid var(--r-brand);
 }
 
 .machine-card__icon {
   color: var(--r-on-surface-muted);
   position: relative;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .machine-card__notification-dot {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -6px;
+  right: -8px;
   display: flex;
-  gap: 2px;
+  gap: 1px;
 }
 
 .machine-card__notification-dot .dot {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  font: 700 9px/16px var(--font-text-b);
+  font: 700 10px/18px var(--font-text-b);
   text-align: center;
   color: var(--p-white);
 }
@@ -211,12 +215,24 @@
 .dot--error { background: var(--r-error); }
 .dot--warning { background: var(--r-warning); }
 
+.machine-card__title-group {
+  flex: 1;
+  min-width: 0;
+}
+
 .machine-card__title {
   font: 900 16px/20px var(--font-head-b);
   color: var(--r-on-surface-default);
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  flex: 1;
+}
+
+.machine-card__title-accent {
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: var(--r-brand);
+  margin-top: var(--s-2);
 }
 
 .machine-card__config-btn {
@@ -226,6 +242,7 @@
   cursor: pointer;
   padding: var(--s-1);
   border-radius: var(--radius-2);
+  flex-shrink: 0;
   transition: color var(--motion-fast), background var(--motion-fast);
 }
 
@@ -235,11 +252,11 @@
 }
 
 .machine-card__body {
-  padding: var(--s-4) var(--s-5);
+  padding: var(--s-4) var(--s-5) var(--s-5);
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--s-4) var(--s-5);
+  gap: var(--s-5) var(--s-5);
 }
 
 .machine-card__footer {
@@ -266,7 +283,7 @@
   color: var(--r-on-surface-muted);
 }
 
-/* === DATA FIELD (inside cards) === */
+/* === DATA FIELD (inside cards) — value on top, label below (like mockup) === */
 .data-field {
   display: flex;
   flex-direction: column;
@@ -282,6 +299,7 @@
   display: flex;
   align-items: center;
   gap: var(--s-1);
+  order: 1;
 }
 
 .data-field__icon {
@@ -292,12 +310,16 @@
 .data-field__value {
   font: 700 16px/22px var(--font-text-b);
   color: var(--r-on-surface-default);
+  order: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
 }
 
 .data-field__label {
-  font: 400 12px/16px var(--font-text);
+  font: 400 13px/18px var(--font-text);
   color: var(--r-on-surface-muted);
-  letter-spacing: 0.02em;
+  order: 3;
 }
 
 .data-field__timestamp {
@@ -305,6 +327,7 @@
   color: var(--r-on-surface-muted);
   opacity: 0.7;
   font-style: italic;
+  order: 4;
 }
 
 .data-field__action {
@@ -318,6 +341,8 @@
   border: none;
   padding: 2px 0;
   margin-top: 2px;
+  order: 5;
+  text-align: left;
   transition: color var(--motion-fast);
 }
 
@@ -404,12 +429,12 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: var(--radius-1);
+  width: fit-content;
 }
 
 .license-badge--none {
   background: var(--r-error-soft);
   color: var(--r-on-error-soft);
-  width: fit-content;
 }
 
 .license-badge--expired {
@@ -548,7 +573,7 @@
   margin-left: var(--s-1);
 }
 
-/* === WIND DISPLAY (two values side by side) === */
+/* === WIND DISPLAY === */
 .wind-values {
   display: flex;
   flex-direction: column;
@@ -564,7 +589,7 @@
 .wind-value-row__label {
   font: 400 11px/14px var(--font-text);
   color: var(--r-on-surface-muted);
-  min-width: 80px;
+  min-width: 85px;
 }
 
 .wind-value-row__value {
@@ -577,15 +602,15 @@
   grid-column: 1 / -1;
   background: var(--r-surface-inverse);
   color: var(--r-on-inverse-muted);
-  padding: var(--s-4) var(--s-6);
+  padding: var(--s-5) var(--s-7);
   display: flex;
   align-items: center;
-  gap: var(--s-5);
+  gap: var(--s-6);
   font: 400 13px/18px var(--font-text);
 }
 
 .app-footer__logo {
-  font: 900 16px/1 var(--font-head-b);
+  font: 900 18px/1 var(--font-head-b);
   color: var(--p-white);
   letter-spacing: 0.04em;
 }
@@ -594,6 +619,7 @@
   color: var(--r-on-inverse-muted);
   text-decoration: none;
   transition: color var(--motion-fast);
+  cursor: pointer;
 }
 
 .app-footer__link:hover {
@@ -602,6 +628,24 @@
 
 .app-footer__spacer {
   flex: 1;
+}
+
+.app-footer__scroll-top {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--p-steel-700);
+  background: transparent;
+  color: var(--p-white);
+  cursor: pointer;
+  border-radius: var(--radius-2);
+  transition: background var(--motion-fast);
+}
+
+.app-footer__scroll-top:hover {
+  background: var(--p-steel-800);
 }
 
 /* === UTILS === */
