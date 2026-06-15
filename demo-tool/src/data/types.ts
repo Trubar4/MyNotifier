@@ -39,6 +39,10 @@ export interface PositionData {
   position: BoomPosition;
   timestamp: Date;
   manuallySet: boolean;
+  fixedUntil: Date | null;
+  autoUpdate: boolean;
+  reportedPosition: BoomPosition | null;
+  reportedAt: Date | null;
 }
 
 export interface NotificationData {

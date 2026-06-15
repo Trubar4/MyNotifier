@@ -6,7 +6,7 @@ import { ScenarioConfig } from './ScenarioConfig';
 interface MachineOverviewProps {
   machines: MachineConfig[];
   onUpdateMachine: (updated: MachineConfig) => void;
-  onOpenMachine: (id: string) => void;
+  onOpenMachine: (id: string, withPositionSelector?: boolean) => void;
 }
 
 export function MachineOverview({ machines, onUpdateMachine, onOpenMachine }: MachineOverviewProps) {
@@ -24,6 +24,7 @@ export function MachineOverview({ machines, onUpdateMachine, onOpenMachine }: Ma
             machine={machine}
             onOpenConfig={() => setConfigMachineId(machine.id)}
             onOpen={() => onOpenMachine(machine.id)}
+            onOpenPositionSelector={() => onOpenMachine(machine.id, true)}
           />
         ))}
       </div>

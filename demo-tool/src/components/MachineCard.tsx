@@ -3,7 +3,6 @@ import {
   Wifi,
   WifiOff,
   CloudSun,
-  MapPin,
   ChevronRight,
   Settings,
   PenLine,
@@ -11,11 +10,13 @@ import {
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
+import { BoomConfigIcon, SensorJibIcon, SensorBoomIcon } from './CraneIcons';
 
 interface MachineCardProps {
   machine: MachineConfig;
   onOpenConfig: () => void;
   onOpen: () => void;
+  onOpenPositionSelector: () => void;
 }
 
 function formatTimestamp(date: Date): string {
@@ -39,7 +40,7 @@ function isLive(date: Date): boolean {
   return Date.now() - date.getTime() < 60000;
 }
 
-export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps) {
+export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelector }: MachineCardProps) {
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
   const totalNotifications = machine.notifications.critical + machine.notifications.warning;
@@ -83,7 +84,7 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
             {/* Auslegerposition */}
             <div className="data-field">
               <div className="data-field__header">
-                <MapPin size={14} className="data-field__icon" />
+                <BoomConfigIcon size={16} className="data-field__icon" />
               </div>
               <span className="data-field__value">
                 {BOOM_POSITION_LABELS[machine.position.position]}
@@ -100,12 +101,12 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
                 </span>
               )}
               {!isOnline && !machine.position.manuallySet && (
-                <button className="lds-btn lds-btn--primary lds-btn--sm position-action" onClick={onOpen}>
+                <button className="lds-btn lds-btn--primary lds-btn--sm position-action" onClick={onOpenPositionSelector}>
                   Prüfen und setzen
                 </button>
               )}
               {!isOnline && machine.position.manuallySet && (
-                <button className="position-action position-action--subtle" onClick={onOpen}>
+                <button className="position-action position-action--subtle" onClick={onOpenPositionSelector}>
                   <PenLine size={12} />
                   Position bei Änderung aktualisieren
                 </button>
@@ -135,13 +136,13 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
               <div className="data-field__value">
                 <div className="wind-values">
                   <div className="wind-value-row">
-                    <span className="wind-value-row__label">Nadelausleger:</span>
+                    <SensorJibIcon size={18} className="wind-value-row__icon" />
                     <span className="wind-value-row__value">
                       {machine.wind.needleBoom.toFixed(1)} m/s
                     </span>
                   </div>
                   <div className="wind-value-row">
-                    <span className="wind-value-row__label">Hauptausleger:</span>
+                    <SensorBoomIcon size={18} className="wind-value-row__icon" />
                     <span className="wind-value-row__value">
                       {machine.wind.mainBoom.toFixed(1)} m/s
                     </span>

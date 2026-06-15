@@ -14,11 +14,23 @@ interface ScenarioConfigProps {
   onClose: () => void;
 }
 
+function formatDateTimeLocal(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps) {
   const [status, setStatus] = useState<MachineStatus>(machine.status);
   const [license, setLicense] = useState<LicenseStatus>(machine.license);
   const [position, setPosition] = useState<BoomPosition>(machine.position.position);
   const [manuallySet, setManuallySet] = useState(machine.position.manuallySet);
+  const [autoUpdate, setAutoUpdate] = useState(machine.position.autoUpdate);
+  const [fixedUntilStr, setFixedUntilStr] = useState(
+    machine.position.fixedUntil ? formatDateTimeLocal(machine.position.fixedUntil) : ''
+  );
+  const [reportedPosition, setReportedPosition] = useState<BoomPosition | 'none'>(
+    machine.position.reportedPosition ?? 'none'
+  );
   const [windNeedle, setWindNeedle] = useState(machine.wind.needleBoom);
   const [windMain, setWindMain] = useState(machine.wind.mainBoom);
   const [forecast, setForecast] = useState(machine.forecast.max72h);
@@ -45,6 +57,10 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
         position,
         timestamp: status === 'online' && !manuallySet ? new Date() : ts,
         manuallySet,
+        fixedUntil: fixedUntilStr ? new Date(fixedUntilStr) : null,
+        autoUpdate,
+        reportedPosition: reportedPosition === 'none' ? null : reportedPosition,
+        reportedAt: reportedPosition !== 'none' ? new Date(Date.now() - 30 * 60 * 1000) : null,
       },
       wind: {
         needleBoom: windNeedle,
@@ -134,6 +150,60 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
               </span>
             </label>
           </div>
+
+          {/* Position fixieren bis */}
+          <div className="config-field">
+            <span className="config-field__label">Position fixieren bis</span>
+            <input
+              type="datetime-local"
+              className="config-input"
+              value={fixedUntilStr}
+              onChange={(e) => setFixedUntilStr(e.target.value)}
+            />
+          </div>
+
+          {/* Auto-Update */}
+          <div className="config-field">
+            <span className="config-field__label">Automatische Positionsaktualisierung</span>
+            <div className="config-field__row">
+              <button
+                className={`config-chip ${autoUpdate ? 'config-chip--active' : ''}`}
+                onClick={() => setAutoUpdate(true)}
+              >
+                Ein (On)
+              </button>
+              <button
+                className={`config-chip ${!autoUpdate ? 'config-chip--active' : ''}`}
+                onClick={() => setAutoUpdate(false)}
+              >
+                Aus (Off)
+              </button>
+            </div>
+          </div>
+
+          {/* Gemeldete Position (wenn autoUpdate OFF) */}
+          {!autoUpdate && (
+            <div className="config-field">
+              <span className="config-field__label">Gemeldete Position (Maschine war online)</span>
+              <div className="config-field__row">
+                <button
+                  className={`config-chip ${reportedPosition === 'none' ? 'config-chip--active' : ''}`}
+                  onClick={() => setReportedPosition('none')}
+                >
+                  Keine
+                </button>
+                {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).filter(p => p !== 'unknown').map((p) => (
+                  <button
+                    key={p}
+                    className={`config-chip ${reportedPosition === p ? 'config-chip--active' : ''}`}
+                    onClick={() => setReportedPosition(p)}
+                  >
+                    {BOOM_POSITION_LABELS[p]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Datenalter */}
           {status === 'offline' && (

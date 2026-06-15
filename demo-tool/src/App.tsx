@@ -13,6 +13,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<Page>('machines');
   const [machines, setMachines] = useState<MachineConfig[]>(DEFAULT_MACHINES);
   const [detailMachineId, setDetailMachineId] = useState<string | null>(null);
+  const [openPositionSelector, setOpenPositionSelector] = useState(false);
 
   const totalNotifications = machines.reduce((sum, m) => sum + m.notifications.critical + m.notifications.warning, 0);
   const detailMachine = detailMachineId ? machines.find((m) => m.id === detailMachineId) : null;
@@ -26,6 +27,12 @@ export default function App() {
   function handleNavigate(page: Page) {
     setActivePage(page);
     setDetailMachineId(null);
+    setOpenPositionSelector(false);
+  }
+
+  function handleOpenMachine(id: string, withPositionSelector = false) {
+    setDetailMachineId(id);
+    setOpenPositionSelector(withPositionSelector);
   }
 
   return (
@@ -37,14 +44,16 @@ export default function App() {
           <MachineOverview
             machines={machines}
             onUpdateMachine={handleUpdateMachine}
-            onOpenMachine={(id) => setDetailMachineId(id)}
+            onOpenMachine={handleOpenMachine}
           />
         )}
         {activePage === 'machines' && detailMachine && (
           <MachineDetail
             machine={detailMachine}
-            onBack={() => setDetailMachineId(null)}
+            onBack={() => { setDetailMachineId(null); setOpenPositionSelector(false); }}
             onUpdateMachine={handleUpdateMachine}
+            initialPositionSelectorOpen={openPositionSelector}
+            onPositionSelectorOpened={() => setOpenPositionSelector(false)}
           />
         )}
         {activePage !== 'machines' && (

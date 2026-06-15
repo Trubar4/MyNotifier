@@ -4,8 +4,8 @@ function hoursAgo(h: number): Date {
   return new Date(Date.now() - h * 60 * 60 * 1000);
 }
 
-function minutesAgo(m: number): Date {
-  return new Date(Date.now() - m * 60 * 1000);
+function hoursFromNow(h: number): Date {
+  return new Date(Date.now() + h * 60 * 60 * 1000);
 }
 
 export const DEFAULT_MACHINES: MachineConfig[] = [
@@ -20,6 +20,10 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       position: 'parkposition',
       timestamp: new Date(),
       manuallySet: false,
+      fixedUntil: null,
+      autoUpdate: true,
+      reportedPosition: null,
+      reportedAt: null,
     },
     wind: {
       needleBoom: 5.5,
@@ -43,6 +47,10 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       position: 'partial',
       timestamp: hoursAgo(1),
       manuallySet: true,
+      fixedUntil: hoursFromNow(12),
+      autoUpdate: false,
+      reportedPosition: 'extended',
+      reportedAt: hoursAgo(0.5),
     },
     wind: {
       needleBoom: 6.1,
@@ -66,6 +74,10 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       position: 'parkposition',
       timestamp: hoursAgo(48),
       manuallySet: false,
+      fixedUntil: null,
+      autoUpdate: true,
+      reportedPosition: null,
+      reportedAt: null,
     },
     wind: {
       needleBoom: 3.8,
@@ -87,17 +99,21 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     license: 'none',
     position: {
       position: 'unknown',
-      timestamp: minutesAgo(30),
+      timestamp: hoursAgo(0.5),
       manuallySet: false,
+      fixedUntil: null,
+      autoUpdate: true,
+      reportedPosition: null,
+      reportedAt: null,
     },
     wind: {
       needleBoom: 0,
       mainBoom: 0,
-      timestamp: minutesAgo(30),
+      timestamp: hoursAgo(0.5),
     },
     forecast: {
       max72h: 0,
-      timestamp: minutesAgo(30),
+      timestamp: hoursAgo(0.5),
     },
     notifications: { critical: 0, warning: 0 },
   },

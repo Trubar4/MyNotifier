@@ -1,11 +1,10 @@
+import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   Construction,
   Wifi,
   WifiOff,
-  Wind,
   CloudSun,
-  MapPin,
   AlertTriangle,
   CheckCircle,
   PenLine,
@@ -14,12 +13,14 @@ import type { MachineConfig, BoomPosition } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
-import { useState } from 'react';
+import { BoomConfigIcon, SensorJibIcon, SensorBoomIcon } from './CraneIcons';
 
 interface MachineDetailProps {
   machine: MachineConfig;
   onBack: () => void;
   onUpdateMachine: (updated: MachineConfig) => void;
+  initialPositionSelectorOpen?: boolean;
+  onPositionSelectorOpened?: () => void;
 }
 
 function formatTimestamp(date: Date): string {
@@ -39,6 +40,11 @@ function formatTimestamp(date: Date): string {
   });
 }
 
+function formatDateTimeLocal(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 function isLive(date: Date): boolean {
   return Date.now() - date.getTime() < 60000;
 }
@@ -50,8 +56,15 @@ function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warnin
   return 'safe';
 }
 
-export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetailProps) {
+export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositionSelectorOpen, onPositionSelectorOpened }: MachineDetailProps) {
   const [showPositionSelector, setShowPositionSelector] = useState(false);
+
+  useEffect(() => {
+    if (initialPositionSelectorOpen) {
+      setShowPositionSelector(true);
+      onPositionSelectorOpened?.();
+    }
+  }, [initialPositionSelectorOpen, onPositionSelectorOpened]);
 
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
@@ -59,16 +72,42 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
   const needleLevel = getWindLevel(machine.wind.needleBoom, threshold);
   const mainLevel = getWindLevel(machine.wind.mainBoom, threshold);
 
+  const hasPositionMismatch =
+    !machine.position.autoUpdate &&
+    machine.position.reportedPosition !== null &&
+    machine.position.reportedPosition !== machine.position.position;
+
   function handleSetPosition(pos: BoomPosition) {
     onUpdateMachine({
       ...machine,
       position: {
+        ...machine.position,
         position: pos,
         timestamp: new Date(),
         manuallySet: true,
       },
     });
     setShowPositionSelector(false);
+  }
+
+  function handleToggleAutoUpdate() {
+    onUpdateMachine({
+      ...machine,
+      position: {
+        ...machine.position,
+        autoUpdate: !machine.position.autoUpdate,
+      },
+    });
+  }
+
+  function handleFixedUntilChange(value: string) {
+    onUpdateMachine({
+      ...machine,
+      position: {
+        ...machine.position,
+        fixedUntil: value ? new Date(value) : null,
+      },
+    });
   }
 
   return (
@@ -121,7 +160,6 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
           {/* Wind Section */}
           <div className="detail__section detail__section--wind">
             <div className="detail__section-header">
-              <Wind size={18} />
               <h2 className="detail__section-title">Aktuelle Windgeschwindigkeit</h2>
               <InfoPopover>
                 Die Windgeschwindigkeit wird am Nadelausleger und Hauptausleger gemessen. Die Schwellenwerte hängen von der aktuellen Auslegerposition ab.
@@ -138,7 +176,10 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
             <div className="wind-detail-grid">
               {/* Nadelausleger */}
               <div className="wind-detail-card">
-                <span className="wind-detail-card__label">Nadelausleger</span>
+                <div className="wind-detail-card__header">
+                  <SensorJibIcon size={22} className="wind-detail-card__icon" />
+                  <span className="wind-detail-card__label">Nadelausleger</span>
+                </div>
                 <span className={`wind-detail-card__value wind-detail-card__value--${needleLevel}`}>
                   {machine.wind.needleBoom.toFixed(1)}
                   <span className="wind-detail-card__unit">m/s</span>
@@ -164,7 +205,10 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
 
               {/* Hauptausleger */}
               <div className="wind-detail-card">
-                <span className="wind-detail-card__label">Hauptausleger</span>
+                <div className="wind-detail-card__header">
+                  <SensorBoomIcon size={22} className="wind-detail-card__icon" />
+                  <span className="wind-detail-card__label">Hauptausleger</span>
+                </div>
                 <span className={`wind-detail-card__value wind-detail-card__value--${mainLevel}`}>
                   {machine.wind.mainBoom.toFixed(1)}
                   <span className="wind-detail-card__unit">m/s</span>
@@ -216,7 +260,7 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
           {/* Position Section */}
           <div className="detail__section detail__section--position">
             <div className="detail__section-header">
-              <MapPin size={18} />
+              <BoomConfigIcon size={20} className="detail__section-header-icon" />
               <h2 className="detail__section-title">Auslegerposition</h2>
             </div>
 
@@ -241,6 +285,52 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
                   <span className="position-detail__threshold-value">{threshold} m/s</span>
                 </div>
               )}
+
+              {/* Position fixation */}
+              <div className="position-fixation">
+                <div className="position-fixation__row">
+                  <label className="position-fixation__label" htmlFor="fixedUntil">
+                    Manuelle Position fixieren bis
+                  </label>
+                  <InfoPopover>
+                    In diesem Zeitraum wird die Position nicht mehr überschrieben, auch wenn die Maschine kurz online ist.
+                  </InfoPopover>
+                </div>
+                <input
+                  id="fixedUntil"
+                  type="datetime-local"
+                  className="position-fixation__input"
+                  value={machine.position.fixedUntil ? formatDateTimeLocal(machine.position.fixedUntil) : ''}
+                  onChange={(e) => handleFixedUntilChange(e.target.value)}
+                />
+              </div>
+
+              {/* Auto-update toggle */}
+              <div className="position-toggle">
+                <div className="position-toggle__row">
+                  <span className="position-toggle__label">Position aktualisieren, falls Maschine online ist</span>
+                  <button
+                    className={`toggle-switch ${machine.position.autoUpdate ? 'toggle-switch--on' : ''}`}
+                    onClick={handleToggleAutoUpdate}
+                    role="switch"
+                    aria-checked={machine.position.autoUpdate}
+                  >
+                    <span className="toggle-switch__thumb" />
+                  </button>
+                </div>
+
+                {/* Warning when autoUpdate is OFF and machine reported different position */}
+                {hasPositionMismatch && (
+                  <div className="position-mismatch-warning">
+                    <AlertTriangle size={16} />
+                    <span>
+                      Maschine war nach manueller Auswahl online am{' '}
+                      {machine.position.reportedAt ? formatTimestamp(machine.position.reportedAt) : '—'}{' '}
+                      und hat Position <strong>{BOOM_POSITION_LABELS[machine.position.reportedPosition!]}</strong> gemeldet.
+                    </span>
+                  </div>
+                )}
+              </div>
 
               <div className="position-detail__positions">
                 <span className="position-detail__positions-title">Alle Positionen & Schwellenwerte:</span>
