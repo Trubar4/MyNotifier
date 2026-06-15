@@ -9,9 +9,11 @@ import {
   MapPin,
   ExternalLink,
   Bell,
+  XCircle,
+  Settings,
 } from 'lucide-react';
 import type { MachineConfig, BoomPosition, Notification, NotificationSettings } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS, DEMO_USER } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
 
@@ -23,6 +25,7 @@ interface MachineDetailProps {
   notifSettings: NotificationSettings;
   onBack: () => void;
   onUpdateMachine: (updated: MachineConfig) => void;
+  onUpdateNotification: (updated: Notification) => void;
   onUpdateNotifSettings: (updated: NotificationSettings) => void;
   initialPositionSelectorOpen?: boolean;
   onPositionSelectorOpened?: () => void;
@@ -61,9 +64,10 @@ function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warnin
   return 'safe';
 }
 
-export function MachineDetail({ machine, notifications, notifSettings, onBack, onUpdateMachine, onUpdateNotifSettings, initialPositionSelectorOpen, onPositionSelectorOpened }: MachineDetailProps) {
+export function MachineDetail({ machine, notifications, notifSettings, onBack, onUpdateMachine, onUpdateNotification, onUpdateNotifSettings, initialPositionSelectorOpen, onPositionSelectorOpened }: MachineDetailProps) {
   const [showPositionSelector, setShowPositionSelector] = useState(false);
   const [showLargeMap, setShowLargeMap] = useState(false);
+  const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialPositionSelectorOpen) {
@@ -454,41 +458,144 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
             </div>
           </div>
 
-          {/* Notification Settings for this machine */}
-          <div className="detail__section">
+          {/* Notifications for this machine */}
+          <div className="detail__section detail__section--notifications">
             <div className="detail__section-header">
               <Bell size={18} />
               <h2 className="detail__section-title">Benachrichtigungen</h2>
             </div>
-            <div className="settings-row">
-              <div className="settings-row__info">
-                <span className="settings-row__label">Benachrichtigungen für diese Maschine</span>
-                <span className="settings-row__hint">
-                  {machine.id in notifSettings.machineOverrides ? 'Individuell gesetzt' : 'Global-Einstellung'}
-                </span>
-              </div>
-              <button
-                className={`toggle-switch ${(machine.id in notifSettings.machineOverrides ? notifSettings.machineOverrides[machine.id] : notifSettings.globalEnabled) ? 'toggle-switch--on' : ''}`}
-                onClick={() => {
-                  const current = machine.id in notifSettings.machineOverrides
-                    ? notifSettings.machineOverrides[machine.id]
-                    : notifSettings.globalEnabled;
-                  onUpdateNotifSettings({
-                    ...notifSettings,
-                    machineOverrides: { ...notifSettings.machineOverrides, [machine.id]: !current },
-                  });
-                }}
-                role="switch"
-                aria-checked={machine.id in notifSettings.machineOverrides ? notifSettings.machineOverrides[machine.id] : notifSettings.globalEnabled}
-              >
-                <span className="toggle-switch__thumb" />
-              </button>
-            </div>
-            {notifications.length > 0 && (
-              <div className="detail-notif-summary">
-                <span>{notifications.filter(n => !n.read).length} offene Benachrichtigungen für diese Maschine</span>
-              </div>
-            )}
+
+            {expandedNotifId ? (() => {
+              const n = notifications.find(x => x.id === expandedNotifId);
+              if (!n) return null;
+              const isAssigned = n.assignedTo !== null;
+              return (
+                <div className="detail-notif-expanded">
+                  <button className="detail-notif-expanded__back" onClick={() => setExpandedNotifId(null)}>
+                    <ArrowLeft size={14} />
+                    Zurück
+                  </button>
+                  <div className={`notif-card notif-card--level-${n.level} ${n.read ? 'notif-card--read' : ''} ${isAssigned ? 'notif-card--assigned' : ''}`}>
+                    <div className="notif-card__icon">
+                      {n.level === 1 ? <XCircle size={20} /> : <AlertTriangle size={20} />}
+                    </div>
+                    <div className="notif-card__content">
+                      <div className="notif-card__header">
+                        <span className={`notif-card__level notif-card__level--${n.level}`}>
+                          {n.level === 1 ? 'Kritisch' : 'Warnung'}
+                        </span>
+                        <span className="notif-card__time">{formatTimestamp(n.timestamp)}</span>
+                      </div>
+                      <h3 className="notif-card__title">{n.title}</h3>
+                      <p className="notif-card__body">{n.body}</p>
+                      {isAssigned && (
+                        <div className="notif-card__assigned">
+                          <CheckCircle size={14} />
+                          <span>{n.assignedTo} hat die Aufgabe übernommen</span>
+                        </div>
+                      )}
+                      <div className="notif-card__actions">
+                        <button
+                          className={`lds-btn lds-btn--sm ${isAssigned ? 'lds-btn--ghost' : 'lds-btn--primary'}`}
+                          onClick={() => onUpdateNotification({
+                            ...n,
+                            assignedTo: n.assignedTo ? null : DEMO_USER,
+                            assignedAt: n.assignedTo ? null : new Date(),
+                          })}
+                        >
+                          {isAssigned ? 'Abgeben' : 'Übernehmen'}
+                        </button>
+                        <button
+                          className="lds-btn lds-btn--ghost lds-btn--sm"
+                          onClick={() => onUpdateNotification({ ...n, read: !n.read })}
+                        >
+                          {n.read ? 'Als ungelesen markieren' : 'Als gelesen markieren'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })() : (() => {
+              const openNotifs = notifications.filter(n => !n.read).sort((a, b) => {
+                if (a.level !== b.level) return a.level - b.level;
+                return b.timestamp.getTime() - a.timestamp.getTime();
+              });
+              return (
+                <>
+                  {openNotifs.length === 0 ? (
+                    <div className="detail-notif-empty">
+                      <CheckCircle size={20} />
+                      <span>Keine offenen Benachrichtigungen</span>
+                    </div>
+                  ) : (
+                    <div className="detail-notif-list">
+                      {openNotifs.map(n => {
+                        const isAssigned = n.assignedTo !== null;
+                        return (
+                          <div
+                            key={n.id}
+                            className={`notif-card notif-card--level-${n.level} notif-card--clickable ${isAssigned ? 'notif-card--assigned' : ''}`}
+                            onClick={() => setExpandedNotifId(n.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === 'Enter' && setExpandedNotifId(n.id)}
+                          >
+                            <div className="notif-card__icon">
+                              {n.level === 1 ? <XCircle size={20} /> : <AlertTriangle size={20} />}
+                            </div>
+                            <div className="notif-card__content">
+                              <div className="notif-card__header">
+                                <span className={`notif-card__level notif-card__level--${n.level}`}>
+                                  {n.level === 1 ? 'Kritisch' : 'Warnung'}
+                                </span>
+                                <span className="notif-card__time">{formatTimestamp(n.timestamp)}</span>
+                              </div>
+                              <h3 className="notif-card__title">{n.title}</h3>
+                              {isAssigned && (
+                                <div className="notif-card__assigned">
+                                  <CheckCircle size={14} />
+                                  <span>{n.assignedTo} hat die Aufgabe übernommen</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Settings toggle at bottom */}
+                  <div className="detail-notif-settings">
+                    <Settings size={16} className="detail-notif-settings__icon" />
+                    <div className="settings-row">
+                      <div className="settings-row__info">
+                        <span className="settings-row__label">Benachrichtigungen für diese Maschine empfangen</span>
+                        <span className="settings-row__hint">
+                          {machine.id in notifSettings.machineOverrides ? 'Individuell gesetzt' : 'Global-Einstellung'}
+                        </span>
+                      </div>
+                      <button
+                        className={`toggle-switch ${(machine.id in notifSettings.machineOverrides ? notifSettings.machineOverrides[machine.id] : notifSettings.globalEnabled) ? 'toggle-switch--on' : ''}`}
+                        onClick={() => {
+                          const current = machine.id in notifSettings.machineOverrides
+                            ? notifSettings.machineOverrides[machine.id]
+                            : notifSettings.globalEnabled;
+                          onUpdateNotifSettings({
+                            ...notifSettings,
+                            machineOverrides: { ...notifSettings.machineOverrides, [machine.id]: !current },
+                          });
+                        }}
+                        role="switch"
+                        aria-checked={machine.id in notifSettings.machineOverrides ? notifSettings.machineOverrides[machine.id] : notifSettings.globalEnabled}
+                      >
+                        <span className="toggle-switch__thumb" />
+                      </button>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

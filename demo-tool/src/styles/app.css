@@ -1664,11 +1664,64 @@
   max-width: 280px;
 }
 
-/* Detail notification summary */
-.detail-notif-summary {
-  padding: var(--s-3) 0;
+/* Detail notification inline list */
+.detail-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.detail-notif-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-4) 0;
   font: 400 13px/18px var(--font-text);
   color: var(--r-on-surface-muted);
+}
+.detail-notif-empty svg {
+  color: var(--r-on-success-soft);
+}
+.notif-card--clickable {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.notif-card--clickable:hover {
+  background-color: var(--r-surface-soft);
+}
+.detail-notif-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.detail-notif-expanded__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  background: none;
+  border: none;
+  padding: 0;
+  font: 500 13px/18px var(--font-text);
+  color: var(--r-brand);
+  cursor: pointer;
+}
+.detail-notif-expanded__back:hover {
+  text-decoration: underline;
+}
+.detail-notif-settings {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--r-border);
+}
+.detail-notif-settings__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--r-on-surface-muted);
+}
+.detail-notif-settings .settings-row {
+  flex: 1;
 }
 
 /* === LOCATION / MAP === */

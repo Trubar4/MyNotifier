@@ -88,6 +88,7 @@ export default function App() {
             notifSettings={notifSettings}
             onBack={() => { setDetailMachineId(null); setOpenPositionSelector(false); }}
             onUpdateMachine={handleUpdateMachine}
+            onUpdateNotification={handleUpdateNotification}
             onUpdateNotifSettings={setNotifSettings}
             initialPositionSelectorOpen={openPositionSelector}
             onPositionSelectorOpened={() => setOpenPositionSelector(false)}
