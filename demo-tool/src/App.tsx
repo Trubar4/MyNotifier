@@ -118,6 +118,12 @@ export default function App() {
             onClearFilter={() => setNotifFilterMachineId(null)}
             onBack={notifCameFromMachines ? handleNotifBack : undefined}
             highlightNotifId={highlightNotifId}
+            onOpenMachine={(machineId) => {
+              setActivePage('machines');
+              setDetailMachineId(machineId);
+              setNotifFilterMachineId(null);
+              setNotifCameFromMachines(false);
+            }}
           />
         )}
         {activePage === 'settings' && (

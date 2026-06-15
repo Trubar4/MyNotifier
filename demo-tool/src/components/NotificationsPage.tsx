@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, AlertTriangle, XCircle, CheckCircle, Filter, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, XCircle, CheckCircle, Filter, ChevronDown, ChevronUp, MessageSquare, ExternalLink } from 'lucide-react';
 import type { Notification, MachineConfig } from '../data/types';
 import { DEMO_USER } from '../data/types';
 import { AssignModal } from './AssignModal';
@@ -12,6 +12,7 @@ interface NotificationsPageProps {
   onClearFilter: () => void;
   onBack?: () => void;
   highlightNotifId?: string | null;
+  onOpenMachine?: (machineId: string) => void;
 }
 
 function formatTimestamp(date: Date): string {
@@ -35,7 +36,7 @@ function formatTimestamp(date: Date): string {
 
 type FilterMode = 'open' | 'read' | 'all';
 
-export function NotificationsPage({ notifications, machines, filterMachineId, onUpdateNotification, onClearFilter, onBack, highlightNotifId }: NotificationsPageProps) {
+export function NotificationsPage({ notifications, machines, filterMachineId, onUpdateNotification, onClearFilter, onBack, highlightNotifId, onOpenMachine }: NotificationsPageProps) {
   const [filter, setFilter] = useState<FilterMode>(filterMachineId ? 'all' : 'open');
   const [expandedMachines, setExpandedMachines] = useState<Set<string>>(new Set());
   const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
@@ -178,6 +179,15 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
             >
               {n.read ? 'Als ungelesen markieren' : 'Als gelesen markieren'}
             </button>
+            {onOpenMachine && (
+              <button
+                className="lds-btn lds-btn--ghost lds-btn--sm"
+                onClick={() => onOpenMachine(n.machineId)}
+              >
+                <ExternalLink size={12} />
+                Zur Maschine
+              </button>
+            )}
           </div>
         </div>
       </div>
