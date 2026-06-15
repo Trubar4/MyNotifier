@@ -2,7 +2,6 @@ import {
   Construction,
   Wifi,
   WifiOff,
-  Wind,
   CloudSun,
   MapPin,
   ChevronRight,
@@ -13,6 +12,7 @@ import {
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
+import { NeedleBoomIcon, MainBoomIcon } from './CraneIcons';
 
 interface MachineCardProps {
   machine: MachineConfig;
@@ -103,10 +103,12 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
               )}
               {/* Position action: only when offline */}
               {!isOnline && !machine.position.manuallySet && (
-                <button className="lds-btn lds-btn--primary lds-btn--sm position-action" onClick={onOpen}>
-                  <AlertTriangle size={14} />
-                  Auslegerposition prüfen und setzen
-                </button>
+                <div className="position-action-group">
+                  <AlertTriangle size={28} className="position-action-group__warning" />
+                  <button className="lds-btn lds-btn--primary lds-btn--sm position-action" onClick={onOpen}>
+                    Auslegerposition prüfen und setzen
+                  </button>
+                </div>
               )}
               {!isOnline && machine.position.manuallySet && (
                 <button className="position-action position-action--subtle" onClick={onOpen}>
@@ -136,19 +138,16 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
 
             {/* Aktuelle Windgeschwindigkeit */}
             <div className="data-field">
-              <div className="data-field__header">
-                <Wind size={14} className="data-field__icon" />
-              </div>
               <div className="data-field__value">
                 <div className="wind-values">
                   <div className="wind-value-row">
-                    <span className="wind-value-row__label">Nadelausleger:</span>
+                    <NeedleBoomIcon size={20} className="wind-value-row__icon" />
                     <span className="wind-value-row__value">
                       {machine.wind.needleBoom.toFixed(1)} m/s
                     </span>
                   </div>
                   <div className="wind-value-row">
-                    <span className="wind-value-row__label">Hauptausleger:</span>
+                    <MainBoomIcon size={20} className="wind-value-row__icon" />
                     <span className="wind-value-row__value">
                       {machine.wind.mainBoom.toFixed(1)} m/s
                     </span>

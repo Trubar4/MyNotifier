@@ -14,6 +14,7 @@ import type { MachineConfig, BoomPosition } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
+import { NeedleBoomIcon, MainBoomIcon } from './CraneIcons';
 import { useState } from 'react';
 
 interface MachineDetailProps {
@@ -138,7 +139,10 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
             <div className="wind-detail-grid">
               {/* Nadelausleger */}
               <div className="wind-detail-card">
-                <span className="wind-detail-card__label">Nadelausleger</span>
+                <span className="wind-detail-card__label">
+                  <NeedleBoomIcon size={28} className="wind-detail-card__boom-icon" />
+                  Nadelausleger
+                </span>
                 <span className={`wind-detail-card__value wind-detail-card__value--${needleLevel}`}>
                   {machine.wind.needleBoom.toFixed(1)}
                   <span className="wind-detail-card__unit">m/s</span>
@@ -164,7 +168,10 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
 
               {/* Hauptausleger */}
               <div className="wind-detail-card">
-                <span className="wind-detail-card__label">Hauptausleger</span>
+                <span className="wind-detail-card__label">
+                  <MainBoomIcon size={28} className="wind-detail-card__boom-icon" />
+                  Hauptausleger
+                </span>
                 <span className={`wind-detail-card__value wind-detail-card__value--${mainLevel}`}>
                   {machine.wind.mainBoom.toFixed(1)}
                   <span className="wind-detail-card__unit">m/s</span>
