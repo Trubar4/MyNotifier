@@ -591,7 +591,12 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                                 </div>
                               )}
                               {assignedSibling && (
-                                <div className="notif-card__cross-ref">
+                                <div
+                                  className="notif-card__cross-ref"
+                                  onClick={(e) => { e.stopPropagation(); setExpandedNotifId(assignedSibling.id); }}
+                                  role="button"
+                                  tabIndex={0}
+                                >
                                   <CheckCircle size={12} />
                                   <span>
                                     {assignedSibling.assignedTo} hat für <strong>{assignedSibling.title}</strong> die Aufgabe übernommen

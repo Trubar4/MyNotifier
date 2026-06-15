@@ -145,10 +145,15 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
           {!isAssigned && assignedSibling && (
             <div
               className="notif-card__cross-ref"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedMachines(prev => new Set([...prev, assignedSibling.machineId]));
+                if (assignedSibling.read && filter === 'open') setFilter('all');
                 setFocusNotifId(assignedSibling.id);
-                const el = document.getElementById(`notif-${assignedSibling.id}`);
-                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                requestAnimationFrame(() => {
+                  const el = document.getElementById(`notif-${assignedSibling.id}`);
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
               }}
               role="button"
               tabIndex={0}
@@ -230,14 +235,13 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
 
   return (
     <div>
-      <h1 className="page-title">
-        {onBack && (
-          <button className="notif-back-btn" onClick={onBack}>
-            <ArrowLeft size={16} />
-          </button>
-        )}
-        Benachrichtigungen
-      </h1>
+      {onBack && (
+        <button className="notif-back-btn" onClick={onBack}>
+          <ArrowLeft size={16} />
+          Zurück zur Übersicht
+        </button>
+      )}
+      <h1 className="page-title">Benachrichtigungen</h1>
 
       {filterMachine && (
         <div className="notif-filter-banner">

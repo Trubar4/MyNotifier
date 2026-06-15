@@ -1589,7 +1589,7 @@
   align-items: flex-start;
   gap: var(--s-2);
   font: 400 12px/16px var(--font-text);
-  color: var(--r-on-surface-muted);
+  color: var(--r-on-surface-default);
   background: var(--r-surface-soft);
   padding: var(--s-2) var(--s-3);
   border-radius: var(--radius-1);
@@ -1686,21 +1686,21 @@
   background: var(--r-surface-soft);
 }
 
-/* Notification back button */
+/* Notification back button (same style as detail__back) */
 .notif-back-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--s-2);
   background: none;
   border: none;
-  padding: 0;
-  margin-right: var(--s-3);
-  color: var(--r-brand);
+  font: 500 14px/20px var(--font-text-m);
+  color: var(--r-on-surface-muted);
   cursor: pointer;
-  vertical-align: middle;
+  padding: 0;
+  margin-bottom: var(--s-3);
 }
 .notif-back-btn:hover {
-  opacity: 0.7;
+  color: var(--r-on-surface-default);
 }
 
 /* Assign modal */
