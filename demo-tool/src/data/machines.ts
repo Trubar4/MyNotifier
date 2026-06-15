@@ -26,12 +26,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       reportedAt: null,
     },
     wind: {
-      needleBoom: 5.5,
-      mainBoom: 4.2,
+      needleBoom: 5.2,
+      mainBoom: 4.1,
       timestamp: new Date(),
     },
     forecast: {
-      max72h: 8.0,
+      max72h: 12.0,
       timestamp: hoursAgo(2),
     },
     location: {
@@ -59,12 +59,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       reportedAt: hoursAgo(0.5),
     },
     wind: {
-      needleBoom: 6.1,
-      mainBoom: 5.0,
+      needleBoom: 8.3,
+      mainBoom: 6.8,
       timestamp: hoursAgo(1),
     },
     forecast: {
-      max72h: 12.5,
+      max72h: 14.5,
       timestamp: hoursAgo(2),
     },
     location: {
@@ -92,12 +92,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       reportedAt: null,
     },
     wind: {
-      needleBoom: 60.0,
-      mainBoom: 52.1,
+      needleBoom: 16.8,
+      mainBoom: 14.2,
       timestamp: hoursAgo(48),
     },
     forecast: {
-      max72h: 62.0,
+      max72h: 18.5,
       timestamp: hoursAgo(2),
     },
     location: {

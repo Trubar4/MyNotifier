@@ -17,10 +17,10 @@ export const BOOM_POSITION_LABELS: Record<BoomPosition, string> = {
 };
 
 export const BOOM_THRESHOLDS: Record<BoomPosition, number | null> = {
-  parkposition: 75,
-  withNeedle: 35,
-  withoutNeedle: 55,
-  jackknife: 90,
+  parkposition: 20,
+  withNeedle: 9,
+  withoutNeedle: 15,
+  jackknife: 25,
   boomDown: null,
 };
 

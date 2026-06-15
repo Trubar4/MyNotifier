@@ -234,7 +234,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                 type="range"
                 className="config-slider"
                 min="0"
-                max="100"
+                max="30"
                 step="0.5"
                 value={windNeedle}
                 onChange={(e) => setWindNeedle(parseFloat(e.target.value))}
@@ -252,7 +252,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                 type="range"
                 className="config-slider"
                 min="0"
-                max="100"
+                max="30"
                 step="0.5"
                 value={windMain}
                 onChange={(e) => setWindMain(parseFloat(e.target.value))}
@@ -272,7 +272,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                 type="range"
                 className="config-slider"
                 min="0"
-                max="100"
+                max="30"
                 step="0.5"
                 value={forecast}
                 onChange={(e) => setForecast(parseFloat(e.target.value))}
