@@ -41,6 +41,11 @@ export interface PositionData {
   manuallySet: boolean;
 }
 
+export interface NotificationData {
+  critical: number;
+  warning: number;
+}
+
 export interface MachineConfig {
   id: string;
   name: string;
@@ -51,5 +56,5 @@ export interface MachineConfig {
   position: PositionData;
   wind: WindData;
   forecast: ForecastData;
-  notificationCount: number;
+  notifications: NotificationData;
 }

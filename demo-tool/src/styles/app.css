@@ -195,25 +195,26 @@
   margin-top: 2px;
 }
 
-.machine-card__notification-dot {
+.machine-card__badge {
   position: absolute;
   top: -6px;
   right: -8px;
-  display: flex;
-  gap: 1px;
-}
-
-.machine-card__notification-dot .dot {
-  width: 18px;
+  min-width: 18px;
   height: 18px;
-  border-radius: 50%;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
   font: 700 10px/18px var(--font-text-b);
   text-align: center;
   color: var(--p-white);
 }
 
-.dot--error { background: var(--r-error); }
-.dot--warning { background: var(--r-warning); }
+.machine-card__badge--critical {
+  background: var(--r-error);
+}
+
+.machine-card__badge--warning {
+  background: var(--r-warning);
+}
 
 .machine-card__title-group {
   flex: 1;
@@ -330,24 +331,40 @@
   order: 4;
 }
 
-.data-field__action {
+/* Position action buttons — two variants */
+.position-action {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font: 500 11px/14px var(--font-text-m);
-  color: var(--r-accent-3-text);
+  gap: var(--s-2);
   cursor: pointer;
-  background: none;
   border: none;
-  padding: 2px 0;
-  margin-top: 2px;
-  order: 5;
   text-align: left;
-  transition: color var(--motion-fast);
+  order: 5;
+  margin-top: var(--s-1);
+  transition: all var(--motion-fast);
 }
 
-.data-field__action:hover {
-  color: var(--r-accent-3);
+.position-action--urgent {
+  padding: 6px 12px;
+  background: var(--r-warning);
+  color: var(--r-on-warning);
+  font: 700 12px/16px var(--font-text-b);
+  border-radius: var(--radius-1);
+}
+
+.position-action--urgent:hover {
+  filter: brightness(0.92);
+}
+
+.position-action--subtle {
+  padding: 4px 0;
+  background: none;
+  color: var(--r-on-surface-muted);
+  font: 500 11px/14px var(--font-text-m);
+}
+
+.position-action--subtle:hover {
+  color: var(--r-on-surface-default);
   text-decoration: underline;
 }
 
@@ -417,8 +434,8 @@
 }
 
 .status-dot--offline {
-  background: var(--r-on-surface-muted);
-  box-shadow: 0 0 0 2px var(--r-surface-higher);
+  background: var(--r-error);
+  box-shadow: 0 0 0 2px var(--r-error-soft);
 }
 
 /* === NO LICENSE BADGE === */

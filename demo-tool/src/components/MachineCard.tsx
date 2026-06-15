@@ -7,6 +7,7 @@ import {
   MapPin,
   ChevronRight,
   Settings,
+  AlertTriangle,
   PenLine,
 } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
@@ -43,6 +44,8 @@ function isLive(date: Date): boolean {
 export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps) {
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
+  const totalNotifications = machine.notifications.critical + machine.notifications.warning;
+  const hasCritical = machine.notifications.critical > 0;
 
   return (
     <div className="machine-card">
@@ -50,13 +53,10 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
       <div className="machine-card__header">
         <div className="machine-card__icon">
           <Construction size={24} />
-          {machine.notificationCount > 0 && (
-            <div className="machine-card__notification-dot">
-              <span className="dot dot--error">{machine.notificationCount}</span>
-              {machine.notificationCount > 1 && (
-                <span className="dot dot--warning">{machine.notificationCount}</span>
-              )}
-            </div>
+          {totalNotifications > 0 && (
+            <span className={`machine-card__badge ${hasCritical ? 'machine-card__badge--critical' : 'machine-card__badge--warning'}`}>
+              {totalNotifications}
+            </span>
           )}
         </div>
         <div className="machine-card__title-group">
@@ -101,10 +101,19 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
                   Manuell gesetzt am {formatTimestamp(machine.position.timestamp)}
                 </span>
               )}
-              <button className="data-field__action" onClick={onOpen}>
-                <PenLine size={10} />
-                Position prüfen und manuell setzen
-              </button>
+              {/* Position action: only when offline */}
+              {!isOnline && !machine.position.manuallySet && (
+                <button className="position-action position-action--urgent" onClick={onOpen}>
+                  <AlertTriangle size={14} />
+                  Auslegerposition prüfen und setzen
+                </button>
+              )}
+              {!isOnline && machine.position.manuallySet && (
+                <button className="position-action position-action--subtle" onClick={onOpen}>
+                  <PenLine size={12} />
+                  Position bei Änderung aktualisieren
+                </button>
+              )}
             </div>
 
             {/* Maschinenstatus */}
@@ -182,7 +191,8 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
       {/* Footer */}
       <div className="machine-card__footer">
         <button className="machine-card__open-btn" onClick={onOpen}>
-          OPEN <ChevronRight size={14} />
+          <ChevronRight size={14} />
+          ÖFFNEN
         </button>
       </div>
     </div>

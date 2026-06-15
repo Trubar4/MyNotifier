@@ -14,7 +14,7 @@ export default function App() {
   const [machines, setMachines] = useState<MachineConfig[]>(DEFAULT_MACHINES);
   const [detailMachineId, setDetailMachineId] = useState<string | null>(null);
 
-  const totalNotifications = machines.reduce((sum, m) => sum + m.notificationCount, 0);
+  const totalNotifications = machines.reduce((sum, m) => sum + m.notifications.critical + m.notifications.warning, 0);
   const detailMachine = detailMachineId ? machines.find((m) => m.id === detailMachineId) : null;
 
   function handleUpdateMachine(updated: MachineConfig) {

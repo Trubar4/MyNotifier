@@ -30,7 +30,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 8.0,
       timestamp: hoursAgo(2),
     },
-    notificationCount: 2,
+    notifications: { critical: 1, warning: 1 },
   },
   {
     id: 'lr1250-135350',
@@ -53,7 +53,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 12.5,
       timestamp: hoursAgo(2),
     },
-    notificationCount: 0,
+    notifications: { critical: 0, warning: 0 },
   },
   {
     id: 'lr1110-133188',
@@ -76,7 +76,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 15.2,
       timestamp: hoursAgo(2),
     },
-    notificationCount: 1,
+    notifications: { critical: 0, warning: 1 },
   },
   {
     id: 'lr1300-142501',
@@ -99,6 +99,6 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 0,
       timestamp: minutesAgo(30),
     },
-    notificationCount: 0,
+    notifications: { critical: 0, warning: 0 },
   },
 ];

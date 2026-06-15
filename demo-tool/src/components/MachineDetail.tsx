@@ -99,9 +99,9 @@ export function MachineDetail({ machine, onBack, onUpdateMachine }: MachineDetai
             ) : (
               <span className="license-badge license-badge--none">Keine Lizenz</span>
             )}
-            {machine.notificationCount > 0 && (
+            {(machine.notifications.critical + machine.notifications.warning) > 0 && (
               <span className="detail__notification-count">
-                {machine.notificationCount} {machine.notificationCount === 1 ? 'Benachrichtigung' : 'Benachrichtigungen'}
+                {machine.notifications.critical + machine.notifications.warning} {(machine.notifications.critical + machine.notifications.warning) === 1 ? 'Benachrichtigung' : 'Benachrichtigungen'}
               </span>
             )}
           </div>
