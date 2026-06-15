@@ -83,7 +83,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     status: 'offline',
     license: 'active',
     position: {
-      position: 'parkposition',
+      position: 'withoutNeedle',
       timestamp: hoursAgo(48),
       manuallySet: false,
       fixedUntil: null,
@@ -92,12 +92,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       reportedAt: null,
     },
     wind: {
-      needleBoom: 3.8,
-      mainBoom: 3.1,
+      needleBoom: 56.3,
+      mainBoom: 52.1,
       timestamp: hoursAgo(48),
     },
     forecast: {
-      max72h: 15.2,
+      max72h: 62.0,
       timestamp: hoursAgo(2),
     },
     location: {
