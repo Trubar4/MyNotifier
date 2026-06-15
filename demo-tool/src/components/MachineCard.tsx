@@ -103,7 +103,7 @@ export function MachineCard({ machine, onOpenConfig, onOpen }: MachineCardProps)
               )}
               {/* Position action: only when offline */}
               {!isOnline && !machine.position.manuallySet && (
-                <button className="position-action position-action--urgent" onClick={onOpen}>
+                <button className="lds-btn lds-btn--primary lds-btn--sm position-action" onClick={onOpen}>
                   <AlertTriangle size={14} />
                   Auslegerposition prüfen und setzen
                 </button>
