@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
-  Construction,
   Wifi,
   WifiOff,
   CloudSun,
   AlertTriangle,
   CheckCircle,
-  PenLine,
+  MapPin,
+  ExternalLink,
 } from 'lucide-react';
 import type { MachineConfig, BoomPosition } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
-import { BoomConfigIcon, SensorJibIcon, SensorBoomIcon } from './CraneIcons';
+
+const BASE = import.meta.env.BASE_URL;
 
 interface MachineDetailProps {
   machine: MachineConfig;
@@ -58,6 +59,7 @@ function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warnin
 
 export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositionSelectorOpen, onPositionSelectorOpened }: MachineDetailProps) {
   const [showPositionSelector, setShowPositionSelector] = useState(false);
+  const [showLargeMap, setShowLargeMap] = useState(false);
 
   useEffect(() => {
     if (initialPositionSelectorOpen) {
@@ -76,6 +78,9 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
     !machine.position.autoUpdate &&
     machine.position.reportedPosition !== null &&
     machine.position.reportedPosition !== machine.position.position;
+
+  const mapEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${machine.location.lng - 0.01},${machine.location.lat - 0.006},${machine.location.lng + 0.01},${machine.location.lat + 0.006}&layer=mapnik&marker=${machine.location.lat},${machine.location.lng}`;
+  const mapLargeUrl = `https://www.openstreetmap.org/?mlat=${machine.location.lat}&mlon=${machine.location.lng}#map=15/${machine.location.lat}/${machine.location.lng}`;
 
   function handleSetPosition(pos: BoomPosition) {
     onUpdateMachine({
@@ -121,7 +126,7 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
       {/* Machine Header */}
       <div className="detail__header">
         <div className="detail__header-icon">
-          <Construction size={32} />
+          <img src={BASE + 'crane-lwn.svg'} alt="" width={32} height={32} />
         </div>
         <div className="detail__header-info">
           <h1 className="detail__title">
@@ -177,7 +182,7 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
               {/* Nadelausleger */}
               <div className="wind-detail-card">
                 <div className="wind-detail-card__header">
-                  <SensorJibIcon size={22} className="wind-detail-card__icon" />
+                  <img src={BASE + 'sensor-jib.svg'} alt="Nadelausleger" width={24} height={24} className="wind-detail-card__icon" />
                   <span className="wind-detail-card__label">Nadelausleger</span>
                 </div>
                 <span className={`wind-detail-card__value wind-detail-card__value--${needleLevel}`}>
@@ -206,7 +211,7 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
               {/* Hauptausleger */}
               <div className="wind-detail-card">
                 <div className="wind-detail-card__header">
-                  <SensorBoomIcon size={22} className="wind-detail-card__icon" />
+                  <img src={BASE + 'sensor-boom.svg'} alt="Hauptausleger" width={24} height={24} className="wind-detail-card__icon" />
                   <span className="wind-detail-card__label">Hauptausleger</span>
                 </div>
                 <span className={`wind-detail-card__value wind-detail-card__value--${mainLevel}`}>
@@ -260,7 +265,7 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
           {/* Position Section */}
           <div className="detail__section detail__section--position">
             <div className="detail__section-header">
-              <BoomConfigIcon size={20} className="detail__section-header-icon" />
+              <img src={BASE + 'boom-angle.svg'} alt="" width={20} height={20} className="detail__section-header-icon" />
               <h2 className="detail__section-title">Auslegerposition</h2>
             </div>
 
@@ -319,7 +324,6 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
                   </button>
                 </div>
 
-                {/* Warning when autoUpdate is OFF and machine reported different position */}
                 {hasPositionMismatch && (
                   <div className="position-mismatch-warning">
                     <AlertTriangle size={16} />
@@ -348,12 +352,41 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
               </div>
 
               <button
-                className="position-detail__set-btn"
+                className="lds-btn lds-btn--primary lds-btn--sm"
                 onClick={() => setShowPositionSelector(true)}
               >
-                <PenLine size={14} />
                 Position manuell setzen
               </button>
+            </div>
+          </div>
+
+          {/* Location Section */}
+          <div className="detail__section detail__section--location">
+            <div className="detail__section-header">
+              <MapPin size={18} />
+              <h2 className="detail__section-title">Standort</h2>
+            </div>
+
+            <div className="location-detail">
+              <span className="location-detail__address">{machine.location.address}</span>
+              <div
+                className="location-detail__map-container"
+                onClick={() => setShowLargeMap(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setShowLargeMap(true)}
+              >
+                <iframe
+                  className="location-detail__map"
+                  src={mapEmbedUrl}
+                  title="Standort auf Karte"
+                  loading="lazy"
+                />
+                <div className="location-detail__map-overlay">
+                  <ExternalLink size={16} />
+                  <span>Karte vergrößern</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -440,6 +473,32 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
           onSelect={handleSetPosition}
           onClose={() => setShowPositionSelector(false)}
         />
+      )}
+
+      {/* Large map overlay */}
+      {showLargeMap && (
+        <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && setShowLargeMap(false)}>
+          <div className="map-modal">
+            <div className="map-modal__header">
+              <h2 className="config-modal__title">{machine.location.address}</h2>
+              <button className="config-modal__close" onClick={() => setShowLargeMap(false)}>
+                &times;
+              </button>
+            </div>
+            <iframe
+              className="map-modal__iframe"
+              src={mapEmbedUrl}
+              title="Standort auf Karte"
+              loading="lazy"
+            />
+            <div className="map-modal__footer">
+              <a href={mapLargeUrl} target="_blank" rel="noopener noreferrer" className="lds-btn lds-btn--primary lds-btn--sm">
+                <ExternalLink size={14} />
+                In OpenStreetMap öffnen
+              </a>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

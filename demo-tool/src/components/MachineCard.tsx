@@ -1,16 +1,17 @@
 import {
-  Construction,
   Wifi,
   WifiOff,
   CloudSun,
   ChevronRight,
   Settings,
   PenLine,
+  MapPin,
 } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
-import { BoomConfigIcon, SensorJibIcon, SensorBoomIcon } from './CraneIcons';
+
+const BASE = import.meta.env.BASE_URL;
 
 interface MachineCardProps {
   machine: MachineConfig;
@@ -51,7 +52,7 @@ export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelec
       {/* Header */}
       <div className="machine-card__header">
         <div className="machine-card__icon">
-          <Construction size={24} />
+          <img src={BASE + 'crane-lwn.svg'} alt="" width={24} height={24} />
           {totalNotifications > 0 && (
             <span className={`machine-card__badge ${hasCritical ? 'machine-card__badge--critical' : 'machine-card__badge--warning'}`}>
               {totalNotifications}
@@ -84,7 +85,7 @@ export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelec
             {/* Auslegerposition */}
             <div className="data-field">
               <div className="data-field__header">
-                <BoomConfigIcon size={16} className="data-field__icon" />
+                <img src={BASE + 'boom-angle.svg'} alt="" width={16} height={16} className="data-field__icon" />
               </div>
               <span className="data-field__value">
                 {BOOM_POSITION_LABELS[machine.position.position]}
@@ -136,13 +137,13 @@ export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelec
               <div className="data-field__value">
                 <div className="wind-values">
                   <div className="wind-value-row">
-                    <SensorJibIcon size={18} className="wind-value-row__icon" />
+                    <img src={BASE + 'sensor-jib.svg'} alt="Nadelausleger" width={20} height={20} className="wind-value-row__icon" />
                     <span className="wind-value-row__value">
                       {machine.wind.needleBoom.toFixed(1)} m/s
                     </span>
                   </div>
                   <div className="wind-value-row">
-                    <SensorBoomIcon size={18} className="wind-value-row__icon" />
+                    <img src={BASE + 'sensor-boom.svg'} alt="Hauptausleger" width={20} height={20} className="wind-value-row__icon" />
                     <span className="wind-value-row__value">
                       {machine.wind.mainBoom.toFixed(1)} m/s
                     </span>
@@ -177,6 +178,15 @@ export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelec
               <span className="data-field__timestamp">
                 Vorhersage von {formatTimestamp(machine.forecast.timestamp)}
               </span>
+            </div>
+
+            {/* Standort */}
+            <div className="data-field">
+              <div className="data-field__header">
+                <MapPin size={14} className="data-field__icon" />
+              </div>
+              <span className="data-field__value">{machine.location.shortAddress}</span>
+              <span className="data-field__label">Standort</span>
             </div>
           </>
         )}

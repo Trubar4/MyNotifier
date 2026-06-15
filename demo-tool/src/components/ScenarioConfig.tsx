@@ -192,7 +192,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                 >
                   Keine
                 </button>
-                {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).filter(p => p !== 'unknown').map((p) => (
+                {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).map((p) => (
                   <button
                     key={p}
                     className={`config-chip ${reportedPosition === p ? 'config-chip--active' : ''}`}

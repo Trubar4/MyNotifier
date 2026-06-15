@@ -29,7 +29,7 @@ export function PositionSelector({ currentPosition, onSelect, onClose }: Positio
           </p>
 
           <div className="position-selector-list">
-            {positions.filter(p => p !== 'unknown').map((pos) => (
+            {positions.map((pos) => (
               <button
                 key={pos}
                 className={`position-selector-item ${currentPosition === pos ? 'position-selector-item--active' : ''}`}

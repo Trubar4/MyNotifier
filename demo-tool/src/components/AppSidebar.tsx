@@ -1,4 +1,5 @@
-import { Bell, Construction, FileText, Users, Settings } from 'lucide-react';
+import { Bell, FileText, Users, Settings } from 'lucide-react';
+import type { ComponentType } from 'react';
 
 type Page = 'notifications' | 'machines' | 'reports' | 'users' | 'settings';
 
@@ -7,9 +8,21 @@ interface AppSidebarProps {
   onNavigate: (page: Page) => void;
 }
 
-const NAV_ITEMS: { id: Page; icon: typeof Bell; label: string }[] = [
+function CraneLwnIcon({ size = 22 }: { size?: number }) {
+  return (
+    <img
+      src={import.meta.env.BASE_URL + 'crane-lwn.svg'}
+      alt=""
+      width={size}
+      height={size}
+      style={{ display: 'block' }}
+    />
+  );
+}
+
+const NAV_ITEMS: { id: Page; icon?: ComponentType<{ size: number }>; customIcon?: boolean; label: string }[] = [
   { id: 'notifications', icon: Bell, label: 'Benachrichtigungen' },
-  { id: 'machines', icon: Construction, label: 'Maschinen' },
+  { id: 'machines', customIcon: true, label: 'Maschinen' },
   { id: 'reports', icon: FileText, label: 'Berichte' },
   { id: 'users', icon: Users, label: 'Benutzer' },
   { id: 'settings', icon: Settings, label: 'Einstellungen' },
@@ -28,7 +41,11 @@ export function AppSidebar({ activePage, onNavigate }: AppSidebarProps) {
             aria-label={item.label}
             title={item.label}
           >
-            <Icon size={22} />
+            {item.customIcon ? (
+              <CraneLwnIcon size={22} />
+            ) : Icon ? (
+              <Icon size={22} />
+            ) : null}
           </button>
         );
       })}

@@ -3,25 +3,25 @@ export type LicenseStatus = 'active' | 'none' | 'expired';
 
 export type BoomPosition =
   | 'parkposition'
-  | 'extended'
-  | 'partial'
+  | 'withNeedle'
+  | 'withoutNeedle'
   | 'jackknife'
-  | 'unknown';
+  | 'boomDown';
 
 export const BOOM_POSITION_LABELS: Record<BoomPosition, string> = {
   parkposition: 'Parkposition',
-  extended: 'Voll ausgefahren',
-  partial: 'Teilweise ausgefahren',
-  jackknife: 'Eingefahren / Abgelegt',
-  unknown: 'Unbekannt',
+  withNeedle: 'Arbeitsposition mit Nadelausleger',
+  withoutNeedle: 'Arbeitsposition ohne Nadelausleger',
+  jackknife: 'Klappmesser-Position',
+  boomDown: 'Ausleger abgelegt',
 };
 
 export const BOOM_THRESHOLDS: Record<BoomPosition, number | null> = {
   parkposition: 75,
-  extended: 35,
-  partial: 55,
+  withNeedle: 35,
+  withoutNeedle: 55,
   jackknife: 90,
-  unknown: null,
+  boomDown: null,
 };
 
 export interface WindData {
@@ -45,6 +45,13 @@ export interface PositionData {
   reportedAt: Date | null;
 }
 
+export interface LocationData {
+  lat: number;
+  lng: number;
+  address: string;
+  shortAddress: string;
+}
+
 export interface NotificationData {
   critical: number;
   warning: number;
@@ -60,5 +67,6 @@ export interface MachineConfig {
   position: PositionData;
   wind: WindData;
   forecast: ForecastData;
+  location: LocationData;
   notifications: NotificationData;
 }

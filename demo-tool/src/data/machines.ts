@@ -34,6 +34,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 8.0,
       timestamp: hoursAgo(2),
     },
+    location: {
+      lat: 47.6292,
+      lng: 9.8965,
+      address: 'Hans-Liebherr-Straße 45, 88400 Biberach an der Riß',
+      shortAddress: '88400 Biberach',
+    },
     notifications: { critical: 1, warning: 1 },
   },
   {
@@ -44,12 +50,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     status: 'offline',
     license: 'active',
     position: {
-      position: 'partial',
+      position: 'withoutNeedle',
       timestamp: hoursAgo(1),
       manuallySet: true,
       fixedUntil: hoursFromNow(12),
       autoUpdate: false,
-      reportedPosition: 'extended',
+      reportedPosition: 'withNeedle',
       reportedAt: hoursAgo(0.5),
     },
     wind: {
@@ -60,6 +66,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 12.5,
       timestamp: hoursAgo(2),
+    },
+    location: {
+      lat: 48.7758,
+      lng: 9.1829,
+      address: 'Hauptstätter Straße 12, 70173 Stuttgart',
+      shortAddress: '70173 Stuttgart',
     },
     notifications: { critical: 0, warning: 0 },
   },
@@ -88,6 +100,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 15.2,
       timestamp: hoursAgo(2),
     },
+    location: {
+      lat: 48.1351,
+      lng: 11.5820,
+      address: 'Arnulfstraße 60, 80335 München',
+      shortAddress: '80335 München',
+    },
     notifications: { critical: 1, warning: 0 },
   },
   {
@@ -98,7 +116,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     status: 'offline',
     license: 'none',
     position: {
-      position: 'unknown',
+      position: 'boomDown',
       timestamp: hoursAgo(0.5),
       manuallySet: false,
       fixedUntil: null,
@@ -114,6 +132,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 0,
       timestamp: hoursAgo(0.5),
+    },
+    location: {
+      lat: 47.3769,
+      lng: 8.5417,
+      address: 'Europaallee 21, 8004 Zürich, Schweiz',
+      shortAddress: '8004 Zürich',
     },
     notifications: { critical: 0, warning: 0 },
   },
