@@ -15,6 +15,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     read: false,
     assignedTo: null,
     assignedAt: null,
+    assignedComment: null,
   },
   {
     id: 'n2',
@@ -26,6 +27,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     read: false,
     assignedTo: null,
     assignedAt: null,
+    assignedComment: null,
   },
   {
     id: 'n3',
@@ -37,6 +39,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     read: false,
     assignedTo: null,
     assignedAt: null,
+    assignedComment: null,
   },
   {
     id: 'n4',
@@ -48,6 +51,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     read: true,
     assignedTo: null,
     assignedAt: null,
+    assignedComment: null,
   },
   {
     id: 'n5',
@@ -59,6 +63,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     read: false,
     assignedTo: null,
     assignedAt: null,
+    assignedComment: null,
   },
 ];
 

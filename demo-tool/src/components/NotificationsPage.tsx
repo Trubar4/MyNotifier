@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { AlertTriangle, XCircle, CheckCircle, Filter } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, XCircle, CheckCircle, Filter, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
 import type { Notification, MachineConfig } from '../data/types';
 import { DEMO_USER } from '../data/types';
+import { AssignModal } from './AssignModal';
 
 interface NotificationsPageProps {
   notifications: Notification[];
@@ -9,6 +10,8 @@ interface NotificationsPageProps {
   filterMachineId: string | null;
   onUpdateNotification: (updated: Notification) => void;
   onClearFilter: () => void;
+  onBack?: () => void;
+  highlightNotifId?: string | null;
 }
 
 function formatTimestamp(date: Date): string {
@@ -31,11 +34,12 @@ function formatTimestamp(date: Date): string {
 }
 
 type FilterMode = 'open' | 'read' | 'all';
-type GroupMode = 'all' | 'machine';
 
-export function NotificationsPage({ notifications, machines, filterMachineId, onUpdateNotification, onClearFilter }: NotificationsPageProps) {
+export function NotificationsPage({ notifications, machines, filterMachineId, onUpdateNotification, onClearFilter, onBack, highlightNotifId }: NotificationsPageProps) {
   const [filter, setFilter] = useState<FilterMode>(filterMachineId ? 'all' : 'open');
-  const [groupBy, setGroupBy] = useState<GroupMode>(filterMachineId ? 'machine' : 'all');
+  const [expandedMachines, setExpandedMachines] = useState<Set<string>>(new Set());
+  const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
+  const [focusNotifId, setFocusNotifId] = useState<string | null>(highlightNotifId ?? null);
 
   const machineMap = new Map(machines.map((m) => [m.id, m]));
 
@@ -56,11 +60,23 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
     return b.timestamp.getTime() - a.timestamp.getTime();
   });
 
-  function handleAssign(notification: Notification) {
+  function handleAssignConfirm(comment: string) {
+    if (!assigningNotif) return;
+    onUpdateNotification({
+      ...assigningNotif,
+      assignedTo: DEMO_USER,
+      assignedAt: new Date(),
+      assignedComment: comment || null,
+    });
+    setAssigningNotif(null);
+  }
+
+  function handleUnassign(notification: Notification) {
     onUpdateNotification({
       ...notification,
-      assignedTo: notification.assignedTo ? null : DEMO_USER,
-      assignedAt: notification.assignedTo ? null : new Date(),
+      assignedTo: null,
+      assignedAt: null,
+      assignedComment: null,
     });
   }
 
@@ -68,14 +84,34 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
     onUpdateNotification({ ...notification, read: !notification.read });
   }
 
+  function toggleMachineExpand(machineId: string) {
+    setExpandedMachines(prev => {
+      const next = new Set(prev);
+      if (next.has(machineId)) next.delete(machineId);
+      else next.add(machineId);
+      return next;
+    });
+  }
+
+  function getAssignedNotifForMachine(machineId: string): Notification | null {
+    return notifications.find(n => n.machineId === machineId && n.assignedTo !== null) ?? null;
+  }
+
   const filterMachine = filterMachineId ? machineMap.get(filterMachineId) : null;
 
-  function renderNotification(n: Notification) {
+  function renderNotification(n: Notification, showMachine = true) {
     const machine = machineMap.get(n.machineId);
     const isAssigned = n.assignedTo !== null;
+    const isHighlighted = n.id === focusNotifId;
+
+    const assignedSibling = !isAssigned ? getAssignedNotifForMachine(n.machineId) : null;
 
     return (
-      <div key={n.id} className={`notif-card notif-card--level-${n.level} ${n.read ? 'notif-card--read' : ''} ${isAssigned ? 'notif-card--assigned' : ''}`}>
+      <div
+        key={n.id}
+        id={`notif-${n.id}`}
+        className={`notif-card notif-card--level-${n.level} ${n.read ? 'notif-card--read' : ''} ${isAssigned ? 'notif-card--assigned' : ''} ${isHighlighted ? 'notif-card--highlight' : ''}`}
+      >
         <div className="notif-card__icon">
           {n.level === 1 ? <XCircle size={20} /> : <AlertTriangle size={20} />}
         </div>
@@ -87,7 +123,7 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
             <span className="notif-card__time">{formatTimestamp(n.timestamp)}</span>
           </div>
           <h3 className="notif-card__title">{n.title}</h3>
-          {machine && (
+          {showMachine && machine && (
             <span className="notif-card__machine">{machine.name} - {machine.serialNumber}</span>
           )}
           <p className="notif-card__body">{n.body}</p>
@@ -99,10 +135,35 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
             </div>
           )}
 
+          {isAssigned && n.assignedComment && (
+            <div className="notif-card__comment">
+              <MessageSquare size={12} />
+              <span>{n.assignedComment}</span>
+            </div>
+          )}
+
+          {!isAssigned && assignedSibling && (
+            <div
+              className="notif-card__cross-ref"
+              onClick={() => {
+                setFocusNotifId(assignedSibling.id);
+                const el = document.getElementById(`notif-${assignedSibling.id}`);
+                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+              role="button"
+              tabIndex={0}
+            >
+              <CheckCircle size={12} />
+              <span>
+                {assignedSibling.assignedTo} hat für <strong>{assignedSibling.title}</strong> die Aufgabe übernommen
+              </span>
+            </div>
+          )}
+
           <div className="notif-card__actions">
             <button
               className={`lds-btn lds-btn--sm ${isAssigned ? 'lds-btn--ghost' : 'lds-btn--primary'}`}
-              onClick={() => handleAssign(n)}
+              onClick={() => isAssigned ? handleUnassign(n) : setAssigningNotif(n)}
             >
               {isAssigned ? 'Abgeben' : 'Übernehmen'}
             </button>
@@ -118,11 +179,7 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
     );
   }
 
-  function renderGrouped() {
-    if (groupBy === 'all') {
-      return filtered.map(renderNotification);
-    }
-
+  function renderAccordion() {
     const groups = new Map<string, Notification[]>();
     for (const n of filtered) {
       const list = groups.get(n.machineId) || [];
@@ -133,17 +190,39 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
     return Array.from(groups.entries()).map(([machineId, notifs]) => {
       const machine = machineMap.get(machineId);
       const hasCritical = notifs.some((n) => n.level === 1);
+      const newest = notifs[0];
+      const rest = notifs.slice(1);
+      const isExpanded = expandedMachines.has(machineId);
+
       return (
-        <div key={machineId} className="notif-group">
-          <div className={`notif-group__header ${hasCritical ? 'notif-group__header--critical' : 'notif-group__header--warning'}`}>
-            <span className="notif-group__machine">
+        <div key={machineId} className="notif-accordion">
+          <div className={`notif-accordion__header ${hasCritical ? 'notif-accordion__header--critical' : 'notif-accordion__header--warning'}`}>
+            <span className="notif-accordion__machine">
               {machine ? `${machine.name} - ${machine.serialNumber}` : machineId}
             </span>
-            <span className="notif-group__count">{notifs.length} {notifs.length === 1 ? 'Benachrichtigung' : 'Benachrichtigungen'}</span>
+            <span className="notif-accordion__count">
+              {notifs.length} {notifs.length === 1 ? 'Benachrichtigung' : 'Benachrichtigungen'}
+            </span>
           </div>
-          <div className="notif-group__list">
-            {notifs.map(renderNotification)}
-          </div>
+
+          {renderNotification(newest, false)}
+
+          {rest.length > 0 && (
+            <>
+              {isExpanded && (
+                <div className="notif-accordion__rest">
+                  {rest.map(n => renderNotification(n, false))}
+                </div>
+              )}
+              <button
+                className="notif-accordion__toggle"
+                onClick={() => toggleMachineExpand(machineId)}
+              >
+                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {isExpanded ? 'Weniger anzeigen' : `${rest.length} weitere anzeigen`}
+              </button>
+            </>
+          )}
         </div>
       );
     });
@@ -151,7 +230,14 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
 
   return (
     <div>
-      <h1 className="page-title">Benachrichtigungen</h1>
+      <h1 className="page-title">
+        {onBack && (
+          <button className="notif-back-btn" onClick={onBack}>
+            <ArrowLeft size={16} />
+          </button>
+        )}
+        Benachrichtigungen
+      </h1>
 
       {filterMachine && (
         <div className="notif-filter-banner">
@@ -174,18 +260,6 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
             </button>
           ))}
         </div>
-        <div className="notif-toolbar__group">
-          <span className="notif-toolbar__label">Gruppierung:</span>
-          {(['all', 'machine'] as GroupMode[]).map((g) => (
-            <button
-              key={g}
-              className={`config-chip ${groupBy === g ? 'config-chip--active' : ''}`}
-              onClick={() => setGroupBy(g)}
-            >
-              {g === 'all' ? 'Alle' : 'Je Maschine'}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="notif-list">
@@ -195,9 +269,17 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
             <span>Keine Benachrichtigungen{filter === 'open' ? ' offen' : filter === 'read' ? ' gelesen' : ''}.</span>
           </div>
         ) : (
-          renderGrouped()
+          renderAccordion()
         )}
       </div>
+
+      {assigningNotif && (
+        <AssignModal
+          notificationTitle={assigningNotif.title}
+          onConfirm={handleAssignConfirm}
+          onCancel={() => setAssigningNotif(null)}
+        />
+      )}
     </div>
   );
 }

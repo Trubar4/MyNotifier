@@ -83,6 +83,7 @@ export interface Notification {
   read: boolean;
   assignedTo: string | null;
   assignedAt: Date | null;
+  assignedComment: string | null;
 }
 
 export interface NotificationSettings {

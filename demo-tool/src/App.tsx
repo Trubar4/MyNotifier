@@ -20,6 +20,8 @@ export default function App() {
   const [detailMachineId, setDetailMachineId] = useState<string | null>(null);
   const [openPositionSelector, setOpenPositionSelector] = useState(false);
   const [notifFilterMachineId, setNotifFilterMachineId] = useState<string | null>(null);
+  const [notifCameFromMachines, setNotifCameFromMachines] = useState(false);
+  const [highlightNotifId, setHighlightNotifId] = useState<string | null>(null);
 
   const unreadNotifications = notifications.filter((n) => !n.read);
   const hasCriticalUnread = unreadNotifications.some((n) => n.level === 1);
@@ -41,9 +43,11 @@ export default function App() {
     setActivePage(page);
     setDetailMachineId(null);
     setOpenPositionSelector(false);
+    setHighlightNotifId(null);
     if (page !== 'notifications') {
       setNotifFilterMachineId(null);
     }
+    setNotifCameFromMachines(false);
   }
 
   function handleOpenMachine(id: string, withPositionSelector = false) {
@@ -52,15 +56,26 @@ export default function App() {
   }
 
   function handleBellClick() {
+    setNotifCameFromMachines(activePage === 'machines');
     setActivePage('notifications');
     setDetailMachineId(null);
     setNotifFilterMachineId(null);
+    setHighlightNotifId(null);
   }
 
   function handleMachineNotifClick(machineId: string) {
+    setNotifCameFromMachines(true);
     setActivePage('notifications');
     setDetailMachineId(null);
     setNotifFilterMachineId(machineId);
+    setHighlightNotifId(null);
+  }
+
+  function handleNotifBack() {
+    setActivePage('machines');
+    setNotifFilterMachineId(null);
+    setNotifCameFromMachines(false);
+    setHighlightNotifId(null);
   }
 
   return (
@@ -101,6 +116,8 @@ export default function App() {
             filterMachineId={notifFilterMachineId}
             onUpdateNotification={handleUpdateNotification}
             onClearFilter={() => setNotifFilterMachineId(null)}
+            onBack={notifCameFromMachines ? handleNotifBack : undefined}
+            highlightNotifId={highlightNotifId}
           />
         )}
         {activePage === 'settings' && (

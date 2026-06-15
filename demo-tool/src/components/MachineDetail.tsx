@@ -11,11 +11,13 @@ import {
   Bell,
   XCircle,
   Settings,
+  MessageSquare,
 } from 'lucide-react';
 import type { MachineConfig, BoomPosition, Notification, NotificationSettings } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS, DEMO_USER } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
+import { AssignModal } from './AssignModal';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -68,6 +70,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
   const [showPositionSelector, setShowPositionSelector] = useState(false);
   const [showLargeMap, setShowLargeMap] = useState(false);
   const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null);
+  const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
 
   useEffect(() => {
     if (initialPositionSelectorOpen) {
@@ -469,6 +472,9 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
               const n = notifications.find(x => x.id === expandedNotifId);
               if (!n) return null;
               const isAssigned = n.assignedTo !== null;
+              const assignedSibling = !isAssigned
+                ? notifications.find(sib => sib.id !== n.id && sib.assignedTo !== null) ?? null
+                : null;
               return (
                 <div className="detail-notif-expanded">
                   <button className="detail-notif-expanded__back" onClick={() => setExpandedNotifId(null)}>
@@ -494,14 +500,32 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                           <span>{n.assignedTo} hat die Aufgabe übernommen</span>
                         </div>
                       )}
+                      {isAssigned && n.assignedComment && (
+                        <div className="notif-card__comment">
+                          <MessageSquare size={12} />
+                          <span>{n.assignedComment}</span>
+                        </div>
+                      )}
+                      {assignedSibling && (
+                        <div
+                          className="notif-card__cross-ref"
+                          onClick={() => setExpandedNotifId(assignedSibling.id)}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <CheckCircle size={12} />
+                          <span>
+                            {assignedSibling.assignedTo} hat für <strong>{assignedSibling.title}</strong> die Aufgabe übernommen
+                          </span>
+                        </div>
+                      )}
                       <div className="notif-card__actions">
                         <button
                           className={`lds-btn lds-btn--sm ${isAssigned ? 'lds-btn--ghost' : 'lds-btn--primary'}`}
-                          onClick={() => onUpdateNotification({
-                            ...n,
-                            assignedTo: n.assignedTo ? null : DEMO_USER,
-                            assignedAt: n.assignedTo ? null : new Date(),
-                          })}
+                          onClick={() => isAssigned
+                            ? onUpdateNotification({ ...n, assignedTo: null, assignedAt: null, assignedComment: null })
+                            : setAssigningNotif(n)
+                          }
                         >
                           {isAssigned ? 'Abgeben' : 'Übernehmen'}
                         </button>
@@ -521,6 +545,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                 if (a.level !== b.level) return a.level - b.level;
                 return b.timestamp.getTime() - a.timestamp.getTime();
               });
+              const assignedNotif = notifications.find(n => n.assignedTo !== null) ?? null;
               return (
                 <>
                   {openNotifs.length === 0 ? (
@@ -532,6 +557,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                     <div className="detail-notif-list">
                       {openNotifs.map(n => {
                         const isAssigned = n.assignedTo !== null;
+                        const assignedSibling = !isAssigned ? assignedNotif : null;
                         return (
                           <div
                             key={n.id}
@@ -556,6 +582,20 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                                 <div className="notif-card__assigned">
                                   <CheckCircle size={14} />
                                   <span>{n.assignedTo} hat die Aufgabe übernommen</span>
+                                </div>
+                              )}
+                              {isAssigned && n.assignedComment && (
+                                <div className="notif-card__comment">
+                                  <MessageSquare size={12} />
+                                  <span>{n.assignedComment}</span>
+                                </div>
+                              )}
+                              {assignedSibling && (
+                                <div className="notif-card__cross-ref">
+                                  <CheckCircle size={12} />
+                                  <span>
+                                    {assignedSibling.assignedTo} hat für <strong>{assignedSibling.title}</strong> die Aufgabe übernommen
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -597,6 +637,22 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
               );
             })()}
           </div>
+
+          {assigningNotif && (
+            <AssignModal
+              notificationTitle={assigningNotif.title}
+              onConfirm={(comment) => {
+                onUpdateNotification({
+                  ...assigningNotif,
+                  assignedTo: DEMO_USER,
+                  assignedAt: new Date(),
+                  assignedComment: comment || null,
+                });
+                setAssigningNotif(null);
+              }}
+              onCancel={() => setAssigningNotif(null)}
+            />
+          )}
         </div>
       )}
 

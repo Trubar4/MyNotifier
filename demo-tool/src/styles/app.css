@@ -1584,6 +1584,179 @@
   margin-top: var(--s-2);
 }
 
+.notif-card__comment {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font: 400 12px/16px var(--font-text);
+  color: var(--r-on-surface-muted);
+  background: var(--r-surface-soft);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--radius-1);
+  font-style: italic;
+}
+.notif-card__comment svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.notif-card__cross-ref {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: 400 12px/16px var(--font-text);
+  color: var(--r-success);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--radius-1);
+  background: var(--r-success-soft);
+  cursor: pointer;
+  transition: opacity var(--motion-fast);
+}
+.notif-card__cross-ref:hover {
+  opacity: 0.8;
+}
+.notif-card__cross-ref svg {
+  flex-shrink: 0;
+}
+.notif-card--highlight {
+  box-shadow: 0 0 0 2px var(--r-brand);
+  animation: notif-highlight-fade 2s ease-out forwards;
+}
+@keyframes notif-highlight-fade {
+  0% { box-shadow: 0 0 0 2px var(--r-brand); }
+  100% { box-shadow: none; }
+}
+
+/* Notification accordion */
+.notif-accordion {
+  border: 1px solid var(--r-outline-bright);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+}
+.notif-accordion + .notif-accordion {
+  margin-top: var(--s-3);
+}
+.notif-accordion__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-5);
+  font: 700 13px/18px var(--font-text-b);
+}
+.notif-accordion__header--critical {
+  background: var(--r-error-soft);
+  color: var(--r-on-error-soft);
+}
+.notif-accordion__header--warning {
+  background: var(--r-warning-soft);
+  color: var(--r-on-warning-soft);
+}
+.notif-accordion__machine {
+  font: 700 13px/18px var(--font-text-b);
+}
+.notif-accordion__count {
+  font: 400 12px/16px var(--font-text);
+  opacity: 0.8;
+}
+.notif-accordion .notif-card {
+  border: none;
+  border-radius: 0;
+  border-top: 1px solid var(--r-outline-bright);
+}
+.notif-accordion .notif-card + .notif-card {
+  border-top: 1px solid var(--r-outline-bright);
+}
+.notif-accordion__rest .notif-card {
+  background: var(--r-surface-soft);
+}
+.notif-accordion__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  width: 100%;
+  padding: var(--s-3);
+  border: none;
+  border-top: 1px solid var(--r-outline-bright);
+  background: var(--r-surface-default);
+  color: var(--r-brand);
+  font: 500 13px/18px var(--font-text-m);
+  cursor: pointer;
+}
+.notif-accordion__toggle:hover {
+  background: var(--r-surface-soft);
+}
+
+/* Notification back button */
+.notif-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: var(--s-3);
+  color: var(--r-brand);
+  cursor: pointer;
+  vertical-align: middle;
+}
+.notif-back-btn:hover {
+  opacity: 0.7;
+}
+
+/* Assign modal */
+.assign-modal {
+  background: var(--r-surface-default);
+  border-radius: var(--radius-3);
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+.assign-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-4) var(--s-5);
+  border-bottom: 1px solid var(--r-outline-bright);
+}
+.assign-modal__body {
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.assign-modal__info {
+  font: 400 14px/20px var(--font-text);
+  color: var(--r-on-surface-default);
+  margin: 0;
+}
+.assign-modal__label {
+  font: 500 13px/18px var(--font-text-m);
+  color: var(--r-on-surface-muted);
+}
+.assign-modal__textarea {
+  width: 100%;
+  padding: var(--s-3);
+  border: 1px solid var(--r-outline-bright);
+  border-radius: var(--radius-2);
+  font: 400 14px/20px var(--font-text);
+  color: var(--r-on-surface-default);
+  background: var(--r-surface-default);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.assign-modal__textarea:focus {
+  outline: none;
+  border-color: var(--r-brand);
+}
+.assign-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5);
+  border-top: 1px solid var(--r-outline-bright);
+}
+
 /* Machine card assigned banner */
 .machine-card__assigned {
   display: flex;
