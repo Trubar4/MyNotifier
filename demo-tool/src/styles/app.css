@@ -183,6 +183,10 @@
   transition: box-shadow var(--motion-base);
 }
 
+.machine-card--danger {
+  border-left: 3px solid var(--r-error);
+}
+
 .machine-card:hover {
   box-shadow: var(--shadow-2);
 }
@@ -617,6 +621,18 @@
 .wind-value-row__value {
   font: 700 14px/20px var(--font-text-b);
   color: var(--r-on-surface-default);
+}
+.wind-value-row__value--danger {
+  color: var(--r-error);
+}
+
+.data-field__wind-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font: 500 11px/14px var(--font-text-m);
+  color: var(--r-error);
+  margin-top: var(--s-1);
 }
 
 /* === FOOTER === */

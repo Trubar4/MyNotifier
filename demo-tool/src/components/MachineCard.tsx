@@ -7,9 +7,10 @@ import {
   PenLine,
   MapPin,
   CheckCircle,
+  AlertTriangle,
 } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
-import { BOOM_POSITION_LABELS } from '../data/types';
+import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 
 const BASE = import.meta.env.BASE_URL;
@@ -52,8 +53,13 @@ export function MachineCard({ machine, notifCritical, notifWarning, assignedUser
   const totalNotifications = notifCritical + notifWarning;
   const hasCritical = notifCritical > 0;
 
+  const threshold = BOOM_THRESHOLDS[machine.position.position];
+  const needleExceeds = threshold !== null && machine.wind.needleBoom >= threshold;
+  const mainExceeds = threshold !== null && machine.wind.mainBoom >= threshold;
+  const windDanger = needleExceeds || mainExceeds;
+
   return (
-    <div className="machine-card">
+    <div className={`machine-card ${windDanger && hasLicense ? 'machine-card--danger' : ''}`}>
       {/* Header */}
       <div className="machine-card__header">
         <div className="machine-card__icon" onClick={totalNotifications > 0 ? onNotifClick : undefined} style={totalNotifications > 0 ? { cursor: 'pointer' } : undefined}>
@@ -151,19 +157,25 @@ export function MachineCard({ machine, notifCritical, notifWarning, assignedUser
                 <div className="wind-values">
                   <div className="wind-value-row">
                     <span className="wind-value-row__label">Nadelausleger</span>
-                    <span className="wind-value-row__value">
+                    <span className={`wind-value-row__value ${needleExceeds ? 'wind-value-row__value--danger' : ''}`}>
                       {machine.wind.needleBoom.toFixed(1)} m/s
                     </span>
                   </div>
                   <div className="wind-value-row">
                     <span className="wind-value-row__label">Hauptausleger</span>
-                    <span className="wind-value-row__value">
+                    <span className={`wind-value-row__value ${mainExceeds ? 'wind-value-row__value--danger' : ''}`}>
                       {machine.wind.mainBoom.toFixed(1)} m/s
                     </span>
                   </div>
                 </div>
               </div>
               <span className="data-field__label">Aktuelle Windgeschwindigkeit</span>
+              {windDanger && threshold !== null && (
+                <div className="data-field__wind-warning">
+                  <AlertTriangle size={12} />
+                  <span>Schwellenwert überschritten ({threshold} m/s)</span>
+                </div>
+              )}
               {!isLive(machine.wind.timestamp) && (
                 <span className="data-field__timestamp">
                   Wert von {formatTimestamp(machine.wind.timestamp)}
