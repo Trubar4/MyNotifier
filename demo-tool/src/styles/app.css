@@ -6,6 +6,12 @@
 /* === LDS Design System Tokens === */
 @import url("../../../design-system/lds.css");
 
+/* LDS Button override: uppercase as per Liebherr design convention */
+.lds-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* === LAYOUT === */
 .app-layout {
   display: grid;
@@ -350,6 +356,8 @@
   color: var(--r-brand);
   text-decoration: underline;
   text-underline-offset: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   transition: color var(--motion-fast);
 }
 
