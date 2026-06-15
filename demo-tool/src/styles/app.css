@@ -540,7 +540,7 @@
 }
 
 .config-chip {
-  padding: 6px 14px;
+  padding: 8px 20px;
   border: 1px solid var(--r-outline-default);
   background: var(--r-surface-default);
   color: var(--r-on-surface-default);

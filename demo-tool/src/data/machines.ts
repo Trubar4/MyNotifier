@@ -92,7 +92,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       reportedAt: null,
     },
     wind: {
-      needleBoom: 56.3,
+      needleBoom: 60.0,
       mainBoom: 52.1,
       timestamp: hoursAgo(48),
     },
