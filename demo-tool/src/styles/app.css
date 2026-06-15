@@ -371,26 +371,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  background: var(--r-brand);
+  background: none;
   border: none;
-  border-radius: 50%;
-  color: var(--p-steel-975);
+  color: var(--r-brand);
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  transition: background var(--motion-fast), color var(--motion-fast);
+  transition: color var(--motion-fast);
 }
 
 .info-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
 }
 
 .info-btn:hover {
-  background: var(--p-steel-975);
-  color: var(--r-brand);
+  color: var(--p-steel-975);
 }
 
 .info-btn--warning {
