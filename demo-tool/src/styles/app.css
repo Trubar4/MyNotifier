@@ -337,20 +337,6 @@
   order: 4;
 }
 
-/* Position action — warning icon + button group */
-.position-action-group {
-  order: 5;
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  margin-top: var(--s-2);
-}
-
-.position-action-group__warning {
-  color: var(--r-warning);
-  flex-shrink: 0;
-}
-
 .position-action {
   order: 5;
   margin-top: var(--s-2);
@@ -613,11 +599,6 @@
   gap: var(--s-2);
 }
 
-.wind-value-row__icon {
-  color: var(--r-on-surface-muted);
-  flex-shrink: 0;
-}
-
 .wind-value-row__label {
   font: 400 11px/14px var(--font-text);
   color: var(--r-on-surface-muted);
@@ -863,14 +844,6 @@
 .wind-detail-card__label {
   font: 400 13px/18px var(--font-text);
   color: var(--r-on-surface-muted);
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-}
-
-.wind-detail-card__boom-icon {
-  color: var(--r-on-surface-default);
-  flex-shrink: 0;
 }
 
 .wind-detail-card__value {

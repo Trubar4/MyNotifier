@@ -37,17 +37,17 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     name: 'LR 1250.1 UNPLUGGED',
     serialNumber: '135350',
     type: 'LR 1250.1',
-    status: 'online',
+    status: 'offline',
     license: 'active',
     position: {
-      position: 'extended',
-      timestamp: new Date(),
-      manuallySet: false,
+      position: 'partial',
+      timestamp: hoursAgo(1),
+      manuallySet: true,
     },
     wind: {
       needleBoom: 6.1,
       mainBoom: 5.0,
-      timestamp: new Date(),
+      timestamp: hoursAgo(1),
     },
     forecast: {
       max72h: 12.5,
@@ -76,7 +76,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       max72h: 15.2,
       timestamp: hoursAgo(2),
     },
-    notifications: { critical: 0, warning: 1 },
+    notifications: { critical: 1, warning: 0 },
   },
   {
     id: 'lr1300-142501',
