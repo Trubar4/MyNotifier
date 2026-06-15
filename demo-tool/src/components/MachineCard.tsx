@@ -6,6 +6,7 @@ import {
   Settings,
   PenLine,
   MapPin,
+  CheckCircle,
 } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS } from '../data/types';
@@ -15,9 +16,13 @@ const BASE = import.meta.env.BASE_URL;
 
 interface MachineCardProps {
   machine: MachineConfig;
+  notifCritical: number;
+  notifWarning: number;
+  assignedUser: string | null;
   onOpenConfig: () => void;
   onOpen: () => void;
   onOpenPositionSelector: () => void;
+  onNotifClick: () => void;
 }
 
 function formatTimestamp(date: Date): string {
@@ -41,17 +46,17 @@ function isLive(date: Date): boolean {
   return Date.now() - date.getTime() < 60000;
 }
 
-export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelector }: MachineCardProps) {
+export function MachineCard({ machine, notifCritical, notifWarning, assignedUser, onOpenConfig, onOpen, onOpenPositionSelector, onNotifClick }: MachineCardProps) {
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
-  const totalNotifications = machine.notifications.critical + machine.notifications.warning;
-  const hasCritical = machine.notifications.critical > 0;
+  const totalNotifications = notifCritical + notifWarning;
+  const hasCritical = notifCritical > 0;
 
   return (
     <div className="machine-card">
       {/* Header */}
       <div className="machine-card__header">
-        <div className="machine-card__icon">
+        <div className="machine-card__icon" onClick={totalNotifications > 0 ? onNotifClick : undefined} style={totalNotifications > 0 ? { cursor: 'pointer' } : undefined}>
           <img src={BASE + 'crane-lwn.svg'} alt="" width={24} height={24} />
           {totalNotifications > 0 && (
             <span className={`machine-card__badge ${hasCritical ? 'machine-card__badge--critical' : 'machine-card__badge--warning'}`}>
@@ -73,6 +78,14 @@ export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelec
           <Settings size={16} />
         </button>
       </div>
+
+      {/* Assigned user banner */}
+      {assignedUser && (
+        <div className="machine-card__assigned">
+          <CheckCircle size={12} />
+          <span>{assignedUser} hat die Aufgabe übernommen</span>
+        </div>
+      )}
 
       {/* Body */}
       <div className="machine-card__body">

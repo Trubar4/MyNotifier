@@ -1370,6 +1370,307 @@
   letter-spacing: 0.06em;
 }
 
+/* === NOTIFICATIONS PAGE === */
+.notif-toolbar {
+  display: flex;
+  gap: var(--s-5);
+  margin-bottom: var(--s-5);
+  flex-wrap: wrap;
+}
+
+.notif-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.notif-toolbar__label {
+  font: 700 12px/16px var(--font-text-b);
+  color: var(--r-on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.notif-filter-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  background: var(--r-brand);
+  color: var(--p-steel-975);
+  border-radius: var(--radius-2);
+  font: 500 13px/18px var(--font-text-m);
+  margin-bottom: var(--s-4);
+}
+
+.notif-filter-banner__clear {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--p-steel-975);
+  font: 700 12px/16px var(--font-text-b);
+  text-decoration: underline;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-7);
+  color: var(--r-on-surface-muted);
+  font: 400 14px/20px var(--font-text);
+}
+
+.notif-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notif-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--radius-2) var(--radius-2) 0 0;
+  border: 1px solid var(--r-outline-bright);
+  border-bottom: none;
+}
+
+.notif-group__header--critical {
+  background: var(--r-error-soft);
+  color: var(--r-on-error-soft);
+}
+
+.notif-group__header--warning {
+  background: var(--r-warning-soft);
+  color: var(--r-on-warning-soft);
+}
+
+.notif-group__machine {
+  font: 900 14px/18px var(--font-head-b);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.notif-group__count {
+  font: 400 12px/16px var(--font-text);
+}
+
+.notif-group__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-group__list .notif-card {
+  border-radius: 0;
+}
+
+.notif-group__list .notif-card:last-child {
+  border-radius: 0 0 var(--radius-2) var(--radius-2);
+}
+
+.notif-card {
+  display: flex;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5);
+  background: var(--r-surface-default);
+  border: 1px solid var(--r-outline-bright);
+  border-radius: var(--radius-2);
+  transition: box-shadow var(--motion-fast);
+}
+
+.notif-card + .notif-card {
+  border-top: none;
+}
+
+.notif-card--read {
+  opacity: 0.65;
+}
+
+.notif-card--assigned {
+  border-left: 3px solid var(--r-success);
+}
+
+.notif-card__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notif-card--level-1 .notif-card__icon {
+  color: var(--r-error);
+}
+
+.notif-card--level-2 .notif-card__icon {
+  color: var(--r-warning);
+}
+
+.notif-card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.notif-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.notif-card__level {
+  font: 700 11px/14px var(--font-text-b);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: var(--radius-1);
+}
+
+.notif-card__level--1 {
+  background: var(--r-error-soft);
+  color: var(--r-on-error-soft);
+}
+
+.notif-card__level--2 {
+  background: var(--r-warning-soft);
+  color: var(--r-on-warning-soft);
+}
+
+.notif-card__time {
+  font: 400 12px/16px var(--font-text);
+  color: var(--r-on-surface-muted);
+}
+
+.notif-card__title {
+  font: 700 15px/20px var(--font-text-b);
+  color: var(--r-on-surface-default);
+  margin: 0;
+}
+
+.notif-card__machine {
+  font: 500 12px/16px var(--font-text-m);
+  color: var(--r-on-surface-muted);
+}
+
+.notif-card__body {
+  font: 400 13px/18px var(--font-text);
+  color: var(--r-on-surface-default);
+  margin: 0;
+}
+
+.notif-card__assigned {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: 500 12px/16px var(--font-text-m);
+  color: var(--r-success);
+  padding: var(--s-2) 0;
+}
+
+.notif-card__actions {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+/* Machine card assigned banner */
+.machine-card__assigned {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-5);
+  background: var(--r-success-soft);
+  color: var(--r-on-success-soft);
+  font: 500 11px/14px var(--font-text-m);
+}
+
+/* Header badge warning color */
+.header__badge--warning {
+  background: var(--r-warning);
+}
+
+/* === SETTINGS PAGE === */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-5);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.settings-hint {
+  font: 400 13px/18px var(--font-text);
+  color: var(--r-on-surface-muted);
+  margin: 0;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--r-outline-bright);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.settings-row__label {
+  font: 500 14px/20px var(--font-text-m);
+  color: var(--r-on-surface-default);
+}
+
+.settings-row__hint {
+  font: 400 12px/16px var(--font-text);
+  color: var(--r-on-surface-muted);
+}
+
+.settings-row__reset {
+  background: none;
+  border: none;
+  font: 500 11px/14px var(--font-text-m);
+  color: var(--r-brand);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.settings-input {
+  max-width: 280px;
+}
+
+/* Detail notification summary */
+.detail-notif-summary {
+  padding: var(--s-3) 0;
+  font: 400 13px/18px var(--font-text);
+  color: var(--r-on-surface-muted);
+}
+
 /* === LOCATION / MAP === */
 .location-detail {
   display: flex;
@@ -1507,6 +1808,10 @@
   .config-modal {
     width: calc(100vw - 48px);
     max-width: 480px;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
   }
 }
 

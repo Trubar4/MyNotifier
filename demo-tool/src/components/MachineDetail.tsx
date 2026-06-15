@@ -8,8 +8,9 @@ import {
   CheckCircle,
   MapPin,
   ExternalLink,
+  Bell,
 } from 'lucide-react';
-import type { MachineConfig, BoomPosition } from '../data/types';
+import type { MachineConfig, BoomPosition, Notification, NotificationSettings } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
@@ -18,8 +19,11 @@ const BASE = import.meta.env.BASE_URL;
 
 interface MachineDetailProps {
   machine: MachineConfig;
+  notifications: Notification[];
+  notifSettings: NotificationSettings;
   onBack: () => void;
   onUpdateMachine: (updated: MachineConfig) => void;
+  onUpdateNotifSettings: (updated: NotificationSettings) => void;
   initialPositionSelectorOpen?: boolean;
   onPositionSelectorOpened?: () => void;
 }
@@ -57,7 +61,7 @@ function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warnin
   return 'safe';
 }
 
-export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositionSelectorOpen, onPositionSelectorOpened }: MachineDetailProps) {
+export function MachineDetail({ machine, notifications, notifSettings, onBack, onUpdateMachine, onUpdateNotifSettings, initialPositionSelectorOpen, onPositionSelectorOpened }: MachineDetailProps) {
   const [showPositionSelector, setShowPositionSelector] = useState(false);
   const [showLargeMap, setShowLargeMap] = useState(false);
 
@@ -448,6 +452,43 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Notification Settings for this machine */}
+          <div className="detail__section">
+            <div className="detail__section-header">
+              <Bell size={18} />
+              <h2 className="detail__section-title">Benachrichtigungen</h2>
+            </div>
+            <div className="settings-row">
+              <div className="settings-row__info">
+                <span className="settings-row__label">Benachrichtigungen für diese Maschine</span>
+                <span className="settings-row__hint">
+                  {machine.id in notifSettings.machineOverrides ? 'Individuell gesetzt' : 'Global-Einstellung'}
+                </span>
+              </div>
+              <button
+                className={`toggle-switch ${(machine.id in notifSettings.machineOverrides ? notifSettings.machineOverrides[machine.id] : notifSettings.globalEnabled) ? 'toggle-switch--on' : ''}`}
+                onClick={() => {
+                  const current = machine.id in notifSettings.machineOverrides
+                    ? notifSettings.machineOverrides[machine.id]
+                    : notifSettings.globalEnabled;
+                  onUpdateNotifSettings({
+                    ...notifSettings,
+                    machineOverrides: { ...notifSettings.machineOverrides, [machine.id]: !current },
+                  });
+                }}
+                role="switch"
+                aria-checked={machine.id in notifSettings.machineOverrides ? notifSettings.machineOverrides[machine.id] : notifSettings.globalEnabled}
+              >
+                <span className="toggle-switch__thumb" />
+              </button>
+            </div>
+            {notifications.length > 0 && (
+              <div className="detail-notif-summary">
+                <span>{notifications.filter(n => !n.read).length} offene Benachrichtigungen für diese Maschine</span>
+              </div>
+            )}
           </div>
         </div>
       )}

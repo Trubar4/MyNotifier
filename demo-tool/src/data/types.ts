@@ -70,3 +70,26 @@ export interface MachineConfig {
   location: LocationData;
   notifications: NotificationData;
 }
+
+export type NotificationLevel = 1 | 2;
+
+export interface Notification {
+  id: string;
+  machineId: string;
+  level: NotificationLevel;
+  title: string;
+  body: string;
+  timestamp: Date;
+  read: boolean;
+  assignedTo: string | null;
+  assignedAt: Date | null;
+}
+
+export interface NotificationSettings {
+  email: string;
+  phone: string;
+  globalEnabled: boolean;
+  machineOverrides: Record<string, boolean>;
+}
+
+export const DEMO_USER = 'Max Mustermann';
