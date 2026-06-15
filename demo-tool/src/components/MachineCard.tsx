@@ -137,13 +137,13 @@ export function MachineCard({ machine, onOpenConfig, onOpen, onOpenPositionSelec
               <div className="data-field__value">
                 <div className="wind-values">
                   <div className="wind-value-row">
-                    <img src={BASE + 'sensor-jib.svg'} alt="Nadelausleger" width={20} height={20} className="wind-value-row__icon" />
+                    <span className="wind-value-row__label">Nadelausleger</span>
                     <span className="wind-value-row__value">
                       {machine.wind.needleBoom.toFixed(1)} m/s
                     </span>
                   </div>
                   <div className="wind-value-row">
-                    <img src={BASE + 'sensor-boom.svg'} alt="Hauptausleger" width={20} height={20} className="wind-value-row__icon" />
+                    <span className="wind-value-row__label">Hauptausleger</span>
                     <span className="wind-value-row__value">
                       {machine.wind.mainBoom.toFixed(1)} m/s
                     </span>

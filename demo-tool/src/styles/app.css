@@ -371,22 +371,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: var(--r-brand);
-  border: 2px solid var(--r-brand);
+  border: none;
   border-radius: 50%;
   color: var(--p-steel-975);
   cursor: pointer;
-  font: 700 11px/1 var(--font-text-b);
   padding: 0;
   flex-shrink: 0;
-  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
+  transition: background var(--motion-fast), color var(--motion-fast);
+}
+
+.info-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .info-btn:hover {
   background: var(--p-steel-975);
-  border-color: var(--p-steel-975);
   color: var(--r-brand);
 }
 

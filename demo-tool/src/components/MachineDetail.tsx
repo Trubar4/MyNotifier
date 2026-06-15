@@ -162,6 +162,62 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
         </div>
       ) : (
         <div className="detail__grid">
+          {/* Machine Status Section — top left */}
+          <div className="detail__section detail__section--status">
+            <div className="detail__section-header">
+              {isOnline ? <Wifi size={18} /> : <WifiOff size={18} />}
+              <h2 className="detail__section-title">Maschinenstatus</h2>
+              <InfoPopover>
+                <div>
+                  <strong>Online</strong> = Master ein + Datenverbindung<br />
+                  <strong>Offline</strong> = Master aus UND/ODER keine Datenverbindung
+                </div>
+              </InfoPopover>
+            </div>
+
+            <div className="status-detail">
+              <div className="status-detail__indicator">
+                <span className={`status-dot ${isOnline ? 'status-dot--online' : 'status-dot--offline'}`} style={{ width: 12, height: 12 }} />
+                <span className="status-detail__text">{isOnline ? 'Online' : 'Offline'}</span>
+              </div>
+              {!isOnline && (
+                <span className="status-detail__since">
+                  Seit {formatTimestamp(machine.wind.timestamp)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Location Section — top right */}
+          <div className="detail__section detail__section--location">
+            <div className="detail__section-header">
+              <MapPin size={18} />
+              <h2 className="detail__section-title">Standort</h2>
+            </div>
+
+            <div className="location-detail">
+              <span className="location-detail__address">{machine.location.address}</span>
+              <div
+                className="location-detail__map-container"
+                onClick={() => setShowLargeMap(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setShowLargeMap(true)}
+              >
+                <iframe
+                  className="location-detail__map"
+                  src={mapEmbedUrl}
+                  title="Standort auf Karte"
+                  loading="lazy"
+                />
+                <div className="location-detail__map-overlay">
+                  <ExternalLink size={16} />
+                  <span>Karte vergrößern</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Wind Section */}
           <div className="detail__section detail__section--wind">
             <div className="detail__section-header">
@@ -336,57 +392,12 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
                 )}
               </div>
 
-              <div className="position-detail__positions">
-                <span className="position-detail__positions-title">Alle Positionen & Schwellenwerte:</span>
-                {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).map((pos) => (
-                  <div
-                    key={pos}
-                    className={`position-row ${machine.position.position === pos ? 'position-row--active' : ''}`}
-                  >
-                    <span className="position-row__name">{BOOM_POSITION_LABELS[pos]}</span>
-                    <span className="position-row__threshold">
-                      {BOOM_THRESHOLDS[pos] !== null ? `${BOOM_THRESHOLDS[pos]} m/s` : '—'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
               <button
                 className="lds-btn lds-btn--primary lds-btn--sm"
                 onClick={() => setShowPositionSelector(true)}
               >
                 Position manuell setzen
               </button>
-            </div>
-          </div>
-
-          {/* Location Section */}
-          <div className="detail__section detail__section--location">
-            <div className="detail__section-header">
-              <MapPin size={18} />
-              <h2 className="detail__section-title">Standort</h2>
-            </div>
-
-            <div className="location-detail">
-              <span className="location-detail__address">{machine.location.address}</span>
-              <div
-                className="location-detail__map-container"
-                onClick={() => setShowLargeMap(true)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && setShowLargeMap(true)}
-              >
-                <iframe
-                  className="location-detail__map"
-                  src={mapEmbedUrl}
-                  title="Standort auf Karte"
-                  loading="lazy"
-                />
-                <div className="location-detail__map-overlay">
-                  <ExternalLink size={16} />
-                  <span>Karte vergrößern</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -435,32 +446,6 @@ export function MachineDetail({ machine, onBack, onUpdateMachine, initialPositio
                     Überprüfen Sie die Auslegerposition und planen Sie gegebenenfalls Maßnahmen.
                   </span>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Machine Status Section */}
-          <div className="detail__section detail__section--status">
-            <div className="detail__section-header">
-              {isOnline ? <Wifi size={18} /> : <WifiOff size={18} />}
-              <h2 className="detail__section-title">Maschinenstatus</h2>
-              <InfoPopover>
-                <div>
-                  <strong>Online</strong> = Master ein + Datenverbindung<br />
-                  <strong>Offline</strong> = Master aus UND/ODER keine Datenverbindung
-                </div>
-              </InfoPopover>
-            </div>
-
-            <div className="status-detail">
-              <div className="status-detail__indicator">
-                <span className={`status-dot ${isOnline ? 'status-dot--online' : 'status-dot--offline'}`} style={{ width: 12, height: 12 }} />
-                <span className="status-detail__text">{isOnline ? 'Online' : 'Offline'}</span>
-              </div>
-              {!isOnline && (
-                <span className="status-detail__since">
-                  Seit {formatTimestamp(machine.wind.timestamp)}
-                </span>
               )}
             </div>
           </div>
