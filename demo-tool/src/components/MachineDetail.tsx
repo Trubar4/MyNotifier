@@ -681,6 +681,47 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
             </div>
           </div>
 
+          {/* 6. Maschinendaten */}
+          <div className="detail__section detail__section--specs">
+            <div className="detail__section-header">
+              <h2 className="detail__section-title">Maschinendaten</h2>
+            </div>
+            <dl className="specs-grid">
+              <div className="specs-grid__row">
+                <dt className="specs-grid__label">Außentemperatur</dt>
+                <dd className="specs-grid__value">
+                  {machine.specs.outsideTemperature !== null ? `${machine.specs.outsideTemperature.toFixed(1)} °C` : '—'}
+                </dd>
+              </div>
+              <div className="specs-grid__row">
+                <dt className="specs-grid__label">Auslegerkonfiguration</dt>
+                <dd className="specs-grid__value">{machine.specs.boomConfiguration}</dd>
+              </div>
+              <div className="specs-grid__row">
+                <dt className="specs-grid__label">Hauptausleger</dt>
+                <dd className="specs-grid__value">
+                  {machine.specs.mainBoomLength !== null ? `${machine.specs.mainBoomLength} m` : '—'}
+                </dd>
+              </div>
+              <div className="specs-grid__row">
+                <dt className="specs-grid__label">Nadelausleger</dt>
+                <dd className="specs-grid__value">
+                  {machine.specs.jibLength !== null ? `${machine.specs.jibLength} m` : '—'}
+                </dd>
+              </div>
+              <div className="specs-grid__row">
+                <dt className="specs-grid__label">Auslegerkopfhöhe</dt>
+                <dd className="specs-grid__value">
+                  {machine.specs.boomHeadHeight !== null ? `${machine.specs.boomHeadHeight} m` : '—'}
+                </dd>
+              </div>
+              <div className="specs-grid__row">
+                <dt className="specs-grid__label">Windlogger-IMEI</dt>
+                <dd className="specs-grid__value specs-grid__value--mono">{machine.specs.windloggerImei}</dd>
+              </div>
+            </dl>
+          </div>
+
           {assigningNotif && (
             <AssignModal
               notificationTitle={assigningNotif.title}

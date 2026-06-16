@@ -63,6 +63,15 @@ export interface NotificationData {
   warning: number;
 }
 
+export interface MachineSpecs {
+  outsideTemperature: number | null;   // °C
+  boomConfiguration: string;           // z.B. "Hauptausleger + Nadelausleger"
+  mainBoomLength: number | null;       // m
+  jibLength: number | null;            // m
+  boomHeadHeight: number | null;       // m
+  windloggerImei: string;
+}
+
 export interface MachineConfig {
   id: string;
   name: string;
@@ -75,6 +84,7 @@ export interface MachineConfig {
   forecast: ForecastData;
   location: LocationData;
   notifications: NotificationData;
+  specs: MachineSpecs;
 }
 
 export type NotificationLevel = 1 | 2;

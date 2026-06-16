@@ -2161,6 +2161,44 @@
   opacity: 1;
 }
 
+/* Maschinendaten specs */
+.specs-grid {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.specs-grid__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+  border-bottom: 1px solid var(--r-outline-variant);
+}
+
+.specs-grid__row:last-child {
+  border-bottom: none;
+}
+
+.specs-grid__label {
+  font: 400 13px/1.4 var(--font-text);
+  color: var(--r-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.specs-grid__value {
+  font: 500 13px/1.4 var(--font-text-m);
+  color: var(--r-on-surface);
+  text-align: right;
+}
+
+.specs-grid__value--mono {
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
 /* Large map modal */
 .map-modal {
   background: var(--r-surface-default);

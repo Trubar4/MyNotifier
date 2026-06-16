@@ -1,4 +1,4 @@
-import type { MachineConfig, ForecastHour } from './types';
+import type { MachineConfig, ForecastHour, MachineSpecs } from './types';
 
 function hoursAgo(h: number): Date {
   return new Date(Date.now() - h * 60 * 60 * 1000);
@@ -57,6 +57,14 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       shortAddress: '88400 Biberach',
     },
     notifications: { critical: 1, warning: 1 },
+    specs: {
+      outsideTemperature: 18.5,
+      boomConfiguration: 'Hauptausleger + Nadelausleger',
+      mainBoomLength: 84,
+      jibLength: 42,
+      boomHeadHeight: 108,
+      windloggerImei: '356291040113471',
+    } satisfies MachineSpecs,
   },
   {
     id: 'lr1250-135350',
@@ -91,6 +99,14 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       shortAddress: '70173 Stuttgart',
     },
     notifications: { critical: 0, warning: 0 },
+    specs: {
+      outsideTemperature: 14.2,
+      boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      mainBoomLength: 96,
+      jibLength: null,
+      boomHeadHeight: 97,
+      windloggerImei: '356291040228764',
+    } satisfies MachineSpecs,
   },
   {
     id: 'lr1110-133188',
@@ -125,6 +141,14 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       shortAddress: '80335 München',
     },
     notifications: { critical: 1, warning: 0 },
+    specs: {
+      outsideTemperature: 11.8,
+      boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      mainBoomLength: 72,
+      jibLength: null,
+      boomHeadHeight: 73,
+      windloggerImei: '356291040334951',
+    } satisfies MachineSpecs,
   },
   {
     id: 'lr1300-142501',
@@ -159,5 +183,13 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       shortAddress: '8004 Zürich',
     },
     notifications: { critical: 0, warning: 0 },
+    specs: {
+      outsideTemperature: null,
+      boomConfiguration: 'Ausleger abgelegt',
+      mainBoomLength: 108,
+      jibLength: 60,
+      boomHeadHeight: null,
+      windloggerImei: '356291040441237',
+    } satisfies MachineSpecs,
   },
 ];
