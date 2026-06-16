@@ -3,6 +3,7 @@ import { Search } from 'lucide-react';
 import type { MachineConfig, Notification } from '../data/types';
 import { MachineCard } from './MachineCard';
 import { ScenarioConfig } from './ScenarioConfig';
+import { PositionSelector } from './PositionSelector';
 
 type SortMode = 'recent' | 'name';
 type FilterMode = 'offlineNoManual' | 'offline' | 'warnings' | null;
@@ -11,17 +12,19 @@ interface MachineOverviewProps {
   machines: MachineConfig[];
   notifications: Notification[];
   onUpdateMachine: (updated: MachineConfig) => void;
-  onOpenMachine: (id: string, withPositionSelector?: boolean) => void;
+  onOpenMachine: (id: string) => void;
   onMachineNotifClick: (machineId: string) => void;
 }
 
 export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick }: MachineOverviewProps) {
   const [configMachineId, setConfigMachineId] = useState<string | null>(null);
+  const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
   const [filter, setFilter] = useState<FilterMode>(null);
 
   const configMachine = machines.find((m) => m.id === configMachineId);
+  const positionSelectorMachine = machines.find((m) => m.id === positionSelectorMachineId);
 
   function getMachineNotifInfo(machineId: string) {
     const machineNotifs = notifications.filter((n) => n.machineId === machineId && !n.read);
@@ -137,7 +140,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
                 assignedUser={notifInfo.assignedUser}
                 onOpenConfig={() => setConfigMachineId(machine.id)}
                 onOpen={() => onOpenMachine(machine.id)}
-                onOpenPositionSelector={() => onOpenMachine(machine.id, true)}
+                onOpenPositionSelector={() => setPositionSelectorMachineId(machine.id)}
                 onNotifClick={() => onMachineNotifClick(machine.id)}
               />
             );
@@ -150,6 +153,25 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           machine={configMachine}
           onSave={onUpdateMachine}
           onClose={() => setConfigMachineId(null)}
+        />
+      )}
+
+      {positionSelectorMachine && (
+        <PositionSelector
+          currentPosition={positionSelectorMachine.position.position}
+          onSelect={(pos) => {
+            onUpdateMachine({
+              ...positionSelectorMachine,
+              position: {
+                ...positionSelectorMachine.position,
+                position: pos,
+                manuallySet: true,
+                timestamp: new Date(),
+              },
+            });
+            setPositionSelectorMachineId(null);
+          }}
+          onClose={() => setPositionSelectorMachineId(null)}
         />
       )}
     </>

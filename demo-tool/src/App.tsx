@@ -51,9 +51,8 @@ export default function App() {
     setNotifCameFromMachines(false);
   }
 
-  function handleOpenMachine(id: string, withPositionSelector = false) {
+  function handleOpenMachine(id: string) {
     setDetailMachineId(id);
-    setOpenPositionSelector(withPositionSelector);
   }
 
   function handleBellClick() {
