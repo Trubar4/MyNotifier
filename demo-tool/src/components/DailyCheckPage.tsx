@@ -97,15 +97,23 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
           const currentPos = machine.position.position;
           const positionKnown = isOnline || machine.position.manuallySet;
           const currentThreshold = positionKnown ? BOOM_THRESHOLDS[currentPos] : undefined;
-          const positionSufficient = positionKnown && (currentThreshold === null || (currentThreshold !== undefined && currentThreshold > maxWind));
-          const positionInsufficient = positionKnown && !positionSufficient;
-          const positionOk = positionSufficient; // exact match OR safer
+
+          // Green: current threshold >= recommended threshold (or boomDown chosen = always safe)
+          const positionOk = positionKnown && (
+            currentThreshold === null ||
+            (recThreshold !== null && currentThreshold !== undefined && currentThreshold >= recThreshold)
+          );
+          // Red: threshold <= maxWind (actually unsafe)
+          const positionInsufficient = positionKnown && currentThreshold !== undefined &&
+            currentThreshold !== null && currentThreshold <= maxWind;
+          // Yellow: threshold > maxWind but < recommended (sufficient for wind, but wrong overnight position)
+          const positionWarning = positionKnown && !positionOk && !positionInsufficient;
 
           const notifInfo = getUnreadNotifInfo(machine.id);
           const totalNotifs = notifInfo.critical + notifInfo.warning;
 
           return (
-            <div key={machine.id} className={`dailycheck-card${positionOk ? ' dailycheck-card--ok' : positionInsufficient ? ' dailycheck-card--bad' : ''}`}>
+            <div key={machine.id} className={`dailycheck-card${positionOk ? ' dailycheck-card--ok' : positionInsufficient ? ' dailycheck-card--bad' : positionWarning ? ' dailycheck-card--warn' : ''}`}>
               {/* Header */}
               <div className="dailycheck-card__header">
                 <img src={BASE + 'crane-lwn.svg'} alt="" width={24} height={24} />
@@ -115,12 +123,9 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
                     {totalNotifs}
                   </span>
                 )}
-                {positionOk && (
-                  <CheckCircle size={20} className="dailycheck-card__ok-icon" />
-                )}
-                {positionInsufficient && (
-                  <AlertTriangle size={20} className="dailycheck-card__bad-icon" />
-                )}
+                {positionOk && <CheckCircle size={20} className="dailycheck-card__ok-icon" />}
+                {positionWarning && <AlertTriangle size={20} className="dailycheck-card__warn-icon" />}
+                {positionInsufficient && <AlertTriangle size={20} className="dailycheck-card__bad-icon" />}
               </div>
 
               {/* Status */}
@@ -178,10 +183,11 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
               {/* Button nur für Offline-Maschinen */}
               {!isOnline && (
                 <button
-                  className={`lds-btn lds-btn--sm dailycheck-card__btn${positionOk ? ' dailycheck-card__btn--ok' : positionInsufficient ? ' dailycheck-card__btn--bad' : ' lds-btn--primary'}`}
+                  className={`lds-btn lds-btn--sm dailycheck-card__btn${positionOk ? ' dailycheck-card__btn--ok' : positionInsufficient ? ' dailycheck-card__btn--bad' : positionWarning ? ' dailycheck-card__btn--warn' : ' lds-btn--primary'}`}
                   onClick={() => setPositionSelectorMachineId(machine.id)}
                 >
-                  {positionOk ? <CheckCircle size={14} /> : positionInsufficient ? <AlertTriangle size={14} /> : null}
+                  {positionOk && <CheckCircle size={14} />}
+                  {(positionWarning || positionInsufficient) && <AlertTriangle size={14} />}
                   Position manuell setzen
                 </button>
               )}
