@@ -219,6 +219,21 @@
   flex-wrap: wrap;
 }
 
+.machine-filter__clear {
+  background: none;
+  border: none;
+  color: var(--r-on-surface-variant);
+  font: 400 13px/1 var(--font-text);
+  cursor: pointer;
+  padding: var(--s-1) var(--s-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.machine-filter__clear:hover {
+  color: var(--r-on-surface);
+}
+
 .machine-sort__label {
   font: 500 13px/18px var(--font-text-m);
   color: var(--r-on-surface-muted);

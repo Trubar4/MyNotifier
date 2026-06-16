@@ -43,9 +43,9 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
     );
   }
   if (filter === 'offline') {
-    filtered = filtered.filter((m) => m.status === 'offline');
+    filtered = filtered.filter((m) => m.status === 'offline' && m.license === 'active');
   } else if (filter === 'offlineNoManual') {
-    filtered = filtered.filter((m) => m.status === 'offline' && !m.position.manuallySet);
+    filtered = filtered.filter((m) => m.status === 'offline' && m.license === 'active' && !m.position.manuallySet);
   } else if (filter === 'warnings') {
     filtered = filtered.filter((m) => {
       const { critical, warning } = getMachineNotifInfo(m.id);
@@ -96,13 +96,13 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
             className={`config-chip ${filter === 'offlineNoManual' ? 'config-chip--active' : ''}`}
             onClick={() => setFilter(f => f === 'offlineNoManual' ? null : 'offlineNoManual')}
           >
-            Offline ohne manuelle Auswahl
+            Offline Auslegerposition unbekannt
           </button>
           <button
             className={`config-chip ${filter === 'offline' ? 'config-chip--active' : ''}`}
             onClick={() => setFilter(f => f === 'offline' ? null : 'offline')}
           >
-            Offline
+            Alle Offline
           </button>
           <button
             className={`config-chip ${filter === 'warnings' ? 'config-chip--active' : ''}`}
@@ -110,6 +110,11 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           >
             Mit Warnungen
           </button>
+          {filter !== null && (
+            <button className="machine-filter__clear" onClick={() => setFilter(null)}>
+              Filter aufheben
+            </button>
+          )}
         </div>
       </div>
 
