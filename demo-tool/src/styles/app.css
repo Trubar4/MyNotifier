@@ -2276,6 +2276,294 @@
 }
 
 /* ============================================================
+   Reports
+   ============================================================ */
+
+.reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.reports-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  align-items: flex-end;
+  padding: var(--s-4);
+  background: var(--r-surface-default);
+  border: 1px solid var(--r-outline);
+  border-radius: var(--radius-3);
+}
+
+.reports-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.reports-control-group--export {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: var(--s-2);
+  margin-left: auto;
+}
+
+.reports-label {
+  font: 500 12px/1 var(--font-text-m);
+  color: var(--r-on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reports-select {
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--r-outline-bright);
+  border-radius: var(--radius-2);
+  background: var(--r-surface);
+  color: var(--r-on-surface);
+  font: 400 13px/1 var(--font-text);
+  min-width: 220px;
+}
+
+.reports-chips {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.reports-date-range {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.reports-date-sep {
+  font: 400 14px/1 var(--font-text);
+  color: var(--r-on-surface-muted);
+}
+
+.reports-thresholds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.reports-threshold-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: default;
+}
+
+.reports-threshold-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reports-threshold-dot--red { background: var(--r-error); }
+.reports-threshold-dot--orange { background: var(--r-warning); }
+
+.reports-threshold-label {
+  font: 400 13px/1 var(--font-text);
+  color: var(--r-on-surface-variant);
+  width: 48px;
+}
+
+.reports-threshold-input {
+  width: 64px;
+  padding: var(--s-1) var(--s-2);
+  border: 1px solid var(--r-outline-bright);
+  border-radius: var(--radius-2);
+  background: var(--r-surface);
+  color: var(--r-on-surface);
+  font: 400 13px/1 var(--font-text);
+  text-align: right;
+}
+
+.reports-threshold-unit {
+  font: 400 12px/1 var(--font-text);
+  color: var(--r-on-surface-muted);
+}
+
+/* Chart */
+.reports-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.reports-chart-wrap {
+  background: var(--r-surface-default);
+  border: 1px solid var(--r-outline);
+  border-radius: var(--radius-3);
+  padding: var(--s-4);
+}
+
+.reports-chart-title {
+  font: 500 13px/1.4 var(--font-text-m);
+  color: var(--r-on-surface-variant);
+  margin-bottom: var(--s-3);
+}
+
+.reports-chart-area {
+  display: flex;
+  gap: var(--s-2);
+  height: 180px;
+  margin-bottom: var(--s-1);
+}
+
+.reports-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.reports-y-label {
+  font: 400 10px/1 var(--font-text);
+  color: var(--r-on-surface-muted);
+}
+
+.reports-chart-inner {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  border-left: 1px solid var(--r-outline-variant);
+  border-bottom: 1px solid var(--r-outline-variant);
+}
+
+.reports-bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.reports-bar {
+  flex: 1;
+  min-width: 1px;
+  border-radius: 1px 1px 0 0;
+}
+
+.reports-threshold-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.reports-threshold-line--red {
+  border-top: 2px solid var(--r-error);
+}
+
+.reports-threshold-line--orange {
+  border-top: 1px dashed var(--r-warning);
+}
+
+.reports-threshold-line-label {
+  position: absolute;
+  right: 4px;
+  top: -16px;
+  font: 700 10px/1 var(--font-text);
+  color: var(--r-error);
+}
+
+.reports-x-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 36px;
+  margin-top: var(--s-1);
+  margin-bottom: var(--s-3);
+}
+
+.reports-x-label {
+  font: 400 10px/1 var(--font-text);
+  color: var(--r-on-surface-muted);
+  white-space: nowrap;
+}
+
+.reports-legend {
+  display: flex;
+  gap: var(--s-4);
+  margin-left: 36px;
+}
+
+.reports-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font: 400 12px/1 var(--font-text);
+  color: var(--r-on-surface-variant);
+}
+
+.reports-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Table */
+.reports-table-wrap {
+  overflow-x: auto;
+  background: var(--r-surface-default);
+  border: 1px solid var(--r-outline);
+  border-radius: var(--radius-3);
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 13px/1.4 var(--font-text);
+}
+
+.reports-table th {
+  background: var(--r-surface-variant);
+  padding: var(--s-2) var(--s-3);
+  text-align: left;
+  font: 500 12px/1 var(--font-text-m);
+  color: var(--r-on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--r-outline);
+  white-space: nowrap;
+}
+
+.reports-table td {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--r-outline-variant);
+  color: var(--r-on-surface);
+  white-space: nowrap;
+}
+
+.reports-table__row--danger td { background: color-mix(in srgb, var(--r-error) 8%, transparent); }
+.reports-table__row--warning td { background: color-mix(in srgb, var(--r-warning) 8%, transparent); }
+
+.reports-table__status--danger { color: var(--r-error); font-weight: 600; }
+.reports-table__status--warning { color: var(--r-on-surface-variant); }
+.reports-table__status--safe { color: var(--r-success); }
+
+/* Print */
+.reports-print-header { display: none; }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .reports-print-header { display: block; margin-bottom: 16px; }
+  .app-sidebar, .app-header, .app-footer { display: none !important; }
+  .app-content { padding: 0 !important; }
+  .reports-chart-wrap, .reports-table-wrap { break-inside: avoid; border: none; }
+  .reports-table-wrap { page-break-before: auto; }
+}
+
+/* ============================================================
    Daily Check
    ============================================================ */
 

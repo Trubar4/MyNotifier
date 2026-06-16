@@ -8,6 +8,7 @@ import { MachineDetail } from './components/MachineDetail';
 import { NotificationsPage } from './components/NotificationsPage';
 import { SettingsPage } from './components/SettingsPage';
 import { DailyCheckPage } from './components/DailyCheckPage';
+import { ReportsPage } from './components/ReportsPage';
 import type { MachineConfig, Notification, NotificationSettings } from './data/types';
 import { DEFAULT_MACHINES } from './data/machines';
 import { DEFAULT_NOTIFICATIONS, DEFAULT_NOTIFICATION_SETTINGS } from './data/notifications';
@@ -140,10 +141,12 @@ export default function App() {
             onUpdateMachine={handleUpdateMachine}
           />
         )}
-        {activePage !== 'machines' && activePage !== 'notifications' && activePage !== 'settings' && activePage !== 'dailycheck' && (
+        {activePage === 'reports' && (
+          <ReportsPage machines={machines} />
+        )}
+        {activePage !== 'machines' && activePage !== 'notifications' && activePage !== 'settings' && activePage !== 'dailycheck' && activePage !== 'reports' && (
           <div style={{ padding: 'var(--s-6)', color: 'var(--r-on-surface-muted)' }}>
             <h1 className="page-title">
-              {activePage === 'reports' && 'Berichte'}
               {activePage === 'users' && 'Benutzer'}
             </h1>
             <p style={{ font: '400 14px/20px var(--font-text)' }}>
