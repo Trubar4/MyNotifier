@@ -5,6 +5,7 @@ import { MachineCard } from './MachineCard';
 import { ScenarioConfig } from './ScenarioConfig';
 
 type SortMode = 'recent' | 'name';
+type FilterMode = 'offlineNoManual' | 'offline' | 'warnings' | null;
 
 interface MachineOverviewProps {
   machines: MachineConfig[];
@@ -18,6 +19,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
   const [configMachineId, setConfigMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
+  const [filter, setFilter] = useState<FilterMode>(null);
 
   const configMachine = machines.find((m) => m.id === configMachineId);
 
@@ -39,6 +41,16 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
         m.location.shortAddress.toLowerCase().includes(query) ||
         m.location.address.toLowerCase().includes(query)
     );
+  }
+  if (filter === 'offline') {
+    filtered = filtered.filter((m) => m.status === 'offline');
+  } else if (filter === 'offlineNoManual') {
+    filtered = filtered.filter((m) => m.status === 'offline' && !m.position.manuallySet);
+  } else if (filter === 'warnings') {
+    filtered = filtered.filter((m) => {
+      const { critical, warning } = getMachineNotifInfo(m.id);
+      return critical > 0 || warning > 0;
+    });
   }
 
   const sorted = [...filtered].sort((a, b) => {
@@ -78,12 +90,35 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
             Alphabetisch
           </button>
         </div>
+        <div className="machine-filter">
+          <span className="machine-sort__label">Filter:</span>
+          <button
+            className={`config-chip ${filter === 'offlineNoManual' ? 'config-chip--active' : ''}`}
+            onClick={() => setFilter(f => f === 'offlineNoManual' ? null : 'offlineNoManual')}
+          >
+            Offline ohne manuelle Auswahl
+          </button>
+          <button
+            className={`config-chip ${filter === 'offline' ? 'config-chip--active' : ''}`}
+            onClick={() => setFilter(f => f === 'offline' ? null : 'offline')}
+          >
+            Offline
+          </button>
+          <button
+            className={`config-chip ${filter === 'warnings' ? 'config-chip--active' : ''}`}
+            onClick={() => setFilter(f => f === 'warnings' ? null : 'warnings')}
+          >
+            Mit Warnungen
+          </button>
+        </div>
       </div>
 
       <div className="machine-grid">
         {sorted.length === 0 ? (
           <div className="machine-empty">
-            Keine Maschinen gefunden für &ldquo;{search}&rdquo;
+            {query
+              ? `Keine Maschinen gefunden für "${search}"`
+              : 'Keine Maschinen entsprechen dem aktiven Filter.'}
           </div>
         ) : (
           sorted.map((machine) => {

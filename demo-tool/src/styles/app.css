@@ -211,6 +211,14 @@
   align-items: center;
   gap: var(--s-2);
 }
+
+.machine-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
 .machine-sort__label {
   font: 500 13px/18px var(--font-text-m);
   color: var(--r-on-surface-muted);
