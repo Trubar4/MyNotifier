@@ -4,9 +4,6 @@ function hoursAgo(h: number): Date {
   return new Date(Date.now() - h * 60 * 60 * 1000);
 }
 
-function hoursFromNow(h: number): Date {
-  return new Date(Date.now() + h * 60 * 60 * 1000);
-}
 
 // Generate 72 sinusoidal hourly forecast values peaking at peakValue at peakHour
 function generateHourlyForecast(peakValue: number, peakHour: number): ForecastHour[] {
@@ -76,8 +73,8 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     position: {
       position: 'withoutNeedle',
       timestamp: hoursAgo(1),
-      manuallySet: true,
-      fixedUntil: hoursFromNow(12),
+      manuallySet: false,
+      fixedUntil: null,
       autoUpdate: false,
       reportedPosition: 'withNeedle',
       reportedAt: hoursAgo(0.5),
@@ -116,11 +113,11 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     status: 'offline',
     license: 'active',
     position: {
-      position: 'withoutNeedle',
-      timestamp: hoursAgo(48),
-      manuallySet: false,
+      position: 'withNeedle',
+      timestamp: hoursAgo(2),
+      manuallySet: true,
       fixedUntil: null,
-      autoUpdate: true,
+      autoUpdate: false,
       reportedPosition: null,
       reportedAt: null,
     },
