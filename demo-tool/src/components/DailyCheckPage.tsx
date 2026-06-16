@@ -49,6 +49,7 @@ function tomorrowAt6(): Date {
 export function DailyCheckPage({ machines, notifications, onUpdateMachine }: DailyCheckPageProps) {
   const [until, setUntil] = useState<Date>(tomorrowAt6());
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
+  const [filterActionNeeded, setFilterActionNeeded] = useState(false);
 
   const licensedMachines = machines.filter(m => m.license === 'active');
 
@@ -82,10 +83,28 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
             if (!isNaN(d.getTime())) setUntil(d);
           }}
         />
+        <button
+          className={`config-chip${filterActionNeeded ? ' config-chip--active' : ''} dailycheck-filter-btn`}
+          onClick={() => setFilterActionNeeded(f => !f)}
+        >
+          Handlung nötig
+        </button>
       </div>
 
       <div className="dailycheck-grid">
-        {licensedMachines.map(machine => {
+        {licensedMachines.filter(machine => {
+          if (!filterActionNeeded) return true;
+          const isOnline = machine.status === 'online';
+          const positionKnown = isOnline || machine.position.manuallySet;
+          if (!positionKnown) return true; // offline, position unknown
+          const { speed: maxWind } = getMaxWindUntil(machine, until);
+          const recommendedPos = getRecommendedPosition(maxWind);
+          const recThreshold = BOOM_THRESHOLDS[recommendedPos];
+          const currentThreshold = BOOM_THRESHOLDS[machine.position.position];
+          const positionOk = currentThreshold === null ||
+            (recThreshold !== null && currentThreshold >= recThreshold);
+          return !positionOk;
+        }).map(machine => {
           const isOnline = machine.status === 'online';
           const { speed: maxWind, timestamp: peakTime } = getMaxWindUntil(machine, until);
           const recommendedPos = getRecommendedPosition(maxWind);
