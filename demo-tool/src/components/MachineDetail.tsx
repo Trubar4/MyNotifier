@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft,
   Wifi,
@@ -71,6 +71,8 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
   const [showLargeMap, setShowLargeMap] = useState(false);
   const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null);
   const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
+  const [forecastExpanded, setForecastExpanded] = useState(false);
+  const histogramRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialPositionSelectorOpen) {
@@ -449,13 +451,97 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                 </div>
               )}
 
-              {machine.forecast.max72h > (threshold ?? Infinity) && (
-                <div className="forecast-warning">
-                  <AlertTriangle size={14} />
-                  <span>
-                    Die vorhergesagte Windgeschwindigkeit überschreitet den aktuellen Schwellenwert.
-                    Überprüfen Sie die Auslegerposition und planen Sie gegebenenfalls Maßnahmen.
-                  </span>
+              {(() => {
+                const exceedanceHour = threshold !== null
+                  ? machine.forecast.hourly.find(h => h.speed >= threshold) ?? null
+                  : null;
+                return exceedanceHour ? (
+                  <div className="forecast-warning">
+                    <AlertTriangle size={14} />
+                    <span>
+                      Erwartete Überschreitung am{' '}
+                      <strong>
+                        {exceedanceHour.timestamp.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                      </strong>
+                      {' '}— Überprüfen Sie die Auslegerposition und planen Sie gegebenenfalls Maßnahmen.
+                    </span>
+                  </div>
+                ) : machine.forecast.max72h > (threshold ?? Infinity) ? (
+                  <div className="forecast-warning">
+                    <AlertTriangle size={14} />
+                    <span>
+                      Die vorhergesagte Windgeschwindigkeit überschreitet den aktuellen Schwellenwert.
+                      Überprüfen Sie die Auslegerposition und planen Sie gegebenenfalls Maßnahmen.
+                    </span>
+                  </div>
+                ) : null;
+              })()}
+
+              <button
+                className="forecast-histogram-toggle"
+                onClick={() => {
+                  setForecastExpanded(v => !v);
+                  if (!forecastExpanded) {
+                    setTimeout(() => histogramRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+                  }
+                }}
+                aria-expanded={forecastExpanded}
+              >
+                <CloudSun size={14} />
+                {forecastExpanded ? 'Stundenprognose ausblenden' : 'Stundenprognose anzeigen'}
+                <span className={`forecast-histogram-toggle__chevron${forecastExpanded ? ' forecast-histogram-toggle__chevron--open' : ''}`}>▾</span>
+              </button>
+
+              {forecastExpanded && (
+                <div className="forecast-histogram" ref={histogramRef}>
+                  {(() => {
+                    const maxSpeed = Math.max(...machine.forecast.hourly.map(h => h.speed), threshold ?? 0, 1);
+                    const displayHours = machine.forecast.hourly;
+                    const thresholdPct = threshold !== null ? (threshold / maxSpeed) * 100 : null;
+                    const warningPct = threshold !== null ? ((threshold * 0.8) / maxSpeed) * 100 : null;
+                    return (
+                      <>
+                        <div className="forecast-histogram__chart">
+                          <div className="forecast-histogram__bars">
+                            {displayHours.map((h, i) => {
+                              const level = getWindLevel(h.speed, threshold);
+                              const heightPct = (h.speed / maxSpeed) * 100;
+                              const showLabel = i % 6 === 0;
+                              return (
+                                <div key={i} className="forecast-histogram__bar-col">
+                                  <div className="forecast-histogram__bar-wrap">
+                                    <div
+                                      className={`forecast-histogram__bar forecast-histogram__bar--${level}`}
+                                      style={{ height: `${heightPct}%` }}
+                                      title={`${h.timestamp.toLocaleString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}: ${h.speed.toFixed(1)} m/s`}
+                                    />
+                                  </div>
+                                  {showLabel && (
+                                    <span className="forecast-histogram__label">
+                                      {h.timestamp.toLocaleString('de-DE', { weekday: 'short', hour: '2-digit' })}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {thresholdPct !== null && (
+                            <div className="forecast-histogram__threshold-line" style={{ bottom: `${thresholdPct}%` }}>
+                              <span className="forecast-histogram__threshold-label">{threshold} m/s</span>
+                            </div>
+                          )}
+                          {warningPct !== null && (
+                            <div className="forecast-histogram__warning-line" style={{ bottom: `${warningPct}%` }} />
+                          )}
+                        </div>
+                        <div className="forecast-histogram__legend">
+                          <span className="forecast-histogram__legend-item forecast-histogram__legend-item--safe">Sicher</span>
+                          <span className="forecast-histogram__legend-item forecast-histogram__legend-item--warning">80% Schwelle</span>
+                          <span className="forecast-histogram__legend-item forecast-histogram__legend-item--danger">Überschritten</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>

@@ -1360,6 +1360,161 @@
   margin-top: 2px;
 }
 
+.forecast-histogram-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  background: none;
+  border: 1px solid var(--r-outline);
+  border-radius: var(--radius-2);
+  color: var(--r-on-surface-variant);
+  font: 400 13px/1 var(--font-text);
+  padding: var(--s-2) var(--s-3);
+  cursor: pointer;
+  margin-top: var(--s-3);
+  width: 100%;
+  text-align: left;
+}
+
+.forecast-histogram-toggle:hover {
+  background: var(--r-surface-variant);
+}
+
+.forecast-histogram-toggle__chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  font-size: 16px;
+}
+
+.forecast-histogram-toggle__chevron--open {
+  transform: rotate(180deg);
+}
+
+.forecast-histogram {
+  margin-top: var(--s-3);
+  border: 1px solid var(--r-outline);
+  border-radius: var(--radius-2);
+  padding: var(--s-3) var(--s-3) var(--s-2);
+  background: var(--r-surface);
+}
+
+.forecast-histogram__chart {
+  position: relative;
+  height: 140px;
+  margin-bottom: var(--s-2);
+}
+
+.forecast-histogram__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 120px;
+  width: 100%;
+  padding-bottom: 0;
+}
+
+.forecast-histogram__bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 140px;
+  position: relative;
+}
+
+.forecast-histogram__bar-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.forecast-histogram__bar {
+  width: 100%;
+  min-height: 1px;
+  border-radius: 1px 1px 0 0;
+  transition: height 0.3s;
+}
+
+.forecast-histogram__bar--safe { background: var(--r-success); }
+.forecast-histogram__bar--warning { background: var(--r-warning); }
+.forecast-histogram__bar--danger { background: var(--r-error); }
+
+.forecast-histogram__label {
+  font: 400 9px/1 var(--font-text);
+  color: var(--r-on-surface-variant);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: center;
+  width: 100%;
+}
+
+.forecast-histogram__threshold-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--r-error);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.forecast-histogram__threshold-label {
+  position: absolute;
+  right: 0;
+  top: -16px;
+  font: 700 10px/1 var(--font-text);
+  color: var(--r-error);
+  white-space: nowrap;
+}
+
+.forecast-histogram__warning-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--r-warning);
+  opacity: 0.7;
+  pointer-events: none;
+  border-top: 1px dashed var(--r-warning);
+}
+
+.forecast-histogram__legend {
+  display: flex;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.forecast-histogram__legend-item {
+  font: 400 11px/1 var(--font-text);
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+.forecast-histogram__legend-item::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.forecast-histogram__legend-item--safe::before { background: var(--r-success); }
+.forecast-histogram__legend-item--warning::before { background: var(--r-warning); }
+.forecast-histogram__legend-item--danger::before { background: var(--r-error); }
+
+.data-field__forecast-exceedance {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font: 400 11px/14px var(--font-text);
+  color: var(--r-error);
+  margin-top: 2px;
+}
+
 /* Status detail */
 .status-detail {
   display: flex;

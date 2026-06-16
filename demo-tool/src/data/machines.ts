@@ -1,4 +1,4 @@
-import type { MachineConfig } from './types';
+import type { MachineConfig, ForecastHour } from './types';
 
 function hoursAgo(h: number): Date {
   return new Date(Date.now() - h * 60 * 60 * 1000);
@@ -6,6 +6,21 @@ function hoursAgo(h: number): Date {
 
 function hoursFromNow(h: number): Date {
   return new Date(Date.now() + h * 60 * 60 * 1000);
+}
+
+// Generate 72 sinusoidal hourly forecast values peaking at peakValue at peakHour
+function generateHourlyForecast(peakValue: number, peakHour: number): ForecastHour[] {
+  const now = new Date();
+  const baseValue = peakValue * 0.3;
+  return Array.from({ length: 72 }, (_, i) => {
+    const phase = ((i - peakHour) / 72) * Math.PI * 2;
+    const sine = Math.cos(phase);
+    const speed = Math.max(0, baseValue + (peakValue - baseValue) * ((sine + 1) / 2));
+    return {
+      timestamp: new Date(now.getTime() + i * 60 * 60 * 1000),
+      speed: Math.round(speed * 10) / 10,
+    };
+  });
 }
 
 export const DEFAULT_MACHINES: MachineConfig[] = [
@@ -33,6 +48,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 12.0,
       timestamp: hoursAgo(2),
+      hourly: generateHourlyForecast(12.0, 18),
     },
     location: {
       lat: 47.6292,
@@ -66,6 +82,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 14.5,
       timestamp: hoursAgo(2),
+      hourly: generateHourlyForecast(14.5, 30),
     },
     location: {
       lat: 48.7758,
@@ -99,6 +116,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 18.5,
       timestamp: hoursAgo(2),
+      hourly: generateHourlyForecast(18.5, 12),
     },
     location: {
       lat: 48.1351,
@@ -132,6 +150,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 0,
       timestamp: hoursAgo(0.5),
+      hourly: generateHourlyForecast(0, 36),
     },
     location: {
       lat: 47.3769,

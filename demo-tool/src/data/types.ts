@@ -30,9 +30,15 @@ export interface WindData {
   timestamp: Date;
 }
 
+export interface ForecastHour {
+  timestamp: Date;
+  speed: number;
+}
+
 export interface ForecastData {
   max72h: number;
   timestamp: Date;
+  hourly: ForecastHour[];
 }
 
 export interface PositionData {

@@ -58,6 +58,10 @@ export function MachineCard({ machine, notifCritical, notifWarning, assignedUser
   const mainExceeds = threshold !== null && machine.wind.mainBoom >= threshold;
   const windDanger = needleExceeds || mainExceeds;
 
+  const forecastExceedanceTime = threshold !== null
+    ? machine.forecast.hourly.find(h => h.speed >= threshold)?.timestamp ?? null
+    : null;
+
   return (
     <div className={`machine-card ${windDanger && hasLicense ? 'machine-card--danger' : ''}`}>
       {/* Header */}
@@ -203,6 +207,12 @@ export function MachineCard({ machine, notifCritical, notifWarning, assignedUser
               <span className="data-field__timestamp">
                 Vorhersage von {formatTimestamp(machine.forecast.timestamp)}
               </span>
+              {forecastExceedanceTime && (
+                <span className="data-field__forecast-exceedance">
+                  <AlertTriangle size={11} />
+                  Überschreitung erw. {forecastExceedanceTime.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
             </div>
 
             {/* Standort */}

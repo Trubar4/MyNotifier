@@ -8,6 +8,17 @@ import type {
 } from '../data/types';
 import { BOOM_POSITION_LABELS } from '../data/types';
 
+function generateHourlyForecast(peakValue: number, peakHour: number) {
+  const now = new Date();
+  const baseValue = peakValue * 0.3;
+  return Array.from({ length: 72 }, (_, i) => {
+    const phase = ((i - peakHour) / 72) * Math.PI * 2;
+    const sine = Math.cos(phase);
+    const speed = Math.max(0, baseValue + (peakValue - baseValue) * ((sine + 1) / 2));
+    return { timestamp: new Date(now.getTime() + i * 60 * 60 * 1000), speed: Math.round(speed * 10) / 10 };
+  });
+}
+
 interface ScenarioConfigProps {
   machine: MachineConfig;
   onSave: (updated: MachineConfig) => void;
@@ -70,6 +81,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
       forecast: {
         max72h: forecast,
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        hourly: generateHourlyForecast(forecast, 18),
       },
     });
     onClose();
