@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/confident-tesla-qw7wa7
+      - claude/stoic-cray-hnbof3
   workflow_dispatch:
 
 permissions:

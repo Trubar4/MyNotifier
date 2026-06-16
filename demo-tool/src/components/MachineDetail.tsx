@@ -499,6 +499,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                     const displayHours = machine.forecast.hourly;
                     const thresholdPct = threshold !== null ? (threshold / maxSpeed) * 100 : null;
                     const warningPct = threshold !== null ? ((threshold * 0.8) / maxSpeed) * 100 : null;
+                    const labelHours = displayHours.filter((_, i) => i % 6 === 0);
                     return (
                       <>
                         <div className="forecast-histogram__chart">
@@ -506,22 +507,13 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                             {displayHours.map((h, i) => {
                               const level = getWindLevel(h.speed, threshold);
                               const heightPct = (h.speed / maxSpeed) * 100;
-                              const showLabel = i % 6 === 0;
                               return (
-                                <div key={i} className="forecast-histogram__bar-col">
-                                  <div className="forecast-histogram__bar-wrap">
-                                    <div
-                                      className={`forecast-histogram__bar forecast-histogram__bar--${level}`}
-                                      style={{ height: `${heightPct}%` }}
-                                      title={`${h.timestamp.toLocaleString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}: ${h.speed.toFixed(1)} m/s`}
-                                    />
-                                  </div>
-                                  {showLabel && (
-                                    <span className="forecast-histogram__label">
-                                      {h.timestamp.toLocaleString('de-DE', { weekday: 'short', hour: '2-digit' })}
-                                    </span>
-                                  )}
-                                </div>
+                                <div
+                                  key={i}
+                                  className={`forecast-histogram__bar forecast-histogram__bar--${level}`}
+                                  style={{ height: `${heightPct}%` }}
+                                  title={`${h.timestamp.toLocaleString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}: ${h.speed.toFixed(1)} m/s`}
+                                />
                               );
                             })}
                           </div>
@@ -533,6 +525,13 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                           {warningPct !== null && (
                             <div className="forecast-histogram__warning-line" style={{ bottom: `${warningPct}%` }} />
                           )}
+                        </div>
+                        <div className="forecast-histogram__time-labels">
+                          {labelHours.map((h, i) => (
+                            <span key={i} className="forecast-histogram__label">
+                              {h.timestamp.toLocaleString('de-DE', { weekday: 'short', hour: '2-digit' })}
+                            </span>
+                          ))}
                         </div>
                         <div className="forecast-histogram__legend">
                           <span className="forecast-histogram__legend-item forecast-histogram__legend-item--safe">Sicher</span>
