@@ -145,11 +145,6 @@ export function ReportsPage({ machines }: ReportsPageProps) {
         {/* 2. Zeitraum */}
         <div className="reports-control-group">
           <label className="reports-label">Zeitraum</label>
-          <div className="reports-chips">
-            <button className="config-chip" onClick={() => { setFrom(daysAgo(1)); setTo(new Date()); }}>24h</button>
-            <button className="config-chip" onClick={() => { setFrom(daysAgo(7)); setTo(new Date()); }}>7 Tage</button>
-            <button className="config-chip" onClick={() => { setFrom(daysAgo(30)); setTo(new Date()); }}>30 Tage</button>
-          </div>
           <div className="reports-date-range">
             <input type="datetime-local" className="position-fixation__input" value={formatDateLocal(from)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) setFrom(d); }} />
             <span className="reports-date-sep">–</span>
@@ -170,6 +165,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
         {/* Schwellenwerte */}
         <div className="reports-control-group">
           <label className="reports-label">Grenzwerte</label>
+          <div className="reports-thresholds-wrap">
           <div className="reports-thresholds">
             <label className="reports-threshold-row">
               <span className="reports-threshold-dot reports-threshold-dot--red" />
@@ -199,6 +195,11 @@ export function ReportsPage({ machines }: ReportsPageProps) {
               />
               <span className="reports-threshold-unit">m/s</span>
             </label>
+          </div>
+          <div className="reports-threshold-ref">
+            <span>Arbeitsposition Nadelausleger: <strong>15 m/s</strong></span>
+            <span>Arbeitsposition Hauptausleger: <strong>12 m/s</strong></span>
+          </div>
           </div>
         </div>
 

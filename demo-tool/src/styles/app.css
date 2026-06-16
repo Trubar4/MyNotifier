@@ -2388,6 +2388,23 @@
   color: var(--r-on-surface-muted);
 }
 
+.reports-thresholds-wrap {
+  display: flex;
+  gap: var(--s-5);
+  align-items: flex-start;
+}
+
+.reports-threshold-ref {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  font: 400 12px/1.4 var(--font-text);
+  color: var(--r-on-surface-variant);
+  padding-top: var(--s-1);
+  border-left: 2px solid var(--r-outline-variant);
+  padding-left: var(--s-3);
+}
+
 /* Chart */
 .reports-content {
   display: flex;
