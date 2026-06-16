@@ -2318,6 +2318,11 @@
   border-width: 2px;
 }
 
+.dailycheck-card--bad {
+  border-color: var(--r-error);
+  border-width: 2px;
+}
+
 .dailycheck-card__header {
   display: flex;
   align-items: center;
@@ -2335,6 +2340,11 @@
 
 .dailycheck-card__ok-icon {
   color: var(--r-success);
+  flex-shrink: 0;
+}
+
+.dailycheck-card__bad-icon {
+  color: var(--r-error);
   flex-shrink: 0;
 }
 
@@ -2408,6 +2418,12 @@
   background: var(--r-success) !important;
   color: #fff !important;
   border-color: var(--r-success) !important;
+}
+
+.dailycheck-card__btn--bad {
+  background: var(--r-error) !important;
+  color: #fff !important;
+  border-color: var(--r-error) !important;
 }
 
 /* ============================================================

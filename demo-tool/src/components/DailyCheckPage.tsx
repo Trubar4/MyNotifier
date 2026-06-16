@@ -96,13 +96,16 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
           const currentPos = machine.position.position;
           const positionKnown = isOnline || machine.position.manuallySet;
-          const positionMatches = positionKnown && currentPos === recommendedPos;
+          const currentThreshold = positionKnown ? BOOM_THRESHOLDS[currentPos] : undefined;
+          const positionSufficient = positionKnown && (currentThreshold === null || (currentThreshold !== undefined && currentThreshold > maxWind));
+          const positionInsufficient = positionKnown && !positionSufficient;
+          const positionOk = positionSufficient; // exact match OR safer
 
           const notifInfo = getUnreadNotifInfo(machine.id);
           const totalNotifs = notifInfo.critical + notifInfo.warning;
 
           return (
-            <div key={machine.id} className={`dailycheck-card${positionMatches ? ' dailycheck-card--ok' : ''}`}>
+            <div key={machine.id} className={`dailycheck-card${positionOk ? ' dailycheck-card--ok' : positionInsufficient ? ' dailycheck-card--bad' : ''}`}>
               {/* Header */}
               <div className="dailycheck-card__header">
                 <img src={BASE + 'crane-lwn.svg'} alt="" width={24} height={24} />
@@ -112,8 +115,11 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
                     {totalNotifs}
                   </span>
                 )}
-                {positionMatches && (
+                {positionOk && (
                   <CheckCircle size={20} className="dailycheck-card__ok-icon" />
+                )}
+                {positionInsufficient && (
+                  <AlertTriangle size={20} className="dailycheck-card__bad-icon" />
                 )}
               </div>
 
@@ -172,10 +178,10 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
               {/* Button nur für Offline-Maschinen */}
               {!isOnline && (
                 <button
-                  className={`lds-btn lds-btn--sm dailycheck-card__btn${positionMatches ? ' dailycheck-card__btn--ok' : ' lds-btn--primary'}`}
+                  className={`lds-btn lds-btn--sm dailycheck-card__btn${positionOk ? ' dailycheck-card__btn--ok' : positionInsufficient ? ' dailycheck-card__btn--bad' : ' lds-btn--primary'}`}
                   onClick={() => setPositionSelectorMachineId(machine.id)}
                 >
-                  {positionMatches ? <CheckCircle size={14} /> : null}
+                  {positionOk ? <CheckCircle size={14} /> : positionInsufficient ? <AlertTriangle size={14} /> : null}
                   Position manuell setzen
                 </button>
               )}
