@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Ebene_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 64 64">
+  <!-- Generator: Adobe Illustrator 29.5.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 141)  -->
+  <defs>
+    <style>
+      .st0, .st1, .st2, .st3 {
+        fill: none;
+        stroke: #000;
+      }
+
+      .st0, .st3 {
+        stroke-width: 2px;
+      }
+
+      .st1 {
+        stroke-miterlimit: 4;
+        stroke-width: 2px;
+      }
+
+      .st2 {
+        stroke-miterlimit: 4;
+        stroke-width: 2px;
+      }
+
+      .st3 {
+        stroke-linejoin: bevel;
+      }
+    </style>
+  </defs>
+  <path class="st3" d="M37.507,9.504c.306.257,4.979,4.178,7.277,6.106l-12.42.022,2.135,12.235-7.277-6.107"/>
+  <path class="st2" d="M43.477,4.723l4.979,4.178c.952.799,1.076,2.218.277,3.17h0c-.799.952-2.218,1.076-3.17.277l-4.979-4.178c-.952-.799-1.076-2.218-.277-3.17h0c.799-.952,2.218-1.076,3.17-.277Z"/>
+  <circle cx="41.839" cy="6.286" r="2"/>
+  <circle cx="47.202" cy="10.785" r="2"/>
+  <path class="st0" d="M8.789,58.509L44.785,15.611l.396-3.584-4.213-3.535-3.46,1.013L5.047,48.189"/>
+  <path class="st3" d="M25.294,24.059l7.278,6.106-13.062.788,2.135,12.235-12.42.022M9.224,43.21l2.25-2.681M9.224,43.21l2.136,12.234"/>
+  <circle class="st1" cx="53.455" cy="39.84" r="2.5"/>
+  <path class="st0" d="M41.568,35.766c6.248,6.248,6.18,16.485-.068,22.734"/>
+  <polyline class="st0" points="47.395 59.388 40.39 59.388 40.39 52.383"/>
+  <polyline class="st0" points="40.494 41.998 40.494 34.994 47.498 34.994"/>
+</svg>
