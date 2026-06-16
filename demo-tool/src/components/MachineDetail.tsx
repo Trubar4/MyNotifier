@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft,
-  Wifi,
-  WifiOff,
   CloudSun,
   AlertTriangle,
   CheckCircle,
@@ -149,7 +147,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
           <div className="detail__meta">
             <span className={`detail__status-badge ${isOnline ? 'detail__status-badge--online' : 'detail__status-badge--offline'}`}>
               <span className={`status-dot ${isOnline ? 'status-dot--online' : 'status-dot--offline'}`} />
-              {isOnline ? 'Online' : 'Offline'}
+              {isOnline ? 'Online' : `Offline (seit ${machine.wind.timestamp.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })})`}
             </span>
             {hasLicense ? (
               <span className="detail__license-badge detail__license-badge--active">Lizenz aktiv</span>
@@ -175,163 +173,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
         </div>
       ) : (
         <div className="detail__grid">
-          {/* Machine Status Section — top left */}
-          <div className="detail__section detail__section--status">
-            <div className="detail__section-header">
-              {isOnline ? <Wifi size={18} /> : <WifiOff size={18} />}
-              <h2 className="detail__section-title">Maschinenstatus</h2>
-              <InfoPopover>
-                <div>
-                  <strong>Online</strong> = Master ein + Datenverbindung<br />
-                  <strong>Offline</strong> = Master aus UND/ODER keine Datenverbindung
-                </div>
-              </InfoPopover>
-            </div>
-
-            <div className="status-detail">
-              <div className="status-detail__indicator">
-                <span className={`status-dot ${isOnline ? 'status-dot--online' : 'status-dot--offline'}`} style={{ width: 12, height: 12 }} />
-                <span className="status-detail__text">{isOnline ? 'Online' : 'Offline'}</span>
-              </div>
-              {!isOnline && (
-                <span className="status-detail__since">
-                  Seit {formatTimestamp(machine.wind.timestamp)}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Location Section — top right */}
-          <div className="detail__section detail__section--location">
-            <div className="detail__section-header">
-              <MapPin size={18} />
-              <h2 className="detail__section-title">Standort</h2>
-            </div>
-
-            <div className="location-detail">
-              <span className="location-detail__address">{machine.location.address}</span>
-              <div
-                className="location-detail__map-container"
-                onClick={() => setShowLargeMap(true)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && setShowLargeMap(true)}
-              >
-                <iframe
-                  className="location-detail__map"
-                  src={mapEmbedUrl}
-                  title="Standort auf Karte"
-                  loading="lazy"
-                />
-                <div className="location-detail__map-overlay">
-                  <ExternalLink size={16} />
-                  <span>Karte vergrößern</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Wind Section */}
-          <div className="detail__section detail__section--wind">
-            <div className="detail__section-header">
-              <h2 className="detail__section-title">Aktuelle Windgeschwindigkeit</h2>
-              <InfoPopover>
-                Die Windgeschwindigkeit wird am Nadelausleger und Hauptausleger gemessen. Die Schwellenwerte hängen von der aktuellen Auslegerposition ab.
-              </InfoPopover>
-            </div>
-            {!isLive(machine.wind.timestamp) ? (
-              <span className="detail__freshness detail__freshness--stale">
-                Wert von {formatTimestamp(machine.wind.timestamp)}
-              </span>
-            ) : (
-              <span className="detail__freshness detail__freshness--live">Live</span>
-            )}
-
-            <div className="wind-detail-grid">
-              {/* Nadelausleger */}
-              <div className="wind-detail-card">
-                <div className="wind-detail-card__header">
-                  <img src={BASE + 'sensor-jib.svg'} alt="Nadelausleger" width={24} height={24} className="wind-detail-card__icon" />
-                  <span className="wind-detail-card__label">Nadelausleger</span>
-                </div>
-                <span className={`wind-detail-card__value wind-detail-card__value--${needleLevel}`}>
-                  {machine.wind.needleBoom.toFixed(1)}
-                  <span className="wind-detail-card__unit">m/s</span>
-                </span>
-                {threshold !== null && (
-                  <div className="wind-threshold">
-                    <div className="wind-threshold__bar">
-                      <div
-                        className={`wind-threshold__fill wind-threshold__fill--${needleLevel}`}
-                        style={{ width: `${Math.min((machine.wind.needleBoom / threshold) * 100, 100)}%` }}
-                      />
-                      <div className="wind-threshold__marker" style={{ left: '80%' }} />
-                      <div className="wind-threshold__marker wind-threshold__marker--limit" style={{ left: '100%' }} />
-                    </div>
-                    <div className="wind-threshold__labels">
-                      <span>0</span>
-                      <span className="wind-threshold__warn-label">{(threshold * 0.8).toFixed(0)}</span>
-                      <span className="wind-threshold__limit-label">{threshold} m/s</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Hauptausleger */}
-              <div className="wind-detail-card">
-                <div className="wind-detail-card__header">
-                  <img src={BASE + 'sensor-boom.svg'} alt="Hauptausleger" width={24} height={24} className="wind-detail-card__icon" />
-                  <span className="wind-detail-card__label">Hauptausleger</span>
-                </div>
-                <span className={`wind-detail-card__value wind-detail-card__value--${mainLevel}`}>
-                  {machine.wind.mainBoom.toFixed(1)}
-                  <span className="wind-detail-card__unit">m/s</span>
-                </span>
-                {threshold !== null && (
-                  <div className="wind-threshold">
-                    <div className="wind-threshold__bar">
-                      <div
-                        className={`wind-threshold__fill wind-threshold__fill--${mainLevel}`}
-                        style={{ width: `${Math.min((machine.wind.mainBoom / threshold) * 100, 100)}%` }}
-                      />
-                      <div className="wind-threshold__marker" style={{ left: '80%' }} />
-                      <div className="wind-threshold__marker wind-threshold__marker--limit" style={{ left: '100%' }} />
-                    </div>
-                    <div className="wind-threshold__labels">
-                      <span>0</span>
-                      <span className="wind-threshold__warn-label">{(threshold * 0.8).toFixed(0)}</span>
-                      <span className="wind-threshold__limit-label">{threshold} m/s</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {threshold !== null && (
-              <div className="wind-threshold-info">
-                <div className={`wind-threshold-status wind-threshold-status--${needleLevel === 'danger' || mainLevel === 'danger' ? 'danger' : needleLevel === 'warning' || mainLevel === 'warning' ? 'warning' : 'safe'}`}>
-                  {needleLevel === 'danger' || mainLevel === 'danger' ? (
-                    <>
-                      <AlertTriangle size={16} />
-                      <span>Windgeschwindigkeit überschreitet den Schwellenwert für die aktuelle Auslegerposition ({BOOM_POSITION_LABELS[machine.position.position]}: {threshold} m/s)</span>
-                    </>
-                  ) : needleLevel === 'warning' || mainLevel === 'warning' ? (
-                    <>
-                      <AlertTriangle size={16} />
-                      <span>Windgeschwindigkeit nähert sich dem Schwellenwert ({BOOM_POSITION_LABELS[machine.position.position]}: {threshold} m/s)</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle size={16} />
-                      <span>Windgeschwindigkeit im sicheren Bereich ({BOOM_POSITION_LABELS[machine.position.position]}: Schwellenwert {threshold} m/s)</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Position Section */}
+          {/* 1. Auslegerposition */}
           <div className="detail__section detail__section--position">
             <div className="detail__section-header">
               <img src={BASE + 'boom-angle.svg'} alt="" width={20} height={20} className="detail__section-header-icon" />
@@ -414,7 +256,7 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
             </div>
           </div>
 
-          {/* Forecast Section */}
+          {/* 2. Vorhersage 72h */}
           <div className="detail__section detail__section--forecast">
             <div className="detail__section-header">
               <CloudSun size={18} />
@@ -546,7 +388,89 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
             </div>
           </div>
 
-          {/* Notifications for this machine */}
+          {/* 3. Aktuelle Windgeschwindigkeit */}
+          <div className="detail__section detail__section--wind">
+            <div className="detail__section-header">
+              <h2 className="detail__section-title">Aktuelle Windgeschwindigkeit</h2>
+              <InfoPopover>
+                Die Windgeschwindigkeit wird am Nadelausleger und Hauptausleger gemessen. Die Schwellenwerte hängen von der aktuellen Auslegerposition ab.
+              </InfoPopover>
+            </div>
+            {!isLive(machine.wind.timestamp) ? (
+              <span className="detail__freshness detail__freshness--stale">
+                Wert von {formatTimestamp(machine.wind.timestamp)}
+              </span>
+            ) : (
+              <span className="detail__freshness detail__freshness--live">Live</span>
+            )}
+
+            <div className="wind-detail-grid">
+              <div className="wind-detail-card">
+                <div className="wind-detail-card__header">
+                  <img src={BASE + 'sensor-jib.svg'} alt="Nadelausleger" width={24} height={24} className="wind-detail-card__icon" />
+                  <span className="wind-detail-card__label">Nadelausleger</span>
+                </div>
+                <span className={`wind-detail-card__value wind-detail-card__value--${needleLevel}`}>
+                  {machine.wind.needleBoom.toFixed(1)}
+                  <span className="wind-detail-card__unit">m/s</span>
+                </span>
+                {threshold !== null && (
+                  <div className="wind-threshold">
+                    <div className="wind-threshold__bar">
+                      <div className={`wind-threshold__fill wind-threshold__fill--${needleLevel}`} style={{ width: `${Math.min((machine.wind.needleBoom / threshold) * 100, 100)}%` }} />
+                      <div className="wind-threshold__marker" style={{ left: '80%' }} />
+                      <div className="wind-threshold__marker wind-threshold__marker--limit" style={{ left: '100%' }} />
+                    </div>
+                    <div className="wind-threshold__labels">
+                      <span>0</span>
+                      <span className="wind-threshold__warn-label">{(threshold * 0.8).toFixed(0)}</span>
+                      <span className="wind-threshold__limit-label">{threshold} m/s</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="wind-detail-card">
+                <div className="wind-detail-card__header">
+                  <img src={BASE + 'sensor-boom.svg'} alt="Hauptausleger" width={24} height={24} className="wind-detail-card__icon" />
+                  <span className="wind-detail-card__label">Hauptausleger</span>
+                </div>
+                <span className={`wind-detail-card__value wind-detail-card__value--${mainLevel}`}>
+                  {machine.wind.mainBoom.toFixed(1)}
+                  <span className="wind-detail-card__unit">m/s</span>
+                </span>
+                {threshold !== null && (
+                  <div className="wind-threshold">
+                    <div className="wind-threshold__bar">
+                      <div className={`wind-threshold__fill wind-threshold__fill--${mainLevel}`} style={{ width: `${Math.min((machine.wind.mainBoom / threshold) * 100, 100)}%` }} />
+                      <div className="wind-threshold__marker" style={{ left: '80%' }} />
+                      <div className="wind-threshold__marker wind-threshold__marker--limit" style={{ left: '100%' }} />
+                    </div>
+                    <div className="wind-threshold__labels">
+                      <span>0</span>
+                      <span className="wind-threshold__warn-label">{(threshold * 0.8).toFixed(0)}</span>
+                      <span className="wind-threshold__limit-label">{threshold} m/s</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {threshold !== null && (
+              <div className="wind-threshold-info">
+                <div className={`wind-threshold-status wind-threshold-status--${needleLevel === 'danger' || mainLevel === 'danger' ? 'danger' : needleLevel === 'warning' || mainLevel === 'warning' ? 'warning' : 'safe'}`}>
+                  {needleLevel === 'danger' || mainLevel === 'danger' ? (
+                    <><AlertTriangle size={16} /><span>Windgeschwindigkeit überschreitet den Schwellenwert für die aktuelle Auslegerposition ({BOOM_POSITION_LABELS[machine.position.position]}: {threshold} m/s)</span></>
+                  ) : needleLevel === 'warning' || mainLevel === 'warning' ? (
+                    <><AlertTriangle size={16} /><span>Windgeschwindigkeit nähert sich dem Schwellenwert ({BOOM_POSITION_LABELS[machine.position.position]}: {threshold} m/s)</span></>
+                  ) : (
+                    <><CheckCircle size={16} /><span>Windgeschwindigkeit im sicheren Bereich ({BOOM_POSITION_LABELS[machine.position.position]}: Schwellenwert {threshold} m/s)</span></>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Benachrichtigungen */}
           <div className="detail__section detail__section--notifications">
             <div className="detail__section-header">
               <Bell size={18} />
@@ -726,6 +650,35 @@ export function MachineDetail({ machine, notifications, notifSettings, onBack, o
                 </>
               );
             })()}
+          </div>
+
+          {/* 5. Standort */}
+          <div className="detail__section detail__section--location">
+            <div className="detail__section-header">
+              <MapPin size={18} />
+              <h2 className="detail__section-title">Standort</h2>
+            </div>
+            <div className="location-detail">
+              <span className="location-detail__address">{machine.location.address}</span>
+              <div
+                className="location-detail__map-container"
+                onClick={() => setShowLargeMap(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setShowLargeMap(true)}
+              >
+                <iframe
+                  className="location-detail__map"
+                  src={mapEmbedUrl}
+                  title="Standort auf Karte"
+                  loading="lazy"
+                />
+                <div className="location-detail__map-overlay">
+                  <ExternalLink size={16} />
+                  <span>Karte vergrößern</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {assigningNotif && (
