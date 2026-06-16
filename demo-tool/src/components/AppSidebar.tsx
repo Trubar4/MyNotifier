@@ -1,7 +1,7 @@
-import { Bell, FileText, Users, Settings } from 'lucide-react';
+import { Bell, FileText, Users, Settings, CheckSquare } from 'lucide-react';
 import type { ComponentType } from 'react';
 
-type Page = 'notifications' | 'machines' | 'reports' | 'users' | 'settings';
+type Page = 'notifications' | 'machines' | 'dailycheck' | 'reports' | 'users' | 'settings';
 
 interface AppSidebarProps {
   activePage: Page;
@@ -23,6 +23,7 @@ function CraneLwnIcon({ size = 22 }: { size?: number }) {
 const NAV_ITEMS: { id: Page; icon?: ComponentType<{ size: number }>; customIcon?: boolean; label: string }[] = [
   { id: 'notifications', icon: Bell, label: 'Benachrichtigungen' },
   { id: 'machines', customIcon: true, label: 'Maschinen' },
+  { id: 'dailycheck', icon: CheckSquare, label: 'Abendcheck' },
   { id: 'reports', icon: FileText, label: 'Berichte' },
   { id: 'users', icon: Users, label: 'Benutzer' },
   { id: 'settings', icon: Settings, label: 'Einstellungen' },
