@@ -72,4 +72,6 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   phone: '+49 170 1234567',
   globalEnabled: true,
   machineOverrides: {},
+  forecastWindowHours: 12,
+  forecastWindowOverrides: {},
 };

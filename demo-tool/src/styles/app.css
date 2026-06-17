@@ -2153,6 +2153,55 @@
   gap: var(--s-4);
 }
 
+.settings-forecast-slider {
+  width: 100%;
+  accent-color: var(--r-brand);
+}
+
+.settings-forecast-value {
+  font: 600 14px/20px var(--font-text-m);
+  color: var(--r-brand);
+  min-width: 40px;
+  text-align: right;
+}
+
+.settings-forecast-value--sm {
+  font-size: 12px;
+}
+
+.settings-row__hint-icon {
+  font-style: normal;
+}
+
+.settings-machine-block {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--r-outline-bright);
+  padding-bottom: var(--s-3);
+}
+
+.settings-machine-block:last-child {
+  border-bottom: none;
+}
+
+.settings-machine-block .settings-row {
+  border-bottom: none;
+  padding-bottom: var(--s-2);
+}
+
+.settings-machine-window {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: 0 0 var(--s-2) 0;
+}
+
+.settings-machine-window__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .settings-license__validity {
   font: 500 14px/20px var(--font-text-m);
   color: var(--r-on-surface-default);

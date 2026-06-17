@@ -23,7 +23,7 @@ function CraneLwnIcon({ size = 22 }: { size?: number }) {
 const NAV_ITEMS: { id: Page; icon?: ComponentType<{ size: number }>; customIcon?: boolean; label: string }[] = [
   { id: 'notifications', icon: Bell, label: 'Benachrichtigungen' },
   { id: 'machines', customIcon: true, label: 'Maschinen' },
-  { id: 'dailycheck', icon: CheckSquare, label: 'Abendcheck' },
+  { id: 'dailycheck', icon: CheckSquare, label: 'Check für Auslegerposition außerhalb Betrieb' },
   { id: 'reports', icon: FileText, label: 'Berichte' },
   { id: 'users', icon: Users, label: 'Benutzer' },
   { id: 'settings', icon: Settings, label: 'Einstellungen' },

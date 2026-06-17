@@ -132,7 +132,12 @@ export function NotificationsPage({ notifications, machines, filterMachineId, on
           {isAssigned && (
             <div className="notif-card__assigned">
               <CheckCircle size={14} />
-              <span>{n.assignedTo} hat die Aufgabe übernommen</span>
+              <span>
+                {n.assignedTo} hat die Aufgabe übernommen
+                {n.assignedAt && (
+                  <span className="notif-card__assigned-time"> · {formatTimestamp(n.assignedAt)}</span>
+                )}
+              </span>
             </div>
           )}
 

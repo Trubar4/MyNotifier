@@ -107,6 +107,8 @@ export interface NotificationSettings {
   phone: string;
   globalEnabled: boolean;
   machineOverrides: Record<string, boolean>;
+  forecastWindowHours: number;
+  forecastWindowOverrides: Record<string, number>;
 }
 
 export const DEMO_USER = 'Max Mustermann';

@@ -67,7 +67,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
   return (
     <>
-      <h1 className="page-title">Abendcheck</h1>
+      <h1 className="page-title">Check für Auslegerposition außerhalb Betrieb</h1>
 
       <div className="dailycheck-header">
         <label className="dailycheck-until__label" htmlFor="dailycheck-until">

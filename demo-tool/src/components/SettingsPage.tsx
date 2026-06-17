@@ -32,12 +32,7 @@ export function SettingsPage({ settings, machines, onUpdateSettings }: SettingsP
     });
   }
 
-  function handleResetMachine(machineId: string) {
-    const { [machineId]: _, ...rest } = settings.machineOverrides;
-    onUpdateSettings({ ...settings, machineOverrides: rest });
-  }
-
-  return (
+return (
     <div>
       <h1 className="page-title">Einstellungen</h1>
 
@@ -163,6 +158,26 @@ export function SettingsPage({ settings, machines, onUpdateSettings }: SettingsP
                 onChange={(e) => onUpdateSettings({ ...settings, phone: e.target.value })}
               />
             </div>
+
+            <div className="settings-row settings-row--stacked">
+              <div className="settings-row__top">
+                <span className="settings-row__label">Prognosefenster für Warnungen</span>
+                <span className="settings-forecast-value">{settings.forecastWindowHours} h</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={72}
+                step={1}
+                className="settings-forecast-slider"
+                value={settings.forecastWindowHours}
+                onChange={e => onUpdateSettings({ ...settings, forecastWindowHours: parseInt(e.target.value) })}
+              />
+              <span className="settings-row__hint">
+                <span className="settings-row__hint-icon">ⓘ</span>
+                {' '}Sie werden nur für Überschreitungen des Schwellenwerts im gewählten Zeitfenster benachrichtigt.
+              </span>
+            </div>
           </div>
         </div>
 
@@ -176,24 +191,51 @@ export function SettingsPage({ settings, machines, onUpdateSettings }: SettingsP
             {machines.map((m) => {
               const enabled = isMachineEnabled(m.id);
               const isOverridden = m.id in settings.machineOverrides;
+              const windowOverride = settings.forecastWindowOverrides[m.id];
+              const hasWindowOverride = windowOverride !== undefined;
+              const effectiveWindow = hasWindowOverride ? windowOverride : settings.forecastWindowHours;
               return (
-                <div key={m.id} className="settings-row">
-                  <div className="settings-row__info">
-                    <span className="settings-row__label">{m.name} - {m.serialNumber}</span>
-                    {isOverridden && (
-                      <button className="settings-row__reset" onClick={() => handleResetMachine(m.id)}>
-                        Auf Global zurücksetzen
-                      </button>
-                    )}
+                <div key={m.id} className="settings-machine-block">
+                  <div className="settings-row">
+                    <div className="settings-row__info">
+                      <span className="settings-row__label">{m.name} - {m.serialNumber}</span>
+                      {(isOverridden || hasWindowOverride) && (
+                        <button className="settings-row__reset" onClick={() => {
+                          const { [m.id]: _a, ...restOverrides } = settings.machineOverrides;
+                          const { [m.id]: _b, ...restWindow } = settings.forecastWindowOverrides;
+                          onUpdateSettings({ ...settings, machineOverrides: restOverrides, forecastWindowOverrides: restWindow });
+                        }}>
+                          Auf Global zurücksetzen
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      className={`toggle-switch ${enabled ? 'toggle-switch--on' : ''}`}
+                      onClick={() => handleToggleMachine(m.id)}
+                      role="switch"
+                      aria-checked={enabled}
+                    >
+                      <span className="toggle-switch__thumb" />
+                    </button>
                   </div>
-                  <button
-                    className={`toggle-switch ${enabled ? 'toggle-switch--on' : ''}`}
-                    onClick={() => handleToggleMachine(m.id)}
-                    role="switch"
-                    aria-checked={enabled}
-                  >
-                    <span className="toggle-switch__thumb" />
-                  </button>
+                  <div className="settings-machine-window">
+                    <div className="settings-machine-window__top">
+                      <span className="settings-row__hint">Prognosefenster</span>
+                      <span className="settings-forecast-value settings-forecast-value--sm">{effectiveWindow} h{!hasWindowOverride && ' (Global)'}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={1}
+                      max={72}
+                      step={1}
+                      className="settings-forecast-slider"
+                      value={effectiveWindow}
+                      onChange={e => onUpdateSettings({
+                        ...settings,
+                        forecastWindowOverrides: { ...settings.forecastWindowOverrides, [m.id]: parseInt(e.target.value) },
+                      })}
+                    />
+                  </div>
                 </div>
               );
             })}
