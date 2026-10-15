@@ -1,17 +1,6 @@
-import {
-  Wifi,
-  WifiOff,
-  CloudSun,
-  ChevronRight,
-  Settings,
-  PenLine,
-  MapPin,
-  CheckCircle,
-  AlertTriangle,
-} from 'lucide-react';
+import { RefreshCw, MapPin, Bell, Settings, Ban, PencilRuler, FileSearch } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
-import { InfoPopover } from './InfoPopover';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -26,213 +15,175 @@ interface MachineCardProps {
   onNotifClick: () => void;
 }
 
-function formatTimestamp(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-
-  if (diffMin < 1) return 'jetzt';
-  if (diffMin < 60) return `vor ${diffMin} Min.`;
-
+function formatStamp(date: Date): string {
   return date.toLocaleString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit',
   });
 }
 
-function isLive(date: Date): boolean {
-  return Date.now() - date.getTime() < 60000;
+/* Placeholder boom-position icon — replaced by official Liebherr SVGs once provided */
+function PositionIcon() {
+  return (
+    <img src={BASE + 'boom-angle.svg'} alt="" width={48} height={48} style={{ display: 'block' }} />
+  );
 }
 
-export function MachineCard({ machine, notifCritical, notifWarning, assignedUser, onOpenConfig, onOpen, onOpenPositionSelector, onNotifClick }: MachineCardProps) {
+export function MachineCard({
+  machine, notifCritical, notifWarning, assignedUser,
+  onOpenConfig, onOpen, onOpenPositionSelector, onNotifClick,
+}: MachineCardProps) {
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
-  const totalNotifications = notifCritical + notifWarning;
+  const totalNotif = notifCritical + notifWarning;
   const hasCritical = notifCritical > 0;
 
   const threshold = BOOM_THRESHOLDS[machine.position.position];
-  const needleExceeds = threshold !== null && machine.wind.needleBoom >= threshold;
-  const mainExceeds = threshold !== null && machine.wind.mainBoom >= threshold;
-  const windDanger = needleExceeds || mainExceeds;
-
-  const forecastExceedanceTime = threshold !== null
-    ? machine.forecast.hourly.find(h => h.speed >= threshold)?.timestamp ?? null
-    : null;
+  const windNow = Math.max(machine.wind.needleBoom, machine.wind.mainBoom);
+  const windExceeds = threshold !== null && windNow >= threshold;
 
   return (
-    <div className={`machine-card ${windDanger && hasLicense ? 'machine-card--danger' : ''}`}>
-      {/* Header */}
-      <div className="machine-card__header">
-        <div className="machine-card__icon" onClick={totalNotifications > 0 ? onNotifClick : undefined} style={totalNotifications > 0 ? { cursor: 'pointer' } : undefined}>
-          <img src={BASE + 'crane-lwn.svg'} alt="" width={24} height={24} />
-          {totalNotifications > 0 && (
-            <span className={`machine-card__badge ${hasCritical ? 'machine-card__badge--critical' : 'machine-card__badge--warning'}`}>
-              {totalNotifications}
-            </span>
+    <div className="m-card">
+      {/* Demo config (hidden-ish) */}
+      <button className="m-card__demo" onClick={onOpenConfig} title="Demo-Konfiguration" aria-label="Demo-Konfiguration">
+        <Settings size={14} />
+      </button>
+
+      {/* Status row */}
+      <div className="m-card__status">
+        <div className="m-card__status-left">
+          {hasLicense ? (
+            <>
+              <RefreshCw size={14} className="m-card__status-icon" />
+              <span>{formatStamp(machine.wind.timestamp)}</span>
+            </>
+          ) : (
+            <>
+              <Ban size={14} className="m-card__status-icon" />
+              <span>Keine Lizenz</span>
+            </>
           )}
         </div>
-        <div className="machine-card__title-group">
-          <span className="machine-card__title">
-            {machine.name} - {machine.serialNumber}
-          </span>
-          <span className="machine-card__title-accent" />
+        <div className="m-card__status-right">
+          {hasLicense ? (
+            <>
+              <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
+              <span>{isOnline ? 'Online' : 'Offline'}</span>
+            </>
+          ) : (
+            <span className="m-card__sn-right">SN: {machine.serialNumber}</span>
+          )}
         </div>
-        <button
-          className="machine-card__config-btn"
-          onClick={onOpenConfig}
-          title="Demo-Konfiguration"
-        >
-          <Settings size={16} />
-        </button>
       </div>
-
-      {/* Assigned user banner */}
-      {assignedUser && (
-        <div className="machine-card__assigned">
-          <CheckCircle size={12} />
-          <span>{assignedUser} hat die Aufgabe übernommen</span>
-        </div>
-      )}
 
       {/* Body */}
-      <div className="machine-card__body">
-        {!hasLicense ? (
-          <div className="data-field data-field--full">
-            <span className="license-badge license-badge--none">Keine Lizenz</span>
+      <div className="m-card__body">
+        <div className="m-card__header">
+          <div className="m-card__header-left">
+            <h3 className="m-card__name">{machine.name} - {machine.serialNumber}</h3>
+            {hasLicense ? (
+              <div className="m-card__sn">
+                <img src={BASE + 'crane-lwn.svg'} alt="" width={16} height={16} />
+                <span>{machine.serialNumber}</span>
+              </div>
+            ) : (
+              <div className="m-card__sn">
+                <span>Stand: {formatStamp(machine.wind.timestamp)} Uhr</span>
+              </div>
+            )}
+            <div className="m-card__loc">
+              <MapPin size={14} />
+              <span>{hasLicense ? machine.location.shortAddress : '-'}</span>
+            </div>
           </div>
-        ) : (
-          <>
-            {/* Auslegerposition */}
-            <div className="data-field">
-              <div className="data-field__header">
-                <img src={BASE + 'boom-angle.svg'} alt="" width={16} height={16} className="data-field__icon" />
-              </div>
-              <span className="data-field__value">
-                {BOOM_POSITION_LABELS[machine.position.position]}
-              </span>
-              <span className="data-field__label">Aktuelle Auslegerposition</span>
-              {!isOnline && !machine.position.manuallySet && (
-                <span className="data-field__timestamp">
-                  Wert von {formatTimestamp(machine.position.timestamp)}
+          {hasLicense && (
+            <button
+              className="m-card__bell"
+              onClick={totalNotif > 0 ? onNotifClick : undefined}
+              aria-label="Benachrichtigungen"
+              style={totalNotif > 0 ? undefined : { cursor: 'default' }}
+            >
+              <Bell size={22} strokeWidth={1.75} />
+              {totalNotif > 0 && (
+                <span className={`m-card__bell-badge ${hasCritical ? 'm-card__bell-badge--critical' : ''}`}>
+                  {totalNotif}
                 </span>
               )}
-              {machine.position.manuallySet && (
-                <span className="data-field__timestamp">
-                  Manuell gesetzt am {formatTimestamp(machine.position.timestamp)}
-                </span>
-              )}
-              {!isOnline && !machine.position.manuallySet && (
-                <button className="lds-btn lds-btn--primary lds-btn--sm position-action" onClick={onOpenPositionSelector}>
-                  Prüfen und setzen
-                </button>
-              )}
-              {!isOnline && machine.position.manuallySet && (
-                <button className="position-action position-action--subtle" onClick={onOpenPositionSelector}>
-                  <PenLine size={12} />
-                  Position bei Änderung aktualisieren
-                </button>
-              )}
-            </div>
+            </button>
+          )}
+        </div>
 
-            {/* Maschinenstatus */}
-            <div className="data-field">
-              <div className="data-field__header">
-                {isOnline ? <Wifi size={14} className="data-field__icon" /> : <WifiOff size={14} className="data-field__icon" />}
-                <InfoPopover>
-                  <div>
-                    <strong>Online</strong> = Master ein + Datenverbindung<br />
-                    <strong>Offline</strong> = Master aus UND/ODER keine Datenverbindung
-                  </div>
-                </InfoPopover>
-              </div>
-              <span className="data-field__value">
-                <span className={`status-dot ${isOnline ? 'status-dot--online' : 'status-dot--offline'}`} />
-                {isOnline ? 'Online' : 'Offline'}
-              </span>
-              <span className="data-field__label">Maschinenstatus</span>
-            </div>
-
-            {/* Aktuelle Windgeschwindigkeit */}
-            <div className="data-field">
-              <div className="data-field__value">
-                <div className="wind-values">
-                  <div className="wind-value-row">
-                    <span className="wind-value-row__label">Nadelausleger</span>
-                    <span className={`wind-value-row__value ${needleExceeds ? 'wind-value-row__value--danger' : ''}`}>
-                      {machine.wind.needleBoom.toFixed(1)} m/s
-                    </span>
-                  </div>
-                  <div className="wind-value-row">
-                    <span className="wind-value-row__label">Hauptausleger</span>
-                    <span className={`wind-value-row__value ${mainExceeds ? 'wind-value-row__value--danger' : ''}`}>
-                      {machine.wind.mainBoom.toFixed(1)} m/s
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <span className="data-field__label">Aktuelle Windgeschwindigkeit</span>
-              {windDanger && threshold !== null && (
-                <div className="data-field__wind-warning">
-                  <AlertTriangle size={12} />
-                  <span>Schwellenwert überschritten ({threshold} m/s)</span>
-                </div>
-              )}
-              {!isLive(machine.wind.timestamp) && (
-                <span className="data-field__timestamp">
-                  Wert von {formatTimestamp(machine.wind.timestamp)}
-                </span>
-              )}
-              {isLive(machine.wind.timestamp) && (
-                <span className="data-field__timestamp" style={{ color: 'var(--r-on-success-soft)', fontStyle: 'normal', opacity: 1 }}>
-                  Live
-                </span>
-              )}
-            </div>
-
-            {/* Vorhersage 72h */}
-            <div className="data-field">
-              <div className="data-field__header">
-                <CloudSun size={14} className="data-field__icon" />
-                <InfoPopover>
-                  Die Vorhersagen stammen von Meteomatics aufgrund der Höhe der Auslegerposition des Maschinenstandorts.
-                </InfoPopover>
-              </div>
-              <span className="data-field__value">
-                Max {machine.forecast.max72h.toFixed(1)} m/s
-              </span>
-              <span className="data-field__label">Vorhersage 72h</span>
-              <span className="data-field__timestamp">
-                Vorhersage von {formatTimestamp(machine.forecast.timestamp)}
-              </span>
-              {forecastExceedanceTime && (
-                <span className="data-field__forecast-exceedance">
-                  <AlertTriangle size={11} />
-                  Überschreitung erw. {forecastExceedanceTime.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
-                </span>
-              )}
-            </div>
-
-            {/* Standort */}
-            <div className="data-field">
-              <div className="data-field__header">
-                <MapPin size={14} className="data-field__icon" />
-              </div>
-              <span className="data-field__value">{machine.location.shortAddress}</span>
-              <span className="data-field__label">Standort</span>
-            </div>
-          </>
+        {assignedUser && (
+          <div className="m-card__assigned">
+            <span>{assignedUser} hat die Aufgabe übernommen</span>
+          </div>
         )}
-      </div>
 
-      {/* Footer */}
-      <div className="machine-card__footer">
-        <button className="machine-card__open-btn" onClick={onOpen}>
-          <ChevronRight size={14} />
-          ÖFFNEN
-        </button>
+        {/* Machine state panel */}
+        <div className="m-card__state">
+          <div className="m-card__state-col">
+            <span className="m-card__state-label">Auslegerposition</span>
+            {hasLicense ? (
+              <div className="m-card__pos">
+                <PositionIcon />
+                <span className="m-card__pos-label">{BOOM_POSITION_LABELS[machine.position.position]}</span>
+              </div>
+            ) : (
+              <span className="m-card__nodata">No Data</span>
+            )}
+          </div>
+
+          <div className="m-card__state-divider" />
+
+          <div className="m-card__state-col">
+            <span className="m-card__state-label">Windmessung</span>
+            {hasLicense ? (
+              <div className="m-card__wind">
+                <div className="m-card__wind-value">
+                  <span className={`m-card__wind-num ${windExceeds ? 'm-card__wind-num--danger' : ''}`}>
+                    {windNow.toFixed(1)}
+                  </span>
+                  <span className="m-card__wind-unit">m/s</span>
+                </div>
+                {threshold !== null && (
+                  <div className="m-card__wind-max">
+                    <span>max. zulässig:</span>
+                    <strong>{threshold}</strong>
+                    <span>m/s</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className="m-card__nodata">No Data</span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="m-card__actions">
+          {hasLicense ? (
+            <>
+              <button className="m-btn m-btn--primary" onClick={onOpenPositionSelector}>
+                <PencilRuler size={18} />
+                Position
+              </button>
+              <button className="m-btn m-btn--outline" onClick={onOpen}>
+                <FileSearch size={18} />
+                Details
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpen}>
+                <FileSearch size={18} />
+                Lizenz jetzt erwerben
+              </button>
+              <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label="Details">
+                <FileSearch size={18} />
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

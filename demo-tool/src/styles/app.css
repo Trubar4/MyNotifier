@@ -159,9 +159,9 @@
 
 /* === MACHINE OVERVIEW === */
 .page-title {
-  font: 900 40px/44px var(--font-head-b);
+  font: var(--tm-h1);
   color: var(--r-on-surface-default);
-  margin: 0 0 var(--s-6);
+  margin: var(--s-2) 0 var(--s-4);
 }
 
 /* Machine toolbar: search + sort */
@@ -245,10 +245,263 @@
 }
 
 .machine-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--s-5);
 }
+
+/* ============================================================
+   MACHINE CARD — Figma 2.0 (mobile)
+   ============================================================ */
+.m-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hidden-ish demo config trigger */
+.m-card__demo {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 2;
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--p-steel-300);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--motion-fast), color var(--motion-fast);
+}
+.m-card__demo:hover {
+  opacity: 1;
+  color: var(--p-steel-600);
+}
+
+/* Status row above the card body */
+.m-card__status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s-1) var(--s-2);
+}
+.m-card__status-left,
+.m-card__status-right {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font: 400 12px/16px var(--font-text);
+  color: var(--p-steel-700);
+}
+.m-card__status-icon {
+  color: var(--p-steel-500);
+}
+.m-card__sn-right {
+  color: var(--p-steel-600);
+}
+.m-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.m-card__dot--online { background: var(--color-success, #398713); }
+.m-card__dot--offline { background: var(--r-error, #e52828); }
+.m-card__status-right { color: var(--p-black); }
+
+/* Card body */
+.m-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  background: var(--p-white);
+  border: 1px solid var(--p-steel-300);
+  padding: var(--s-3);
+}
+
+.m-card__header {
+  display: flex;
+  gap: var(--s-3);
+  align-items: flex-start;
+}
+.m-card__header-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.m-card__name {
+  margin: 0;
+  font: 900 18px/20px var(--font-head-b);
+  letter-spacing: 1.44px;
+  color: var(--p-black);
+}
+.m-card__sn,
+.m-card__loc {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font: 400 12px/16px var(--font-text);
+  color: var(--p-steel-600);
+}
+.m-card__loc { color: var(--p-steel-600); font-family: var(--font-text-m); }
+
+.m-card__bell {
+  position: relative;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--p-black);
+  cursor: pointer;
+}
+.m-card__bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--r-brand);
+  color: var(--p-black);
+  border: 1px solid var(--p-white);
+  border-radius: 12px;
+  font: 700 10px/16px var(--font-text-b);
+}
+.m-card__bell-badge--critical { background: var(--r-error); color: var(--p-white); }
+
+.m-card__assigned {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  background: var(--p-leaf-500, #2ea675);
+  color: var(--p-white);
+  font: 700 11px/14px var(--font-text-b);
+  border-radius: var(--radius-1);
+}
+
+/* State panel: position | wind */
+.m-card__state {
+  display: flex;
+  gap: var(--s-1);
+  background: var(--p-steel-50);
+  min-height: 120px;
+}
+.m-card__state-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-2);
+}
+.m-card__state-label {
+  width: 100%;
+  text-align: center;
+  font: 700 12px/1.1 var(--font-text-b);
+  text-transform: uppercase;
+  color: var(--p-steel-900);
+}
+.m-card__state-divider {
+  width: 1px;
+  align-self: center;
+  height: 88px;
+  background: var(--p-steel-300);
+}
+.m-card__pos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+}
+.m-card__pos-label {
+  font: 700 13px/1.2 var(--font-text-b);
+  color: var(--p-steel-900);
+  text-align: center;
+}
+.m-card__nodata {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 14px/20px var(--font-text);
+  color: var(--p-steel-400);
+}
+.m-card__wind {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+}
+.m-card__wind-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-1);
+}
+.m-card__wind-num {
+  font: 900 24px/1 var(--font-head-b);
+  color: var(--p-black);
+}
+.m-card__wind-num--danger { color: var(--r-error); }
+.m-card__wind-unit {
+  font: 700 16px/24px var(--font-text-b);
+  color: var(--p-steel-700);
+}
+.m-card__wind-max {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font: 400 12px/1 var(--font-text);
+  color: var(--p-steel-500);
+}
+.m-card__wind-max strong {
+  font-family: var(--font-text-b);
+  color: var(--p-steel-800);
+}
+
+/* Actions */
+.m-card__actions {
+  display: flex;
+  gap: var(--s-2);
+}
+.m-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border: none;
+  cursor: pointer;
+  font: 700 14px/24px var(--font-text-b);
+  letter-spacing: 0.78px;
+  text-transform: uppercase;
+  color: var(--p-black);
+  transition: filter var(--motion-fast), background var(--motion-fast);
+}
+.m-btn--primary { background: var(--r-brand); }
+.m-btn--primary:hover { filter: brightness(0.95); }
+.m-btn--outline {
+  background: var(--p-white);
+  border: 1px solid var(--p-black);
+}
+.m-btn--outline:hover { background: var(--p-steel-50); }
+.m-btn--wide { flex: 3; }
+.m-btn--icon { flex: 0 0 auto; padding: var(--s-3); }
 
 /* === MACHINE CARD === */
 .machine-card {
