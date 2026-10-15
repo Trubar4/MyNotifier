@@ -1,32 +1,19 @@
-import { Bell, Globe } from 'lucide-react';
+import { User } from 'lucide-react';
 
 interface AppHeaderProps {
-  unreadCount: number;
-  hasCritical: boolean;
-  onBellClick: () => void;
+  onAvatarClick?: () => void;
 }
 
-export function AppHeader({ unreadCount, hasCritical, onBellClick }: AppHeaderProps) {
+export function AppHeader({ onAvatarClick }: AppHeaderProps) {
   return (
-    <header className="header app-header">
-      <span className="header__logo">LIEBHERR</span>
-      <span className="header__product">MyNotifier</span>
-      <div className="header__spacer" />
-      <div className="header__actions">
-        <button className="header__icon-btn" aria-label="Sprache">
-          <Globe size={20} />
-          <span style={{ fontSize: 12, marginLeft: 4 }}>DE</span>
-        </button>
-        <button className="header__icon-btn" aria-label="Benachrichtigungen" onClick={onBellClick}>
-          <Bell size={20} />
-          {unreadCount > 0 && (
-            <span className={`header__badge ${hasCritical ? '' : 'header__badge--warning'}`}>
-              {unreadCount}
-            </span>
-          )}
-        </button>
-        <div className="header__avatar">MM</div>
+    <header className="app-header">
+      <div className="app-header__brand">
+        <span className="app-header__logo">LIEBHERR</span>
+        <span className="app-header__product">MyNotifier</span>
       </div>
+      <button className="app-header__avatar" onClick={onAvatarClick} aria-label="Benutzerkonto">
+        <User size={24} strokeWidth={1.75} />
+      </button>
     </header>
   );
 }

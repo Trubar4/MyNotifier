@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { AppHeader } from './components/AppHeader';
-import { AppFooter } from './components/AppFooter';
-import { AppSidebar } from './components/AppSidebar';
+import { BottomNav } from './components/BottomNav';
 import type { Page } from './components/AppSidebar';
 import { MachineOverview } from './components/MachineOverview';
 import { MachineDetail } from './components/MachineDetail';
@@ -56,14 +55,6 @@ export default function App() {
     setDetailMachineId(id);
   }
 
-  function handleBellClick() {
-    setNotifCameFromMachines(activePage === 'machines');
-    setActivePage('notifications');
-    setDetailMachineId(null);
-    setNotifFilterMachineId(null);
-    setHighlightNotifId(null);
-  }
-
   function handleMachineNotifClick(machineId: string) {
     setNotifCameFromMachines(true);
     setActivePage('notifications');
@@ -80,14 +71,10 @@ export default function App() {
   }
 
   return (
-    <div className="app-layout">
-      <AppHeader
-        unreadCount={unreadNotifications.length}
-        hasCritical={hasCriticalUnread}
-        onBellClick={handleBellClick}
-      />
-      <AppSidebar activePage={activePage} onNavigate={handleNavigate} />
-      <main className="app-content">
+    <div className="app-backdrop">
+      <div className="app-shell">
+        <AppHeader />
+        <main className="app-content">
         {activePage === 'machines' && !detailMachine && (
           <MachineOverview
             machines={machines}
@@ -154,8 +141,14 @@ export default function App() {
             </p>
           </div>
         )}
-      </main>
-      <AppFooter />
+        </main>
+        <BottomNav
+          activePage={activePage}
+          onNavigate={handleNavigate}
+          unreadCount={unreadNotifications.length}
+          hasCritical={hasCriticalUnread}
+        />
+      </div>
     </div>
   );
 }
