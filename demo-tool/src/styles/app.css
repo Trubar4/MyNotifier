@@ -538,6 +538,87 @@
 .m-btn--outline:hover { background: var(--p-steel-50); }
 .m-btn--wide { flex: 3; }
 .m-btn--icon { flex: 0 0 auto; padding: var(--s-3); }
+.m-btn--block { flex: none; width: 100%; }
+.m-btn--danger { background: var(--r-error); color: var(--p-white); }
+.m-btn--danger:hover { filter: brightness(0.95); }
+.m-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+/* ============================================================
+   MACHINE DETAIL — Figma 2.0 (tabbed)
+   ============================================================ */
+.mdetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.mdetail__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.mdetail__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: 400 12px/16px var(--font-text);
+  color: var(--p-black);
+}
+.mdetail__name {
+  margin: 0;
+  font: 900 22px/26px var(--font-head-b);
+  letter-spacing: 0.01em;
+  color: var(--p-black);
+}
+.mdetail__sub {
+  font: 400 13px/18px var(--font-text);
+  color: var(--p-steel-600);
+}
+
+/* Tab bar */
+.mdetail__tabs {
+  display: flex;
+  gap: var(--s-5);
+  border-bottom: 1px solid var(--p-steel-200);
+  margin-top: var(--s-1);
+}
+.mdetail__tab {
+  position: relative;
+  background: none;
+  border: none;
+  padding: var(--s-2) 0 var(--s-3);
+  font: 400 15px/20px var(--font-text);
+  color: var(--p-steel-600);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mdetail__tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
+}
+.mdetail__tab:hover { color: var(--p-black); }
+.mdetail__tab--active {
+  color: var(--p-black);
+  font-family: var(--font-text-b);
+  font-weight: 700;
+}
+.mdetail__tab--active::after { background: var(--p-black); }
+
+.mdetail__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  padding-top: var(--s-3);
+}
+.mdetail__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
 
 /* === MACHINE CARD === */
 .machine-card {
@@ -2639,13 +2720,17 @@
 .specs-grid__label {
   font: 400 13px/1.4 var(--font-text);
   color: var(--r-on-surface-variant);
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .specs-grid__value {
   font: 500 13px/1.4 var(--font-text-m);
   color: var(--r-on-surface);
   text-align: right;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .specs-grid__value--mono {
