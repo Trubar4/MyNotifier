@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowLeft, AlertTriangle, XCircle, CheckCircle, Filter, ChevronDown, ChevronUp, MessageSquare, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Clock, ChevronDown, ChevronUp, Filter, Check, PencilRuler, MessageSquare } from 'lucide-react';
 import type { Notification, MachineConfig } from '../data/types';
-import { DEMO_USER } from '../data/types';
+import { DEMO_USER, BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { AssignModal } from './AssignModal';
 
 interface NotificationsPageProps {
@@ -15,280 +15,190 @@ interface NotificationsPageProps {
   onOpenMachine?: (machineId: string) => void;
 }
 
-function formatTimestamp(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
+type TabId = 'offen' | 'angenommen' | 'erledigt';
 
-  if (diffMin < 1) return 'gerade eben';
-  if (diffMin < 60) return `vor ${diffMin} Min.`;
-  const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `vor ${diffH} Std.`;
-
-  return date.toLocaleString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+function formatFull(date: Date): string {
+  const p = (n: number) => n.toString().padStart(2, '0');
+  return `${p(date.getDate())}.${p(date.getMonth() + 1)}.${date.getFullYear()} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
 }
 
-type FilterMode = 'open' | 'read' | 'all';
-
-export function NotificationsPage({ notifications, machines, filterMachineId, onUpdateNotification, onClearFilter, onBack, highlightNotifId, onOpenMachine }: NotificationsPageProps) {
-  const [filter, setFilter] = useState<FilterMode>(filterMachineId ? 'all' : 'open');
-  const [expandedMachines, setExpandedMachines] = useState<Set<string>>(new Set());
+export function NotificationsPage({
+  notifications, machines, filterMachineId, onUpdateNotification,
+  onClearFilter, onBack, highlightNotifId, onOpenMachine,
+}: NotificationsPageProps) {
+  const [tab, setTab] = useState<TabId>('offen');
+  const [expandedId, setExpandedId] = useState<string | null>(highlightNotifId ?? null);
   const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
-  const [focusNotifId, setFocusNotifId] = useState<string | null>(highlightNotifId ?? null);
 
   const machineMap = new Map(machines.map((m) => [m.id, m]));
+  const filterMachine = filterMachineId ? machineMap.get(filterMachineId) : null;
 
-  let filtered = [...notifications];
+  const scoped = filterMachineId
+    ? notifications.filter((n) => n.machineId === filterMachineId)
+    : notifications;
 
-  if (filterMachineId) {
-    filtered = filtered.filter((n) => n.machineId === filterMachineId);
-  }
+  const buckets: Record<TabId, Notification[]> = {
+    offen: scoped.filter((n) => !n.read && !n.assignedTo),
+    angenommen: scoped.filter((n) => !n.read && n.assignedTo),
+    erledigt: scoped.filter((n) => n.read),
+  };
 
-  if (filter === 'open') {
-    filtered = filtered.filter((n) => !n.read);
-  } else if (filter === 'read') {
-    filtered = filtered.filter((n) => n.read);
-  }
+  const tabs: { id: TabId; label: string }[] = [
+    { id: 'offen', label: `Offen (${buckets.offen.length})` },
+    { id: 'angenommen', label: `Angenommen (${buckets.angenommen.length})` },
+    { id: 'erledigt', label: `Erledigt (${buckets.erledigt.length})` },
+  ];
 
-  filtered.sort((a, b) => {
+  const list = [...buckets[tab]].sort((a, b) => {
     if (a.level !== b.level) return a.level - b.level;
     return b.timestamp.getTime() - a.timestamp.getTime();
   });
 
   function handleAssignConfirm(comment: string) {
     if (!assigningNotif) return;
-    onUpdateNotification({
-      ...assigningNotif,
-      assignedTo: DEMO_USER,
-      assignedAt: new Date(),
-      assignedComment: comment || null,
-    });
+    onUpdateNotification({ ...assigningNotif, assignedTo: DEMO_USER, assignedAt: new Date(), assignedComment: comment || null });
     setAssigningNotif(null);
   }
 
-  function handleUnassign(notification: Notification) {
-    onUpdateNotification({
-      ...notification,
-      assignedTo: null,
-      assignedAt: null,
-      assignedComment: null,
-    });
-  }
-
-  function handleMarkRead(notification: Notification) {
-    onUpdateNotification({ ...notification, read: !notification.read });
-  }
-
-  function toggleMachineExpand(machineId: string) {
-    setExpandedMachines(prev => {
-      const next = new Set(prev);
-      if (next.has(machineId)) next.delete(machineId);
-      else next.add(machineId);
-      return next;
-    });
-  }
-
-  function getAssignedNotifForMachine(machineId: string): Notification | null {
-    return notifications.find(n => n.machineId === machineId && n.assignedTo !== null) ?? null;
-  }
-
-  const filterMachine = filterMachineId ? machineMap.get(filterMachineId) : null;
-
-  function renderNotification(n: Notification, showMachine = true) {
+  function renderCard(n: Notification) {
     const machine = machineMap.get(n.machineId);
-    const isAssigned = n.assignedTo !== null;
-    const isHighlighted = n.id === focusNotifId;
-
-    const assignedSibling = !isAssigned ? getAssignedNotifForMachine(n.machineId) : null;
+    const isExpanded = expandedId === n.id;
+    const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
+    const threshold = machine ? BOOM_THRESHOLDS[machine.position.position] : null;
+    const isOnline = machine?.status === 'online';
 
     return (
-      <div
-        key={n.id}
-        id={`notif-${n.id}`}
-        className={`notif-card notif-card--level-${n.level} ${n.read ? 'notif-card--read' : ''} ${isAssigned ? 'notif-card--assigned' : ''} ${isHighlighted ? 'notif-card--highlight' : ''}`}
-      >
-        <div className="notif-card__icon">
-          {n.level === 1 ? <XCircle size={20} /> : <AlertTriangle size={20} />}
-        </div>
-        <div className="notif-card__content">
-          <div className="notif-card__header">
-            <span className={`notif-card__level notif-card__level--${n.level}`}>
+      <div key={n.id} className={`notif2 notif2--${levelClass}`}>
+        <div className="notif2__pillrow">
+          <div className="notif2__pillleft">
+            <span className={`notif2__pill notif2__pill--${levelClass}`}>
               {n.level === 1 ? 'Kritisch' : 'Warnung'}
             </span>
-            <span className="notif-card__time">{formatTimestamp(n.timestamp)}</span>
+            {machine && <span className="notif2__machine">{machine.name} - {machine.serialNumber}</span>}
           </div>
-          <h3 className="notif-card__title">{n.title}</h3>
-          {showMachine && machine && (
-            <span className="notif-card__machine">{machine.name} - {machine.serialNumber}</span>
-          )}
-          <p className="notif-card__body">{n.body}</p>
-
-          {isAssigned && (
-            <div className="notif-card__assigned">
-              <CheckCircle size={14} />
-              <span>
-                {n.assignedTo} hat die Aufgabe übernommen
-                {n.assignedAt && (
-                  <span className="notif-card__assigned-time"> · {formatTimestamp(n.assignedAt)}</span>
-                )}
-              </span>
+          {machine && (
+            <div className="notif2__status">
+              <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
+              <span>{isOnline ? 'Online' : 'Offline'}</span>
             </div>
           )}
-
-          {isAssigned && n.assignedComment && (
-            <div className="notif-card__comment">
-              <MessageSquare size={12} />
-              <span>{n.assignedComment}</span>
-            </div>
-          )}
-
-          {!isAssigned && assignedSibling && (
-            <div
-              className="notif-card__cross-ref"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpandedMachines(prev => new Set([...prev, assignedSibling.machineId]));
-                if (assignedSibling.read && filter === 'open') setFilter('all');
-                setFocusNotifId(assignedSibling.id);
-                requestAnimationFrame(() => {
-                  const el = document.getElementById(`notif-${assignedSibling.id}`);
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                });
-              }}
-              role="button"
-              tabIndex={0}
-            >
-              <CheckCircle size={12} />
-              <span>
-                {assignedSibling.assignedTo} hat für <strong>{assignedSibling.title}</strong> die Aufgabe übernommen
-              </span>
-            </div>
-          )}
-
-          <div className="notif-card__actions">
-            <button
-              className={`lds-btn lds-btn--sm ${isAssigned ? 'lds-btn--ghost' : 'lds-btn--primary'}`}
-              onClick={() => isAssigned ? handleUnassign(n) : setAssigningNotif(n)}
-            >
-              {isAssigned ? 'Abgeben' : 'Übernehmen'}
-            </button>
-            <button
-              className="lds-btn lds-btn--ghost lds-btn--sm"
-              onClick={() => handleMarkRead(n)}
-            >
-              {n.read ? 'Als ungelesen markieren' : 'Als gelesen markieren'}
-            </button>
-            {onOpenMachine && (
-              <button
-                className="lds-btn lds-btn--ghost lds-btn--sm"
-                onClick={() => onOpenMachine(n.machineId)}
-              >
-                <ExternalLink size={12} />
-                Zur Maschine
-              </button>
-            )}
-          </div>
         </div>
+
+        <div className="notif2__time">
+          <Clock size={14} />
+          <span>{formatFull(n.timestamp)}</span>
+        </div>
+
+        <h3 className="notif2__title">{n.title}</h3>
+
+        {isExpanded && (
+          <div className="notif2__detail">
+            <p className="notif2__body">{n.body}</p>
+
+            {n.assignedTo && (
+              <div className="notif2__field">
+                <span className="notif2__field-label">Übernommen durch:</span>
+                <span className="notif2__field-value">{n.assignedTo}</span>
+              </div>
+            )}
+            {n.assignedTo && n.assignedComment && (
+              <div className="notif2__comment">
+                <MessageSquare size={12} />
+                <span>{n.assignedComment}</span>
+              </div>
+            )}
+            {machine && (
+              <>
+                <div className="notif2__field">
+                  <span className="notif2__field-label">Aktuelle Position:</span>
+                  <span className="notif2__field-value">{BOOM_POSITION_LABELS[machine.position.position]}</span>
+                </div>
+                {threshold !== null && (
+                  <div className="notif2__field">
+                    <span className="notif2__field-label">Max. zulässiger Wind:</span>
+                    <span className="notif2__field-value">{threshold} m/s</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="notif2__actions">
+              {tab === 'offen' && (
+                <>
+                  <button className="m-btn m-btn--primary" onClick={() => setAssigningNotif(n)}>Übernehmen</button>
+                  <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, read: true })}>
+                    <Check size={16} /> Erledigt
+                  </button>
+                </>
+              )}
+              {tab === 'angenommen' && (
+                <>
+                  {onOpenMachine && (
+                    <button className="m-btn m-btn--outline" onClick={() => onOpenMachine(n.machineId)}>
+                      <PencilRuler size={16} /> Position anpassen
+                    </button>
+                  )}
+                  <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, assignedTo: null, assignedAt: null, assignedComment: null })}>Abgeben</button>
+                  <button className="m-btn m-btn--primary" onClick={() => onUpdateNotification({ ...n, read: true })}>
+                    <Check size={16} /> Erledigt
+                  </button>
+                </>
+              )}
+              {tab === 'erledigt' && (
+                <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, read: false })}>Wieder öffnen</button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <button className="notif2__toggle" onClick={() => setExpandedId(isExpanded ? null : n.id)}>
+          <span>{isExpanded ? 'Weniger anzeigen' : 'Mehr anzeigen'}</span>
+          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
       </div>
     );
   }
 
-  function renderAccordion() {
-    const groups = new Map<string, Notification[]>();
-    for (const n of filtered) {
-      const list = groups.get(n.machineId) || [];
-      list.push(n);
-      groups.set(n.machineId, list);
-    }
-
-    return Array.from(groups.entries()).map(([machineId, notifs]) => {
-      const machine = machineMap.get(machineId);
-      const hasCritical = notifs.some((n) => n.level === 1);
-      const newest = notifs[0];
-      const rest = notifs.slice(1);
-      const isExpanded = expandedMachines.has(machineId);
-
-      return (
-        <div key={machineId} className="notif-accordion">
-          <div className={`notif-accordion__header ${hasCritical ? 'notif-accordion__header--critical' : 'notif-accordion__header--warning'}`}>
-            <span className="notif-accordion__machine">
-              {machine ? `${machine.name} - ${machine.serialNumber}` : machineId}
-            </span>
-            <span className="notif-accordion__count">
-              {notifs.length} {notifs.length === 1 ? 'Benachrichtigung' : 'Benachrichtigungen'}
-            </span>
-          </div>
-
-          {renderNotification(newest, false)}
-
-          {rest.length > 0 && (
-            <>
-              {isExpanded && (
-                <div className="notif-accordion__rest">
-                  {rest.map(n => renderNotification(n, false))}
-                </div>
-              )}
-              <button
-                className="notif-accordion__toggle"
-                onClick={() => toggleMachineExpand(machineId)}
-              >
-                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                {isExpanded ? 'Weniger anzeigen' : `${rest.length} weitere anzeigen`}
-              </button>
-            </>
-          )}
-        </div>
-      );
-    });
-  }
-
   return (
-    <div>
+    <div className="notif2-page">
       {onBack && (
         <button className="notif-back-btn" onClick={onBack}>
           <ArrowLeft size={16} />
           Zurück zur Übersicht
         </button>
       )}
-      <h1 className="page-title">Benachrichtigungen</h1>
+      <h1 className="page-title">Benachrichtigung</h1>
 
       {filterMachine && (
         <div className="notif-filter-banner">
           <Filter size={14} />
-          <span>Gefiltert nach: <strong>{filterMachine.name} - {filterMachine.serialNumber}</strong></span>
-          <button className="notif-filter-banner__clear" onClick={onClearFilter}>Filter aufheben</button>
+          <span>Gefiltert: <strong>{filterMachine.name} - {filterMachine.serialNumber}</strong></span>
+          <button className="notif-filter-banner__clear" onClick={onClearFilter}>Aufheben</button>
         </div>
       )}
 
-      <div className="notif-toolbar">
-        <div className="notif-toolbar__group">
-          <span className="notif-toolbar__label">Filter:</span>
-          {(['open', 'read', 'all'] as FilterMode[]).map((f) => (
-            <button
-              key={f}
-              className={`config-chip ${filter === f ? 'config-chip--active' : ''}`}
-              onClick={() => setFilter(f)}
-            >
-              {f === 'open' ? 'Offen' : f === 'read' ? 'Gelesen' : 'Alle'}
-            </button>
-          ))}
-        </div>
+      <div className="notif2-tabs" role="tablist">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`notif2-tab ${tab === t.id ? 'notif2-tab--active' : ''}`}
+            onClick={() => { setTab(t.id); setExpandedId(null); }}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      <div className="notif-list">
-        {filtered.length === 0 ? (
+      <div className="notif2-list">
+        {list.length === 0 ? (
           <div className="notif-empty">
-            <CheckCircle size={32} />
-            <span>Keine Benachrichtigungen{filter === 'open' ? ' offen' : filter === 'read' ? ' gelesen' : ''}.</span>
+            <Check size={28} />
+            <span>Keine Benachrichtigungen in „{tabs.find(t => t.id === tab)?.label.replace(/ \(\d+\)/, '')}".</span>
           </div>
         ) : (
-          renderAccordion()
+          list.map(renderCard)
         )}
       </div>
 
