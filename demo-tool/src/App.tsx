@@ -82,6 +82,7 @@ export default function App() {
             onUpdateMachine={handleUpdateMachine}
             onOpenMachine={handleOpenMachine}
             onMachineNotifClick={handleMachineNotifClick}
+            onDailyCheck={() => handleNavigate('dailycheck')}
           />
         )}
         {activePage === 'machines' && detailMachine && (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, SlidersHorizontal, ClipboardCheck, X } from 'lucide-react';
 import type { MachineConfig, Notification } from '../data/types';
 import { MachineCard } from './MachineCard';
 import { ScenarioConfig } from './ScenarioConfig';
@@ -14,14 +14,16 @@ interface MachineOverviewProps {
   onUpdateMachine: (updated: MachineConfig) => void;
   onOpenMachine: (id: string) => void;
   onMachineNotifClick: (machineId: string) => void;
+  onDailyCheck?: () => void;
 }
 
-export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick }: MachineOverviewProps) {
+export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick, onDailyCheck }: MachineOverviewProps) {
   const [configMachineId, setConfigMachineId] = useState<string | null>(null);
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
   const [filter, setFilter] = useState<FilterMode>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const configMachine = machines.find((m) => m.id === configMachineId);
   const positionSelectorMachine = machines.find((m) => m.id === positionSelectorMachineId);
@@ -67,59 +69,60 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
     <>
       <h1 className="page-title">Maschinen</h1>
 
-      <div className="machine-toolbar">
-        <div className="machine-search">
-          <Search size={16} className="machine-search__icon" />
+      <div className="m-toolbar">
+        <div className="m-search">
+          <Search size={20} className="m-search__icon" />
           <input
             type="text"
-            className="machine-search__input"
-            placeholder="Name, Seriennummer oder Standort suchen..."
+            className="m-search__input"
+            placeholder="Suchen..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="machine-sort">
-          <span className="machine-sort__label">Sortierung:</span>
-          <button
-            className={`config-chip ${sort === 'recent' ? 'config-chip--active' : ''}`}
-            onClick={() => setSort('recent')}
-          >
-            Neueste Meldung
-          </button>
-          <button
-            className={`config-chip ${sort === 'name' ? 'config-chip--active' : ''}`}
-            onClick={() => setSort('name')}
-          >
-            Alphabetisch
-          </button>
-        </div>
-        <div className="machine-filter">
-          <span className="machine-sort__label">Filter:</span>
-          <button
-            className={`config-chip ${filter === 'offlineNoManual' ? 'config-chip--active' : ''}`}
-            onClick={() => setFilter(f => f === 'offlineNoManual' ? null : 'offlineNoManual')}
-          >
-            Offline Auslegerposition unbekannt
-          </button>
-          <button
-            className={`config-chip ${filter === 'offline' ? 'config-chip--active' : ''}`}
-            onClick={() => setFilter(f => f === 'offline' ? null : 'offline')}
-          >
-            Alle Offline
-          </button>
-          <button
-            className={`config-chip ${filter === 'warnings' ? 'config-chip--active' : ''}`}
-            onClick={() => setFilter(f => f === 'warnings' ? null : 'warnings')}
-          >
-            Mit Warnungen
-          </button>
-          {filter !== null && (
-            <button className="machine-filter__clear" onClick={() => setFilter(null)}>
-              Filter aufheben
-            </button>
-          )}
-        </div>
+        <button
+          className={`m-toolbar__btn ${showFilters || filter !== null ? 'm-toolbar__btn--active' : ''}`}
+          onClick={() => setShowFilters((s) => !s)}
+          aria-label="Filter und Sortierung"
+          aria-expanded={showFilters}
+        >
+          <SlidersHorizontal size={20} />
+          {filter !== null && <span className="m-toolbar__dot" />}
+        </button>
+        <button
+          className="m-toolbar__btn m-toolbar__btn--primary"
+          onClick={onDailyCheck}
+          aria-label="Check für Auslegerposition außerhalb Betrieb"
+          title="Check für Auslegerposition außerhalb Betrieb"
+        >
+          <ClipboardCheck size={20} />
+        </button>
       </div>
+
+      {showFilters && (
+        <div className="m-filtersheet">
+          <div className="m-filtersheet__row">
+            <span className="m-filtersheet__label">Sortierung</span>
+            <div className="m-filtersheet__chips">
+              <button className={`config-chip ${sort === 'recent' ? 'config-chip--active' : ''}`} onClick={() => setSort('recent')}>Neueste Meldung</button>
+              <button className={`config-chip ${sort === 'name' ? 'config-chip--active' : ''}`} onClick={() => setSort('name')}>Alphabetisch</button>
+            </div>
+          </div>
+          <div className="m-filtersheet__row">
+            <span className="m-filtersheet__label">Filter</span>
+            <div className="m-filtersheet__chips">
+              <button className={`config-chip ${filter === 'offlineNoManual' ? 'config-chip--active' : ''}`} onClick={() => setFilter(f => f === 'offlineNoManual' ? null : 'offlineNoManual')}>Offline, Position unbekannt</button>
+              <button className={`config-chip ${filter === 'offline' ? 'config-chip--active' : ''}`} onClick={() => setFilter(f => f === 'offline' ? null : 'offline')}>Alle Offline</button>
+              <button className={`config-chip ${filter === 'warnings' ? 'config-chip--active' : ''}`} onClick={() => setFilter(f => f === 'warnings' ? null : 'warnings')}>Mit Warnungen</button>
+              {filter !== null && (
+                <button className="m-filtersheet__clear" onClick={() => setFilter(null)}>
+                  <X size={14} /> Filter aufheben
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="machine-grid">
         {sorted.length === 0 ? (
