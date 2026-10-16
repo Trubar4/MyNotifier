@@ -6,30 +6,42 @@ const DAY_LABELS: Record<WeekDay, string> = {
   MO: 'MO', TU: 'TU', WE: 'WE', TH: 'TH', FR: 'FR', SA: 'SA', SU: 'SU',
 };
 
-/* Discrete slider over a fixed list of step values */
-export function StepSlider({ steps, value, onChange }: {
+function nearestStep(v: number, steps: number[]): number {
+  return steps.reduce((best, s) => (Math.abs(s - v) < Math.abs(best - v) ? s : best), steps[0]);
+}
+
+/**
+ * Value-based slider snapping to a list of allowed step values.
+ * `domain` sets the visual track range (default: first/last step).
+ * `minSelectable` forbids values below it (the left zone is greyed).
+ */
+export function StepSlider({ steps, value, onChange, domain, minSelectable }: {
   steps: number[];
   value: number;
   onChange: (v: number) => void;
+  domain?: [number, number];
+  minSelectable?: number;
 }) {
-  const idx = Math.max(0, steps.indexOf(value));
-  const pct = steps.length > 1 ? (idx / (steps.length - 1)) * 100 : 0;
+  const [dMin, dMax] = domain ?? [steps[0], steps[steps.length - 1]];
+  const pct = dMax > dMin ? ((value - dMin) / (dMax - dMin)) * 100 : 0;
+  const lockPct = minSelectable != null && dMax > dMin ? ((minSelectable - dMin) / (dMax - dMin)) * 100 : null;
+
   return (
     <div className="m-slider">
+      {lockPct != null && <div className="m-slider__lock" style={{ width: `${lockPct}%` }} aria-hidden />}
       <input
         type="range"
-        min={0}
-        max={steps.length - 1}
+        min={dMin}
+        max={dMax}
         step={1}
-        value={idx}
-        onChange={(e) => onChange(steps[parseInt(e.target.value, 10)])}
+        value={value}
+        onChange={(e) => {
+          let v = parseInt(e.target.value, 10);
+          if (minSelectable != null) v = Math.max(minSelectable, v);
+          onChange(nearestStep(v, steps));
+        }}
         style={{ ['--pct' as string]: `${pct}%` }}
       />
-      <div className="m-slider__ticks" aria-hidden>
-        {steps.map((_, i) => (
-          <span key={i} style={{ left: `${(i / (steps.length - 1)) * 100}%` }} />
-        ))}
-      </div>
     </div>
   );
 }
@@ -102,7 +114,7 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
               Windgeschwindigkeit gewarnt wird.
             </InfoPopover>
           </div>
-          <StepSlider steps={VORWARN_STEPS} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} />
+          <StepSlider steps={VORWARN_STEPS} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} domain={[0, 100]} minSelectable={50} />
           <span className="m-settings-field__value">
             Warnung bei {prefs.vorwarnPercent} %{warnAt != null ? ` · ab ${warnAt.toFixed(1)} m/s` : ''}
           </span>

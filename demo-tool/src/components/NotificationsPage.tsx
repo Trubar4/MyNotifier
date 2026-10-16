@@ -3,8 +3,7 @@ import { ArrowLeft, Clock, ChevronDown, ChevronUp, Filter, Check, MessageSquare 
 import type { Notification, MachineConfig, BoomPosition } from '../data/types';
 import { DEMO_USER, BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { AssignModal } from './AssignModal';
-import { ManuellAnpassenModal } from './ManuellAnpassenModal';
-import { recommendPosition } from './PositionSelector';
+import { PositionSelector, recommendPosition } from './PositionSelector';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -95,7 +94,14 @@ export function NotificationsPage({
     const lastPosHours = machine ? hoursSince(machine.position.timestamp) : 0;
 
     return (
-      <div key={n.id} className={`notif2 notif2--${levelClass}`}>
+      <div
+        key={n.id}
+        className={`notif2 notif2--${levelClass} notif2--clickable`}
+        onClick={() => setExpandedId(isExpanded ? null : n.id)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpandedId(isExpanded ? null : n.id)}
+      >
         <div className="notif2__pillrow">
           <div className="notif2__pillleft">
             <span className={`notif2__pill notif2__pill--${levelClass}`}>
@@ -128,7 +134,7 @@ export function NotificationsPage({
         )}
 
         {isExpanded && (
-          <div className="notif2__detail">
+          <div className="notif2__detail" onClick={(e) => e.stopPropagation()}>
             <p className="notif2__body">{n.body}</p>
 
             {n.assignedTo && (
@@ -204,7 +210,7 @@ export function NotificationsPage({
           </div>
         )}
 
-        <button className="notif2__toggle" onClick={() => setExpandedId(isExpanded ? null : n.id)}>
+        <button className="notif2__toggle" onClick={(e) => { e.stopPropagation(); setExpandedId(isExpanded ? null : n.id); }}>
           <span>{isExpanded ? 'Weniger anzeigen' : 'Mehr anzeigen'}</span>
           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -264,9 +270,14 @@ export function NotificationsPage({
       )}
 
       {anpassenNotif && machineMap.get(anpassenNotif.machineId) && (
-        <ManuellAnpassenModal
-          machine={machineMap.get(anpassenNotif.machineId)!}
-          onConfirm={handleAnpassenConfirm}
+        <PositionSelector
+          title="Manuell anpassen"
+          subtitle={`Auslegerposition für ${machineMap.get(anpassenNotif.machineId)!.name} - ${machineMap.get(anpassenNotif.machineId)!.serialNumber}`}
+          currentPosition={machineMap.get(anpassenNotif.machineId)!.position.position}
+          forecastMax={machineMap.get(anpassenNotif.machineId)!.forecast.max72h}
+          allowNoAction
+          onSelect={(p) => handleAnpassenConfirm(p)}
+          onNoAction={() => handleAnpassenConfirm(null)}
           onClose={() => setAnpassenNotif(null)}
         />
       )}
