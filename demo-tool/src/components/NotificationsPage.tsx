@@ -91,6 +91,15 @@ export function NotificationsPage({
 
         <h3 className="notif2__title">{n.title}</h3>
 
+        {machine && (
+          <div className="notif2__facts">
+            {threshold !== null && (
+              <span>Position akt. bis: <strong>{threshold} m/s</strong></span>
+            )}
+            <span>Prognose max.: <strong>{machine.forecast.max72h.toFixed(1)} m/s</strong></span>
+          </div>
+        )}
+
         {isExpanded && (
           <div className="notif2__detail">
             <p className="notif2__body">{n.body}</p>

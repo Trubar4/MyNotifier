@@ -619,6 +619,7 @@ export function MachineDetail({
           currentPosition={machine.position.position}
           onSelect={handleSetPosition}
           onClose={() => setShowPositionSelector(false)}
+          forecastMax={machine.forecast.max72h}
         />
       )}
 

@@ -162,6 +162,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
       {positionSelectorMachine && (
         <PositionSelector
           currentPosition={positionSelectorMachine.position.position}
+          forecastMax={positionSelectorMachine.forecast.max72h}
           onSelect={(pos) => {
             onUpdateMachine({
               ...positionSelectorMachine,
