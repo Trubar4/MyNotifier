@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef } from 'react';
+import { Minus, Plus, BarChart3, FileText, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MachineConfig } from '../data/types';
-import { BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import {
   generateHistoricalWind,
   aggregateToDaily,
@@ -24,7 +25,8 @@ function formatDT(d: Date, resolution: Resolution): string {
 }
 
 function formatDateLocal(d: Date): string {
-  return d.toISOString().slice(0, 16);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function daysAgo(n: number): Date {
@@ -44,10 +46,11 @@ export function ReportsPage({ machines }: ReportsPageProps) {
   const licensedMachines = machines.filter(m => m.license === 'active');
 
   const [machineId, setMachineId] = useState(licensedMachines[0]?.id ?? '');
-  const [from, setFrom] = useState<Date>(daysAgo(7));
+  const [from, setFrom] = useState<Date>(daysAgo(3));
   const [to, setTo] = useState<Date>(new Date());
   const [resolution, setResolution] = useState<Resolution>('1h');
   const [sensor, setSensor] = useState<Sensor>('mainBoom');
+  const [showReport, setShowReport] = useState(false);
 
   const machine = machines.find(m => m.id === machineId);
   const threshold = machine ? BOOM_THRESHOLDS[machine.position.position] : null;
@@ -55,47 +58,34 @@ export function ReportsPage({ machines }: ReportsPageProps) {
   const [redThreshold, setRedThreshold] = useState<number>(() => threshold ?? 15);
   const [orangeThreshold, setOrangeThreshold] = useState<number>(() => threshold ? Math.round(threshold * 0.8) : 12);
 
-  // Sync thresholds when machine changes
   function handleMachineChange(id: string) {
     setMachineId(id);
     const m = machines.find(x => x.id === id);
     const t = m ? BOOM_THRESHOLDS[m.position.position] : null;
     setRedThreshold(t ?? 15);
     setOrangeThreshold(t ? Math.round(t * 0.8) : 12);
+    setShowReport(false);
   }
 
-  // Historical data (memoized per machine)
   const allHistorical = useMemo(() => {
     if (!machine) return [];
-    return generateHistoricalWind(
-      machine.wind.needleBoom,
-      machine.wind.mainBoom,
-      parseInt(machine.serialNumber, 10) || 1
-    );
+    return generateHistoricalWind(machine.wind.needleBoom, machine.wind.mainBoom, parseInt(machine.serialNumber, 10) || 1);
   }, [machine]);
 
-  // Filter by time range
-  const filtered = useMemo(() => {
-    return allHistorical.filter(e => e.timestamp >= from && e.timestamp <= to);
-  }, [allHistorical, from, to]);
+  const filtered = useMemo(() => allHistorical.filter(e => e.timestamp >= from && e.timestamp <= to), [allHistorical, from, to]);
 
-  // Apply resolution
   const resolved = useMemo((): WindEntry[] => {
     if (resolution === '1day') return aggregateToDaily(filtered);
     if (resolution === '10min') return interpolateTo10Min(filtered);
     return filtered;
   }, [filtered, resolution]);
 
-  const maxValue = useMemo(
-    () => Math.max(...resolved.map(e => e[sensor]), redThreshold, 1),
-    [resolved, sensor, redThreshold]
-  );
+  const maxValue = useMemo(() => Math.max(...resolved.map(e => e[sensor]), redThreshold, 1), [resolved, sensor, redThreshold]);
 
   const printRef = useRef<HTMLDivElement>(null);
+  const sensorLabel = sensor === 'needleBoom' ? 'Nadelausleger' : 'Hauptausleger';
 
-  function handlePrint() {
-    window.print();
-  }
+  function handlePrint() { window.print(); }
 
   function handleExcelExport() {
     if (!machine) return;
@@ -111,120 +101,92 @@ export function ReportsPage({ machines }: ReportsPageProps) {
     XLSX.writeFile(wb, `Windbericht_${machine.serialNumber}_${from.toISOString().slice(0,10)}_${to.toISOString().slice(0,10)}.xlsx`);
   }
 
-  const sensorLabel = sensor === 'needleBoom' ? 'Nadelausleger' : 'Hauptausleger';
+  function step(setter: (fn: (v: number) => number) => void, delta: number) {
+    setter(v => Math.max(0, Math.round((v + delta) * 2) / 2));
+  }
 
   return (
     <div className="reports-page" ref={printRef}>
       <h1 className="page-title">Windberichte</h1>
 
-      {/* Controls — hidden on print */}
-      <div className="reports-controls no-print">
-        {/* 1. Maschine */}
-        <div className="reports-control-group">
-          <label className="reports-label">Maschine</label>
-          <select
-            className="reports-select"
-            value={machineId}
-            onChange={e => handleMachineChange(e.target.value)}
-          >
+      <div className="rep-form no-print">
+        <div className="rep-field">
+          <label className="rep-label">Machine</label>
+          <select className="rep-select" value={machineId} onChange={e => handleMachineChange(e.target.value)}>
             {licensedMachines.map(m => (
-              <option key={m.id} value={m.id}>{m.name} – {m.serialNumber}</option>
+              <option key={m.id} value={m.id}>{m.name} - {m.serialNumber}</option>
             ))}
           </select>
         </div>
 
-        {/* Sensor */}
-        <div className="reports-control-group">
-          <label className="reports-label">Sensor</label>
-          <div className="reports-chips">
-            <button className={`config-chip ${sensor === 'mainBoom' ? 'config-chip--active' : ''}`} onClick={() => setSensor('mainBoom')}>Hauptausleger</button>
-            <button className={`config-chip ${sensor === 'needleBoom' ? 'config-chip--active' : ''}`} onClick={() => setSensor('needleBoom')}>Nadelausleger</button>
+        <div className="rep-field">
+          <label className="rep-label">Sensor</label>
+          <div className="m-segment">
+            <button className={`m-segment__btn ${sensor === 'mainBoom' ? 'm-segment__btn--active' : ''}`} onClick={() => { setSensor('mainBoom'); setShowReport(false); }}>Hauptausleger</button>
+            <button className={`m-segment__btn ${sensor === 'needleBoom' ? 'm-segment__btn--active' : ''}`} onClick={() => { setSensor('needleBoom'); setShowReport(false); }}>Nadelausleger</button>
           </div>
         </div>
 
-        {/* 2. Zeitraum */}
-        <div className="reports-control-group">
-          <label className="reports-label">Zeitraum</label>
-          <div className="reports-date-range">
-            <input type="datetime-local" className="position-fixation__input" value={formatDateLocal(from)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) setFrom(d); }} />
-            <span className="reports-date-sep">–</span>
-            <input type="datetime-local" className="position-fixation__input" value={formatDateLocal(to)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) setTo(d); }} />
+        <div className="rep-field">
+          <label className="rep-label">Von</label>
+          <input type="datetime-local" className="rep-input" value={formatDateLocal(from)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) { setFrom(d); setShowReport(false); } }} />
+        </div>
+        <div className="rep-field">
+          <label className="rep-label">Bis</label>
+          <input type="datetime-local" className="rep-input" value={formatDateLocal(to)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) { setTo(d); setShowReport(false); } }} />
+        </div>
+
+        <div className="rep-field">
+          <label className="rep-label">Skalierung</label>
+          <div className="m-segment m-segment--3">
+            <button className={`m-segment__btn ${resolution === '10min' ? 'm-segment__btn--active' : ''}`} onClick={() => { setResolution('10min'); setShowReport(false); }}>10 Min</button>
+            <button className={`m-segment__btn ${resolution === '1h' ? 'm-segment__btn--active' : ''}`} onClick={() => { setResolution('1h'); setShowReport(false); }}>1 Std</button>
+            <button className={`m-segment__btn ${resolution === '1day' ? 'm-segment__btn--active' : ''}`} onClick={() => { setResolution('1day'); setShowReport(false); }}>1 Tag</button>
           </div>
         </div>
 
-        {/* 3. Skalierung */}
-        <div className="reports-control-group">
-          <label className="reports-label">Skalierung</label>
-          <div className="reports-chips">
-            <button className={`config-chip ${resolution === '10min' ? 'config-chip--active' : ''}`} onClick={() => setResolution('10min')}>10 Min</button>
-            <button className={`config-chip ${resolution === '1h' ? 'config-chip--active' : ''}`} onClick={() => setResolution('1h')}>1 Std</button>
-            <button className={`config-chip ${resolution === '1day' ? 'config-chip--active' : ''}`} onClick={() => setResolution('1day')}>1 Tag</button>
+        <div className="rep-field">
+          <label className="rep-label">Grenzwerte</label>
+          <div className="rep-limits">
+            <div className="rep-limit">
+              <span className="rep-limit-head"><span className="rep-dot rep-dot--red" />Kritisch <span className="rep-limit-unit">m/s</span></span>
+              <div className="m-stepper">
+                <button onClick={() => step(setRedThreshold, -0.5)} aria-label="weniger"><Minus size={16} /></button>
+                <input type="number" value={redThreshold} onChange={e => setRedThreshold(parseFloat(e.target.value) || 0)} />
+                <button onClick={() => step(setRedThreshold, 0.5)} aria-label="mehr"><Plus size={16} /></button>
+              </div>
+            </div>
+            <div className="rep-limit">
+              <span className="rep-limit-head"><span className="rep-dot rep-dot--orange" />Warnung <span className="rep-limit-unit">m/s</span></span>
+              <div className="m-stepper">
+                <button onClick={() => step(setOrangeThreshold, -0.5)} aria-label="weniger"><Minus size={16} /></button>
+                <input type="number" value={orangeThreshold} onChange={e => setOrangeThreshold(parseFloat(e.target.value) || 0)} />
+                <button onClick={() => step(setOrangeThreshold, 0.5)} aria-label="mehr"><Plus size={16} /></button>
+              </div>
+            </div>
           </div>
+          {machine && threshold !== null && (
+            <div className="rep-limit-ref">
+              Arbeitsposition {BOOM_POSITION_LABELS[machine.position.position]}: <strong>{threshold} m/s</strong>
+            </div>
+          )}
         </div>
 
-        {/* Schwellenwerte */}
-        <div className="reports-control-group">
-          <label className="reports-label">Grenzwerte</label>
-          <div className="reports-thresholds-wrap">
-          <div className="reports-thresholds">
-            <label className="reports-threshold-row">
-              <span className="reports-threshold-dot reports-threshold-dot--red" />
-              <span className="reports-threshold-label">Rot</span>
-              <input
-                type="number"
-                min={0}
-                max={50}
-                step={0.5}
-                className="reports-threshold-input"
-                value={redThreshold}
-                onChange={e => setRedThreshold(parseFloat(e.target.value) || 0)}
-              />
-              <span className="reports-threshold-unit">m/s</span>
-            </label>
-            <label className="reports-threshold-row">
-              <span className="reports-threshold-dot reports-threshold-dot--orange" />
-              <span className="reports-threshold-label">Orange</span>
-              <input
-                type="number"
-                min={0}
-                max={50}
-                step={0.5}
-                className="reports-threshold-input"
-                value={orangeThreshold}
-                onChange={e => setOrangeThreshold(parseFloat(e.target.value) || 0)}
-              />
-              <span className="reports-threshold-unit">m/s</span>
-            </label>
-          </div>
-          <div className="reports-threshold-ref">
-            <span>Arbeitsposition Nadelausleger: <strong>15 m/s</strong></span>
-            <span>Arbeitsposition Hauptausleger: <strong>12 m/s</strong></span>
-          </div>
-          </div>
-        </div>
-
-        {/* Export */}
-        <div className="reports-control-group reports-control-group--export">
-          <button className="lds-btn lds-btn--ghost lds-btn--sm" onClick={handlePrint}>PDF drucken</button>
-          <button className="lds-btn lds-btn--primary lds-btn--sm" onClick={handleExcelExport}>XLSX exportieren</button>
-        </div>
+        <button className="m-btn m-btn--primary m-btn--block" onClick={() => setShowReport(true)} disabled={!machine}>
+          <BarChart3 size={18} />
+          Bericht anzeigen
+        </button>
       </div>
 
-      {/* Report content */}
-      {machine && resolved.length > 0 ? (
+      {showReport && machine && resolved.length > 0 ? (
         <div className="reports-content">
-          {/* Print header */}
           <div className="reports-print-header print-only">
             <h2>{machine.name} – {machine.serialNumber}</h2>
-            <p>{sensorLabel} · {formatDT(from, resolution)} bis {formatDT(to, resolution)} · Skalierung: {resolution === '1day' ? '1 Tag' : resolution === '1h' ? '1 Stunde' : '10 Minuten'}</p>
-            <p>Rotgrenze: {redThreshold} m/s · Orangegrenze: {orangeThreshold} m/s</p>
+            <p>{sensorLabel} · {formatDT(from, resolution)} bis {formatDT(to, resolution)}</p>
           </div>
 
-          {/* Histogram */}
           <div className="reports-chart-wrap">
-            <div className="reports-chart-title">{machine.name} · {sensorLabel} · {formatDT(from, resolution)} – {formatDT(to, resolution)}</div>
-
-            {/* Y-axis labels + chart */}
+            <div className="reports-chart-title">{sensorLabel} · {formatDT(from, resolution)} – {formatDT(to, resolution)}</div>
             <div className="reports-chart-area">
               <div className="reports-y-axis">
                 {[100, 75, 50, 25, 0].map(pct => (
@@ -232,40 +194,35 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                 ))}
               </div>
               <div className="reports-chart-inner">
-                {/* Threshold lines */}
                 <div className="reports-threshold-line reports-threshold-line--red" style={{ bottom: `${(redThreshold / maxValue) * 100}%` }}>
-                  <span className="reports-threshold-line-label">{redThreshold} m/s</span>
+                  <span className="reports-threshold-line-label">{redThreshold}</span>
                 </div>
                 <div className="reports-threshold-line reports-threshold-line--orange" style={{ bottom: `${(orangeThreshold / maxValue) * 100}%` }} />
-                {/* Bars */}
                 <div className="reports-bars">
                   {resolved.map((e, i) => {
                     const val = e[sensor];
                     const h = (val / maxValue) * 100;
                     return (
-                      <div
-                        key={i}
-                        className="reports-bar"
-                        style={{ height: `${h}%`, background: barColor(val, orangeThreshold, redThreshold) }}
-                        title={`${formatDT(e.timestamp, resolution)}: ${val.toFixed(1)} m/s`}
-                      />
+                      <div key={i} className="reports-bar" style={{ height: `${h}%`, background: barColor(val, orangeThreshold, redThreshold) }} title={`${formatDT(e.timestamp, resolution)}: ${val.toFixed(1)} m/s`} />
                     );
                   })}
                 </div>
               </div>
             </div>
-
-            {/* X-axis labels */}
             <div className="reports-x-axis">
               {(() => {
-                const step = Math.max(1, Math.floor(resolved.length / 8));
-                return resolved.filter((_, i) => i % step === 0).map((e, i) => (
-                  <span key={i} className="reports-x-label">{formatDT(e.timestamp, resolution)}</span>
+                const axisLabel = (d: Date) => {
+                  const dm = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+                  if (resolution === '1day') return dm;
+                  const p = (n: number) => n.toString().padStart(2, '0');
+                  return `${dm} ${p(d.getHours())}:${p(d.getMinutes())}`;
+                };
+                const step2 = Math.max(1, Math.ceil(resolved.length / 4));
+                return resolved.filter((_, i) => i % step2 === 0).map((e, i) => (
+                  <span key={i} className="reports-x-label">{axisLabel(e.timestamp)}</span>
                 ));
               })()}
             </div>
-
-            {/* Legend */}
             <div className="reports-legend">
               <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-success)' }} />OK</span>
               <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-warning)' }} />≥ {orangeThreshold} m/s</span>
@@ -273,14 +230,18 @@ export function ReportsPage({ machines }: ReportsPageProps) {
             </div>
           </div>
 
-          {/* Table */}
+          <div className="rep-export no-print">
+            <button className="m-btn m-btn--outline" onClick={handlePrint}><FileText size={16} />PDF</button>
+            <button className="m-btn m-btn--outline" onClick={handleExcelExport}><Download size={16} />XLSX</button>
+          </div>
+
           <div className="reports-table-wrap">
             <table className="reports-table">
               <thead>
                 <tr>
                   <th>Zeitpunkt</th>
-                  <th>Nadelausleger (m/s)</th>
-                  <th>Hauptausleger (m/s)</th>
+                  <th>Nadel</th>
+                  <th>Haupt</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -294,7 +255,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                       <td>{e.needleBoom.toFixed(1)}</td>
                       <td>{e.mainBoom.toFixed(1)}</td>
                       <td className={`reports-table__status--${status}`}>
-                        {status === 'danger' ? 'ÜBERSCHRITTEN' : status === 'warning' ? 'WARNUNG' : 'OK'}
+                        {status === 'danger' ? 'ÜBERSCHR.' : status === 'warning' ? 'WARNUNG' : 'OK'}
                       </td>
                     </tr>
                   );
@@ -303,9 +264,9 @@ export function ReportsPage({ machines }: ReportsPageProps) {
             </table>
           </div>
         </div>
-      ) : (
+      ) : showReport ? (
         <div className="machine-empty">Keine Daten für den gewählten Zeitraum.</div>
-      )}
+      ) : null}
     </div>
   );
 }
