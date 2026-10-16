@@ -134,6 +134,11 @@
 .bottom-nav__item--active {
   background: var(--p-steel-100);
 }
+.bottom-nav__icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+}
 
 .bottom-nav__badge {
   position: absolute;
@@ -3320,7 +3325,33 @@
   gap: var(--s-5);
 }
 
-/* === WINDBERICHTE FORM — Figma 2.0 === */
+/* === WINDBERICHTE — Figma 2.0 (2-step) === */
+.rep-steps {
+  display: flex;
+  margin-bottom: var(--s-4);
+}
+.rep-step {
+  flex: 1;
+  padding: var(--s-2) 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--p-steel-300);
+  font: 700 18px/24px var(--font-text-b);
+  color: var(--p-steel-500);
+  cursor: pointer;
+  text-align: left;
+}
+.rep-step--active {
+  color: var(--p-black);
+  border-bottom-color: var(--p-black);
+}
+.rep-step:disabled { cursor: not-allowed; opacity: 0.6; }
+.rep-section-title {
+  margin: 0 0 var(--s-1);
+  font: 700 16px/22px var(--font-text-b);
+  color: var(--p-black);
+}
+
 .rep-form {
   display: flex;
   flex-direction: column;
