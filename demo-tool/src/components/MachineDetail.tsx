@@ -9,10 +9,11 @@ import {
   Settings,
   Wifi,
 } from 'lucide-react';
-import type { MachineConfig, BoomPosition, Notification, NotificationSettings } from '../data/types';
+import type { MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 import { PositionSelector } from './PositionSelector';
+import { NotifyPrefsControls } from './SettingsControls';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -125,6 +126,23 @@ export function MachineDetail({
     onUpdateNotifSettings({
       ...notifSettings,
       machineOverrides: { ...notifSettings.machineOverrides, [machine.id]: enabled },
+    });
+  }
+
+  const overridePrefs: NotifyPrefs | null = notifSettings.machinePrefs[machine.id] ?? null;
+  const overrideOn = overridePrefs !== null;
+
+  function setOverrideOn(on: boolean) {
+    const next = { ...notifSettings.machinePrefs };
+    if (on) next[machine.id] = { ...notifSettings.prefs };
+    else delete next[machine.id];
+    onUpdateNotifSettings({ ...notifSettings, machinePrefs: next });
+  }
+
+  function updateOverridePrefs(prefs: NotifyPrefs) {
+    onUpdateNotifSettings({
+      ...notifSettings,
+      machinePrefs: { ...notifSettings.machinePrefs, [machine.id]: prefs },
     });
   }
 
@@ -528,7 +546,32 @@ export function MachineDetail({
                       <span className="toggle-switch__thumb" />
                     </button>
                   </div>
+
+                  <div className="settings-row">
+                    <div className="settings-row__info">
+                      <span className="settings-row__label">Globale Einstellung überschreiben</span>
+                      <span className="settings-row__hint">
+                        {overrideOn ? 'Eigene Werte für diese Maschine' : 'Nutzt die globalen Einstellungen'}
+                      </span>
+                    </div>
+                    <button
+                      className={`toggle-switch ${overrideOn ? 'toggle-switch--on' : ''}`}
+                      onClick={() => setOverrideOn(!overrideOn)}
+                      role="switch"
+                      aria-checked={overrideOn}
+                    >
+                      <span className="toggle-switch__thumb" />
+                    </button>
+                  </div>
                 </section>
+
+                {overrideOn && overridePrefs && (
+                  <NotifyPrefsControls
+                    prefs={overridePrefs}
+                    onChange={updateOverridePrefs}
+                    thresholdMs={threshold}
+                  />
+                )}
 
                 {/* Maschinen Konfiguration (read-only) */}
                 <section className="mdetail__section">

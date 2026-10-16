@@ -757,6 +757,124 @@
 }
 .notif2__toggle:hover { color: var(--p-black); }
 
+/* ============================================================
+   SETTINGS — Figma 2.0 (sliders, day pills, groups)
+   ============================================================ */
+.m-settings { display: flex; flex-direction: column; gap: var(--s-5); }
+.m-settings__scope { color: var(--p-steel-600); }
+
+.m-settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.m-settings-group__title {
+  margin: 0;
+  font: 900 20px/24px var(--font-head-b);
+  color: var(--p-black);
+}
+
+.m-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.m-settings-field__labelrow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.m-settings-field__label {
+  font: 700 14px/20px var(--font-text-b);
+  color: var(--p-black);
+}
+.m-settings-field__value {
+  font: 400 16px/24px var(--font-text);
+  color: var(--p-black);
+}
+.m-settings-field__hint {
+  font: 400 12px/16px var(--font-text);
+  color: var(--p-steel-600);
+}
+
+/* Discrete slider */
+.m-slider {
+  position: relative;
+  padding: var(--s-2) 0;
+}
+.m-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  margin: 0;
+  background: linear-gradient(to right,
+    var(--p-black) 0%, var(--p-black) var(--pct, 0%),
+    var(--p-steel-300) var(--pct, 0%), var(--p-steel-300) 100%);
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+.m-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--p-black);
+  border: none;
+  cursor: pointer;
+}
+.m-slider input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--p-black);
+  border: none;
+  cursor: pointer;
+}
+.m-slider__ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+.m-slider__ticks span {
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--p-steel-400);
+}
+
+/* Day pills (MO–SU) */
+.m-daypills {
+  display: flex;
+  border: 1px solid var(--p-steel-300);
+}
+.m-daypill {
+  flex: 1;
+  padding: var(--s-3) 0;
+  background: var(--p-steel-50);
+  border: none;
+  cursor: pointer;
+  font: 700 13px/20px var(--font-text-b);
+  color: var(--p-steel-800);
+  transition: background var(--motion-fast), color var(--motion-fast);
+}
+.m-daypill + .m-daypill { border-left: 1px solid var(--p-steel-300); }
+.m-daypill--on {
+  background: var(--r-brand);
+  color: var(--p-black);
+}
+
 /* === MACHINE CARD === */
 .machine-card {
   background: var(--r-surface-default);

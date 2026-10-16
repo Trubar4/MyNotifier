@@ -72,6 +72,13 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   phone: '+49 170 1234567',
   globalEnabled: true,
   machineOverrides: {},
-  forecastWindowHours: 12,
-  forecastWindowOverrides: {},
+  prefs: {
+    prognoseWindowH: 48,
+    notifyDays: ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'],
+    vorwarnPercent: 50,
+    repeatMin: 15,
+    sms: false,
+    email: true,
+  },
+  machinePrefs: {},
 };

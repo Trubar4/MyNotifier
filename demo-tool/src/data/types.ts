@@ -102,13 +102,31 @@ export interface Notification {
   assignedComment: string | null;
 }
 
+export type WeekDay = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
+export const WEEKDAYS: WeekDay[] = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+
+/* Slider step values (Figma Settings) */
+export const PROGNOSE_STEPS = [12, 24, 36, 48, 60, 72];      // Stunden
+export const VORWARN_STEPS = [50, 60, 70, 80, 90, 100];       // Prozent der Grenze
+export const REPEAT_STEPS = [5, 15, 30, 60];                  // Minuten
+
+/** Warn/notification preferences — used globally and per machine (override). */
+export interface NotifyPrefs {
+  prognoseWindowH: number;   // one of PROGNOSE_STEPS
+  notifyDays: WeekDay[];
+  vorwarnPercent: number;    // one of VORWARN_STEPS
+  repeatMin: number;         // one of REPEAT_STEPS
+  sms: boolean;
+  email: boolean;
+}
+
 export interface NotificationSettings {
   email: string;
   phone: string;
   globalEnabled: boolean;
-  machineOverrides: Record<string, boolean>;
-  forecastWindowHours: number;
-  forecastWindowOverrides: Record<string, number>;
+  machineOverrides: Record<string, boolean>;      // receive on/off per machine
+  prefs: NotifyPrefs;                              // global preferences
+  machinePrefs: Record<string, NotifyPrefs>;      // per-machine override (presence = override enabled)
 }
 
 export const DEMO_USER = 'Max Mustermann';
