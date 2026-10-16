@@ -462,6 +462,13 @@
   justify-content: center;
   gap: var(--s-1);
 }
+.m-card__pos-icon {
+  display: block;
+  height: 52px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
 .m-card__pos-label {
   font: 700 13px/1.2 var(--font-text-b);
   color: var(--p-steel-900);
@@ -2076,8 +2083,10 @@
 }
 
 .position-selector-item__icon {
-  color: var(--r-on-surface-muted);
   flex-shrink: 0;
+  height: 48px;
+  width: 44px;
+  object-fit: contain;
 }
 
 .position-selector-item__info {

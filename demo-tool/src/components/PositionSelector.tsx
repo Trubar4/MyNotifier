@@ -1,6 +1,8 @@
-import { X, MapPin } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { BoomPosition } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+
+const BASE = import.meta.env.BASE_URL;
 
 interface PositionSelectorProps {
   currentPosition: BoomPosition;
@@ -35,7 +37,7 @@ export function PositionSelector({ currentPosition, onSelect, onClose }: Positio
                 className={`position-selector-item ${currentPosition === pos ? 'position-selector-item--active' : ''}`}
                 onClick={() => onSelect(pos)}
               >
-                <MapPin size={16} className="position-selector-item__icon" />
+                <img src={`${BASE}positions/${pos}.svg`} alt="" className="position-selector-item__icon" />
                 <div className="position-selector-item__info">
                   <span className="position-selector-item__name">
                     {BOOM_POSITION_LABELS[pos]}

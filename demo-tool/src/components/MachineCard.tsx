@@ -22,10 +22,14 @@ function formatStamp(date: Date): string {
   });
 }
 
-/* Placeholder boom-position icon — replaced by official Liebherr SVGs once provided */
-function PositionIcon() {
+/* Official Liebherr boom-position icons (public/positions/<position>.svg) */
+function PositionIcon({ position }: { position: MachineConfig['position']['position'] }) {
   return (
-    <img src={BASE + 'boom-angle.svg'} alt="" width={48} height={48} style={{ display: 'block' }} />
+    <img
+      src={`${BASE}positions/${position}.svg`}
+      alt=""
+      className="m-card__pos-icon"
+    />
   );
 }
 
@@ -125,7 +129,7 @@ export function MachineCard({
             <span className="m-card__state-label">Auslegerposition</span>
             {hasLicense ? (
               <div className="m-card__pos">
-                <PositionIcon />
+                <PositionIcon position={machine.position.position} />
                 <span className="m-card__pos-label">{BOOM_POSITION_LABELS[machine.position.position]}</span>
               </div>
             ) : (
