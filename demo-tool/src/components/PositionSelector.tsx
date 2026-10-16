@@ -12,7 +12,7 @@ interface PositionSelectorProps {
 }
 
 /** Minimum (least-restrictive) position whose threshold still covers the forecast. */
-function recommendPosition(positions: BoomPosition[], forecastMax: number): BoomPosition | null {
+export function recommendPosition(positions: BoomPosition[], forecastMax: number): BoomPosition | null {
   const safe = positions
     .map((p) => ({ p, t: BOOM_THRESHOLDS[p] }))
     .filter((x): x is { p: BoomPosition; t: number } => x.t !== null && x.t >= forecastMax)

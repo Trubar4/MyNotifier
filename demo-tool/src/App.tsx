@@ -82,7 +82,6 @@ export default function App() {
             onUpdateMachine={handleUpdateMachine}
             onOpenMachine={handleOpenMachine}
             onMachineNotifClick={handleMachineNotifClick}
-            onDailyCheck={() => handleNavigate('dailycheck')}
           />
         )}
         {activePage === 'machines' && detailMachine && (
@@ -104,6 +103,7 @@ export default function App() {
             machines={machines}
             filterMachineId={notifFilterMachineId}
             onUpdateNotification={handleUpdateNotification}
+            onUpdateMachine={handleUpdateMachine}
             onClearFilter={() => setNotifFilterMachineId(null)}
             onBack={notifCameFromMachines ? handleNotifBack : undefined}
             highlightNotifId={highlightNotifId}

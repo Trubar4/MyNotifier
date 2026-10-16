@@ -4,6 +4,7 @@ import type { MachineConfig, Notification } from '../data/types';
 import { MachineCard } from './MachineCard';
 import { ScenarioConfig } from './ScenarioConfig';
 import { PositionSelector } from './PositionSelector';
+import { CheckoutModal } from './CheckoutModal';
 
 type SortMode = 'recent' | 'name';
 type FilterMode = 'offlineNoManual' | 'offline' | 'warnings' | null;
@@ -14,16 +15,16 @@ interface MachineOverviewProps {
   onUpdateMachine: (updated: MachineConfig) => void;
   onOpenMachine: (id: string) => void;
   onMachineNotifClick: (machineId: string) => void;
-  onDailyCheck?: () => void;
 }
 
-export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick, onDailyCheck }: MachineOverviewProps) {
+export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick }: MachineOverviewProps) {
   const [configMachineId, setConfigMachineId] = useState<string | null>(null);
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
   const [filter, setFilter] = useState<FilterMode>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const configMachine = machines.find((m) => m.id === configMachineId);
   const positionSelectorMachine = machines.find((m) => m.id === positionSelectorMachineId);
@@ -70,10 +71,17 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
       <h1 className="page-title">Maschinen</h1>
 
       <div className="m-toolbar">
-        <button className="m-checkout" onClick={onDailyCheck}>
-          <ClipboardCheck size={20} />
-          Check-Out durchführen
-        </button>
+        <div className="m-search">
+          <Search size={20} className="m-search__icon" />
+          <input
+            type="text"
+            className="m-search__input"
+            placeholder="Suchen..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
         <div className="m-filterwrap">
           <button
             className={`m-toolbar__btn ${showFilters || filter !== null ? 'm-toolbar__btn--active' : ''}`}
@@ -89,15 +97,6 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
             <>
               <div className="m-filterdrop__backdrop" onClick={() => setShowFilters(false)} />
               <div className="m-filterdrop" role="menu">
-                <div className="m-filterdrop__search">
-                  <Search size={18} className="m-filterdrop__search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
                 {([
                   ['offlineNoManual', 'Ohne Positionsangabe'],
                   ['offline', 'Offline'],
@@ -126,6 +125,15 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
             </>
           )}
         </div>
+
+        <button
+          className="m-toolbar__btn m-toolbar__btn--primary"
+          onClick={() => setShowCheckout(true)}
+          aria-label="Check-Out durchführen"
+          title="Check-Out durchführen"
+        >
+          <ClipboardCheck size={20} />
+        </button>
       </div>
 
       <div className="machine-grid">
@@ -180,6 +188,18 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
             setPositionSelectorMachineId(null);
           }}
           onClose={() => setPositionSelectorMachineId(null)}
+        />
+      )}
+
+      {showCheckout && (
+        <CheckoutModal
+          machines={machines}
+          getNotifInfo={getMachineNotifInfo}
+          onClose={() => setShowCheckout(false)}
+          onOpenConfig={(id) => setConfigMachineId(id)}
+          onOpen={(id) => { setShowCheckout(false); onOpenMachine(id); }}
+          onOpenPositionSelector={(id) => setPositionSelectorMachineId(id)}
+          onNotifClick={(id) => { setShowCheckout(false); onMachineNotifClick(id); }}
         />
       )}
     </>

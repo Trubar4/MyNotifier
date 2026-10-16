@@ -1,18 +1,27 @@
 import { useState } from 'react';
-import { ArrowLeft, Clock, ChevronDown, ChevronUp, Filter, Check, PencilRuler, MessageSquare } from 'lucide-react';
-import type { Notification, MachineConfig } from '../data/types';
+import { ArrowLeft, Clock, ChevronDown, ChevronUp, Filter, Check, MessageSquare } from 'lucide-react';
+import type { Notification, MachineConfig, BoomPosition } from '../data/types';
 import { DEMO_USER, BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { AssignModal } from './AssignModal';
+import { ManuellAnpassenModal } from './ManuellAnpassenModal';
+import { recommendPosition } from './PositionSelector';
+
+const BASE = import.meta.env.BASE_URL;
 
 interface NotificationsPageProps {
   notifications: Notification[];
   machines: MachineConfig[];
   filterMachineId: string | null;
   onUpdateNotification: (updated: Notification) => void;
+  onUpdateMachine: (updated: MachineConfig) => void;
   onClearFilter: () => void;
   onBack?: () => void;
   highlightNotifId?: string | null;
   onOpenMachine?: (machineId: string) => void;
+}
+
+function hoursSince(date: Date): number {
+  return Math.max(0, Math.round((Date.now() - date.getTime()) / 3_600_000));
 }
 
 type TabId = 'offen' | 'angenommen' | 'erledigt';
@@ -23,14 +32,30 @@ function formatFull(date: Date): string {
 }
 
 export function NotificationsPage({
-  notifications, machines, filterMachineId, onUpdateNotification,
-  onClearFilter, onBack, highlightNotifId, onOpenMachine,
+  notifications, machines, filterMachineId, onUpdateNotification, onUpdateMachine,
+  onClearFilter, onBack, highlightNotifId,
 }: NotificationsPageProps) {
   const [tab, setTab] = useState<TabId>('offen');
   const [expandedId, setExpandedId] = useState<string | null>(highlightNotifId ?? null);
   const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
+  const [anpassenNotif, setAnpassenNotif] = useState<Notification | null>(null);
 
   const machineMap = new Map(machines.map((m) => [m.id, m]));
+  const allPositions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
+
+  function handleAnpassenConfirm(pos: BoomPosition | null) {
+    if (!anpassenNotif) return;
+    const machine = machineMap.get(anpassenNotif.machineId);
+    if (machine && pos) {
+      onUpdateMachine({
+        ...machine,
+        position: { ...machine.position, position: pos, timestamp: new Date(), manuallySet: true },
+      });
+    }
+    // position handled → mark notification done (Erledigt), keep who handled it
+    onUpdateNotification({ ...anpassenNotif, read: true });
+    setAnpassenNotif(null);
+  }
   const filterMachine = filterMachineId ? machineMap.get(filterMachineId) : null;
 
   const scoped = filterMachineId
@@ -66,6 +91,8 @@ export function NotificationsPage({
     const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
     const threshold = machine ? BOOM_THRESHOLDS[machine.position.position] : null;
     const isOnline = machine?.status === 'online';
+    const recommended = machine ? recommendPosition(allPositions, machine.forecast.max72h) : null;
+    const lastPosHours = machine ? hoursSince(machine.position.timestamp) : 0;
 
     return (
       <div key={n.id} className={`notif2 notif2--${levelClass}`}>
@@ -116,7 +143,9 @@ export function NotificationsPage({
                 <span>{n.assignedComment}</span>
               </div>
             )}
-            {machine && (
+
+            {/* Offen: aktuelle Position + max. Wind */}
+            {tab === 'offen' && machine && (
               <>
                 <div className="notif2__field">
                   <span className="notif2__field-label">Aktuelle Position:</span>
@@ -126,6 +155,25 @@ export function NotificationsPage({
                   <div className="notif2__field">
                     <span className="notif2__field-label">Max. zulässiger Wind:</span>
                     <span className="notif2__field-value">{threshold} m/s</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Angenommen: letzte + empfohlene Position */}
+            {tab === 'angenommen' && machine && (
+              <>
+                <div className="notif2__field">
+                  <span className="notif2__field-label">Letzte Position (seit {lastPosHours} Std.):</span>
+                  <span className="notif2__field-value">{BOOM_POSITION_LABELS[machine.position.position]}</span>
+                </div>
+                {recommended && (
+                  <div className="notif2__field">
+                    <span className="notif2__field-label">Empfohlene Position:</span>
+                    <span className="notif2__field-value">
+                      {BOOM_POSITION_LABELS[recommended]}
+                      {BOOM_THRESHOLDS[recommended] !== null ? ` (${BOOM_THRESHOLDS[recommended]} m/s)` : ''}
+                    </span>
                   </div>
                 )}
               </>
@@ -142,15 +190,11 @@ export function NotificationsPage({
               )}
               {tab === 'angenommen' && (
                 <>
-                  {onOpenMachine && (
-                    <button className="m-btn m-btn--outline" onClick={() => onOpenMachine(n.machineId)}>
-                      <PencilRuler size={16} /> Position anpassen
-                    </button>
-                  )}
-                  <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, assignedTo: null, assignedAt: null, assignedComment: null })}>Abgeben</button>
-                  <button className="m-btn m-btn--primary" onClick={() => onUpdateNotification({ ...n, read: true })}>
-                    <Check size={16} /> Erledigt
+                  <button className="m-btn m-btn--primary" onClick={() => setAnpassenNotif(n)}>
+                    <img src={BASE + 'boom-angle.svg'} alt="" width={18} height={18} />
+                    Position anpassen
                   </button>
+                  <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, assignedTo: null, assignedAt: null, assignedComment: null })}>Abgeben</button>
                 </>
               )}
               {tab === 'erledigt' && (
@@ -216,6 +260,14 @@ export function NotificationsPage({
           notificationTitle={assigningNotif.title}
           onConfirm={handleAssignConfirm}
           onCancel={() => setAssigningNotif(null)}
+        />
+      )}
+
+      {anpassenNotif && machineMap.get(anpassenNotif.machineId) && (
+        <ManuellAnpassenModal
+          machine={machineMap.get(anpassenNotif.machineId)!}
+          onConfirm={handleAnpassenConfirm}
+          onClose={() => setAnpassenNotif(null)}
         />
       )}
     </div>

@@ -634,6 +634,109 @@
 .m-btn--wide { flex: 3; }
 .m-btn--icon { flex: 0 0 auto; padding: var(--s-3); }
 .m-btn--block { flex: none; width: 100%; }
+
+/* Manuell anpassen modal */
+.manuell-modal { max-width: 400px; }
+.manuell-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-4) var(--s-5);
+}
+.manuell-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: 0 var(--s-5) var(--s-4);
+}
+.manuell-modal__label {
+  font: 700 14px/20px var(--font-text-b);
+  color: var(--p-black);
+}
+.manuell-modal__check {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: 400 15px/20px var(--font-text);
+  color: var(--p-black);
+  cursor: pointer;
+}
+.manuell-modal__check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--r-brand);
+  flex-shrink: 0;
+}
+.manuell-modal__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: 0 var(--s-5) var(--s-5);
+}
+
+/* ============================================================
+   CHECK-OUT DURCHFÜHREN overlay
+   ============================================================ */
+.checkout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn var(--motion-fast) var(--easing);
+}
+.checkout-sheet {
+  width: 100%;
+  max-width: var(--app-max);
+  height: 92vh;
+  height: 92dvh;
+  background: var(--p-white);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+}
+.checkout-sheet__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-5);
+  border-bottom: 1px solid var(--p-steel-200);
+}
+.checkout-sheet__title {
+  flex: 1;
+  margin: 0;
+  font: 900 20px/24px var(--font-head-b);
+  color: var(--p-black);
+}
+.checkout-sheet__tabs {
+  flex-shrink: 0;
+  display: flex;
+  margin: var(--s-4) var(--s-5) 0;
+  border: 1px solid var(--p-steel-300);
+}
+.checkout-sheet__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  padding: var(--s-4) var(--s-5) var(--s-6);
+}
+.checkout-sheet__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-8) var(--s-4);
+  text-align: center;
+  color: var(--p-steel-600);
+  font: 400 14px/20px var(--font-text);
+}
+.checkout-sheet__empty svg { color: var(--color-success, #398713); }
 .m-btn--danger { background: var(--r-error); color: var(--p-white); }
 .m-btn--danger:hover { filter: brightness(0.95); }
 .m-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
@@ -1271,13 +1374,15 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 80px;
+  padding: 80px var(--s-5) var(--s-5);
+  box-sizing: border-box;
   animation: fadeIn var(--motion-fast) var(--easing);
 }
 
 .config-modal {
   background: var(--r-surface-default);
-  width: 480px;
+  width: 100%;
+  max-width: 460px;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   box-shadow: var(--shadow-3);
@@ -3840,16 +3945,17 @@
     line-height: 28px;
   }
 
-  /* Config modal — full screen on mobile */
+  /* Config modal — centered card with gutters on mobile */
   .config-overlay {
-    padding-top: 0;
-    align-items: stretch;
+    padding: var(--s-6) var(--s-4);
+    align-items: center;
   }
 
   .config-modal {
     width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
+    max-width: 100%;
+    max-height: calc(100vh - 2 * var(--s-6));
+    border-radius: var(--radius-2);
   }
 
   .config-modal__body {
