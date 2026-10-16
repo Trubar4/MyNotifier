@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppHeader } from './components/AppHeader';
 import { BottomNav } from './components/BottomNav';
+import { DesktopSidebar } from './components/DesktopSidebar';
 import type { Page } from './components/AppSidebar';
 import { MachineOverview } from './components/MachineOverview';
 import { MachineDetail } from './components/MachineDetail';
@@ -74,6 +75,12 @@ export default function App() {
     <div className="app-backdrop">
       <div className="app-shell">
         <AppHeader />
+        <DesktopSidebar
+          activePage={activePage}
+          onNavigate={handleNavigate}
+          unreadCount={unreadNotifications.length}
+          hasCritical={hasCriticalUnread}
+        />
         <main className="app-content">
         {activePage === 'machines' && !detailMachine && (
           <MachineOverview

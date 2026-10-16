@@ -4266,3 +4266,132 @@
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   }
 }
+
+/* ============================================================
+   DESKTOP LAYOUT (≥1024px) — responsive adaptation
+   Sidebar (icon + text) left, header across the top,
+   centered content (max 1280px), multi-column machine grid.
+   ============================================================ */
+.desk-sidebar { display: none; }
+
+@media (min-width: 1024px) {
+  .app-backdrop {
+    background: var(--p-white);
+    justify-content: flex-start;
+  }
+  .app-shell {
+    max-width: none;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    grid-template-rows: var(--header-h) 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar content";
+  }
+
+  .app-header {
+    grid-area: header;
+    padding: 0 var(--s-7);
+    border-bottom: 1px solid var(--p-steel-200);
+  }
+
+  .bottom-nav { display: none; }
+
+  /* Sidebar */
+  .desk-sidebar {
+    grid-area: sidebar;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    padding: var(--s-5) var(--s-4);
+    background: var(--p-white);
+    border-right: 1px solid var(--p-steel-200);
+    overflow-y: auto;
+  }
+  .desk-sidebar__item {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-3);
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    font: 700 15px/20px var(--font-text-b);
+    color: var(--p-steel-800);
+    text-align: left;
+    transition: background var(--motion-fast), color var(--motion-fast);
+  }
+  .desk-sidebar__item:hover { background: var(--p-steel-50); }
+  .desk-sidebar__item--active {
+    background: var(--p-steel-100);
+    color: var(--p-black);
+    border-left-color: var(--r-brand);
+  }
+  .desk-sidebar__icon-wrap { position: relative; display: flex; flex-shrink: 0; }
+  .desk-sidebar__icon { display: block; width: 28px; height: 28px; }
+  .desk-sidebar__badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--r-brand);
+    color: var(--p-black);
+    border: 1px solid var(--p-white);
+    border-radius: 10px;
+    font: 700 11px/18px var(--font-text-b);
+  }
+  .desk-sidebar__badge--critical { background: var(--r-brand); color: var(--p-black); }
+
+  /* Content — centered, max 1280 */
+  .app-content {
+    grid-area: content;
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--s-7);
+    gap: var(--s-5);
+  }
+
+  /* Single-column pages read better capped */
+  .mdetail,
+  .m-settings,
+  .reports-page,
+  .notif2-page {
+    max-width: 880px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Machine grid → multi-column */
+  .machine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: var(--s-5);
+    align-items: start;
+  }
+
+  /* Larger page titles on desktop */
+  .page-title { font: 900 34px/40px var(--font-head-b); }
+
+  /* Modals centered; Check-Out as a centered dialog, not a bottom sheet */
+  .config-overlay { align-items: center; padding: var(--s-6); }
+  .checkout-overlay { align-items: center; }
+  .checkout-sheet {
+    max-width: 720px;
+    height: auto;
+    max-height: 86vh;
+    border-radius: var(--radius-2);
+    box-shadow: var(--shadow-3, 0 12px 40px rgba(0,0,0,0.2));
+  }
+}
