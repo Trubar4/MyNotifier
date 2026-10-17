@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Search, Filter, ClipboardCheck, Check } from 'lucide-react';
+import { Filter, Check } from 'lucide-react';
+
+const BASE = import.meta.env.BASE_URL;
 import type { MachineConfig, Notification } from '../data/types';
 import { MachineCard } from './MachineCard';
 import { ScenarioConfig } from './ScenarioConfig';
@@ -72,7 +74,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
 
       <div className="m-toolbar">
         <div className="m-search">
-          <Search size={20} className="m-search__icon" />
+          <img src={BASE + 'search.svg'} alt="" width={20} height={20} className="m-search__icon" />
           <input
             type="text"
             className="m-search__input"
@@ -132,7 +134,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           aria-label="Check-Out durchführen"
           title="Check-Out durchführen"
         >
-          <ClipboardCheck size={20} />
+          <img src={BASE + 'checkout.svg'} alt="" width={20} height={20} />
         </button>
       </div>
 

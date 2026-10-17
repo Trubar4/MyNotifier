@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { X, ClipboardCheck, CheckCircle } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
+
+const BASE = import.meta.env.BASE_URL;
 import { BOOM_THRESHOLDS } from '../data/types';
 import { MachineCard } from './MachineCard';
 
@@ -40,7 +42,7 @@ export function CheckoutModal({
     <div className="checkout-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="checkout-sheet">
         <div className="checkout-sheet__header">
-          <ClipboardCheck size={22} />
+          <img src={BASE + 'checkout.svg'} alt="" width={22} height={22} />
           <h2 className="checkout-sheet__title">Check-Out durchführen</h2>
           <button className="config-modal__close" onClick={onClose} aria-label="Schließen">
             <X size={20} />
