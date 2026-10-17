@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Crosshair, Home } from 'lucide-react';
+import { Crosshair, Home, Clock, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
@@ -33,8 +33,8 @@ function formatSec(date: Date): string {
   return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
-function formatNotifTime(date: Date): string {
-  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+function formatFull(date: Date): string {
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())} Uhr`;
 }
 
 function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warning' | 'danger' {
@@ -101,6 +101,17 @@ export function MachineDetail({
     onUpdateMachine({ ...machine, specs: { ...machine.specs, boomConfiguration: cfg } });
   }
 
+  const machineEnabled = machine.id in notifSettings.machineOverrides
+    ? notifSettings.machineOverrides[machine.id]
+    : notifSettings.globalEnabled;
+
+  function setMachineEnabled(enabled: boolean) {
+    onUpdateNotifSettings({
+      ...notifSettings,
+      machineOverrides: { ...notifSettings.machineOverrides, [machine.id]: enabled },
+    });
+  }
+
   const overridePrefs: NotifyPrefs | null = notifSettings.machinePrefs[machine.id] ?? null;
   const overrideOn = overridePrefs !== null;
 
@@ -156,7 +167,7 @@ export function MachineDetail({
       <div className="mdetail__panel">
         {/* ========================= ÜBERSICHT ========================= */}
         {activeTab === 'overview' && (
-          <>
+          <div className="mdt-overview">
             {/* Windinformationen */}
             <section className="mdt-card">
               <div className="mdt-card__header">Windinformationen</div>
@@ -198,24 +209,41 @@ export function MachineDetail({
               {notifications.length === 0 ? (
                 <p className="mdetail__notifs-empty">Keine Benachrichtigungen für diese Maschine.</p>
               ) : (
-                notifications
-                  .slice()
-                  .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-                  .map((n) => (
-                    <div className="mdt-notif" key={n.id}>
-                      <div className="mdt-notif__top">
-                        <span className={`mdt-pill ${n.level === 1 ? 'mdt-pill--critical' : 'mdt-pill--warning'}`}>
-                          {n.level === 1 ? 'Kritisch' : 'Warnung'}
-                        </span>
-                        {n.assignedTo && <span className="mdt-notif__assigned">Übernommen</span>}
-                      </div>
-                      <div className="mdt-notif__title">{n.title}</div>
-                      <div className="mdt-notif__time">{formatNotifTime(n.timestamp)}</div>
-                    </div>
-                  ))
+                <div className="mdetail__notifs-list">
+                  {notifications
+                    .slice()
+                    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+                    .map((n) => {
+                      const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
+                      return (
+                        <div className={`notif2 notif2--${levelClass}`} key={n.id}>
+                          <div className="notif2__pillrow">
+                            <div className="notif2__pillleft">
+                              <span className={`notif2__pill notif2__pill--${levelClass}`}>
+                                {n.level === 1 ? 'Kritisch' : 'Warnung'}
+                              </span>
+                            </div>
+                            <div className="notif2__status">
+                              <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
+                              <span>{isOnline ? 'Online' : 'Offline'}</span>
+                            </div>
+                          </div>
+                          <div className="notif2__time">
+                            <Clock size={14} />
+                            <span>{formatFull(n.timestamp)}</span>
+                          </div>
+                          <h3 className="notif2__title">{n.title}</h3>
+                          <div className="notif2__facts">
+                            {threshold !== null && <span>Position akt. bis: <strong>{threshold} m/s</strong></span>}
+                            <span>Prognose max.: <strong>{machine.forecast.max72h.toFixed(1)} m/s</strong></span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               )}
             </section>
-          </>
+          </div>
         )}
 
         {/* ========================= MASCHINE ========================= */}
@@ -339,6 +367,14 @@ export function MachineDetail({
                 thresholdMs={threshold}
               />
             )}
+
+            <button
+              className={`m-btn m-btn--block ${machineEnabled ? 'm-btn--danger' : 'm-btn--primary'} mdt-deactivate`}
+              onClick={() => setMachineEnabled(!machineEnabled)}
+            >
+              <BellOff size={18} />
+              {machineEnabled ? 'Benachrichtigung deaktivieren' : 'Benachrichtigung aktivieren'}
+            </button>
           </>
         )}
       </div>
