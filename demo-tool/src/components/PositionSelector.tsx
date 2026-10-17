@@ -76,7 +76,7 @@ export function PositionSelector({
                   className={`position-selector-item ${currentPosition === pos ? 'position-selector-item--active' : ''} ${isRecommended ? 'position-selector-item--recommended' : ''}`}
                   onClick={() => onSelect(pos)}
                 >
-                  <img src={`${BASE}positions/${pos}.svg`} alt="" className="position-selector-item__icon" />
+                  <img src={`${BASE}positions/${pos}.svg`} alt="" className={`position-selector-item__icon position-selector-item__icon--${pos}`} />
                   <div className="position-selector-item__info">
                     <span className="position-selector-item__name">
                       {BOOM_POSITION_LABELS[pos]}

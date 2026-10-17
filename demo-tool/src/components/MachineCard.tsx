@@ -28,7 +28,7 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
     <img
       src={`${BASE}positions/${position}.svg`}
       alt=""
-      className="m-card__pos-icon"
+      className={`m-card__pos-icon m-card__pos-icon--${position}`}
     />
   );
 }
