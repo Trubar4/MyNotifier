@@ -6,50 +6,44 @@ const DAY_LABELS: Record<WeekDay, string> = {
   MO: 'MO', TU: 'TU', WE: 'WE', TH: 'TH', FR: 'FR', SA: 'SA', SU: 'SU',
 };
 
-function nearestStep(v: number, steps: number[]): number {
-  return steps.reduce((best, s) => (Math.abs(s - v) < Math.abs(best - v) ? s : best), steps[0]);
-}
-
 /**
- * Value-based slider snapping to a list of allowed step values.
- * `domain` sets the visual track range (default: first/last step).
- * `minSelectable` forbids values below it (the left zone is greyed).
+ * Stepped slider matching the Liebherr PatternLib `patternlib-slider`
+ * (showStepDots): evenly-spaced step dots + a round handle. Snaps to the
+ * list of allowed `steps`; the dots sit at even index positions so the
+ * track reads cleanly regardless of the underlying (possibly non-uniform)
+ * values. The native range input is overlaid invisibly for a11y/keyboard.
  */
-export function StepSlider({ steps, value, onChange, domain, minSelectable }: {
+export function StepSlider({ steps, value, onChange }: {
   steps: number[];
   value: number;
   onChange: (v: number) => void;
-  domain?: [number, number];
-  minSelectable?: number;
 }) {
-  const [dMin, dMax] = domain ?? [steps[0], steps[steps.length - 1]];
-  const pos = (v: number) => (dMax > dMin ? ((v - dMin) / (dMax - dMin)) * 100 : 0);
-  const pct = pos(value);
+  const n = steps.length;
+  const idxRaw = steps.indexOf(value);
+  const idx = idxRaw < 0 ? 0 : idxRaw;
+  const posOf = (i: number) => (n > 1 ? (i / (n - 1)) * 100 : 0);
+  const pct = posOf(idx);
 
   return (
     <div className="m-slider">
-      {/* Step knobs — black when filled (≤ value), grey otherwise (Liebherr PatternLib) */}
-      <div className="m-slider__knobs" aria-hidden>
-        {steps.map((s) => (
+      <div className="m-slider__track" aria-hidden>
+        <div className="m-slider__fill" style={{ width: `${pct}%` }} />
+        {steps.map((s, i) => (
           <span
             key={s}
-            className={`m-slider__knob ${s <= value ? 'm-slider__knob--on' : ''}`}
-            style={{ left: `${pos(s)}%` }}
+            className={`m-slider__dot ${i <= idx ? 'm-slider__dot--on' : ''}`}
+            style={{ left: `${posOf(i)}%` }}
           />
         ))}
+        <span className="m-slider__handle" style={{ left: `${pct}%` }} />
       </div>
       <input
         type="range"
-        min={dMin}
-        max={dMax}
+        min={0}
+        max={n - 1}
         step={1}
-        value={value}
-        onChange={(e) => {
-          let v = parseInt(e.target.value, 10);
-          if (minSelectable != null) v = Math.max(minSelectable, v);
-          onChange(nearestStep(v, steps));
-        }}
-        style={{ ['--pct' as string]: `${pct}%` }}
+        value={idx}
+        onChange={(e) => onChange(steps[parseInt(e.target.value, 10)])}
       />
     </div>
   );
@@ -128,7 +122,7 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
               Windgeschwindigkeit gewarnt wird.
             </InfoPopover>
           </div>
-          <StepSlider steps={VORWARN_STEPS} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} domain={[0, 100]} minSelectable={50} />
+          <StepSlider steps={VORWARN_STEPS} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} />
           <span className="m-settings-field__value">
             Warnung bei {prefs.vorwarnPercent} %{warnAt != null ? ` · ab ${warnAt.toFixed(1)} m/s` : ''}
           </span>

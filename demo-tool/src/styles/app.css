@@ -763,38 +763,57 @@
   flex-direction: column;
   gap: var(--s-2);
 }
-.mdetail__status {
+.mdetail__name {
+  margin: 0;
+  font: 900 20px/24px var(--font-head-b);
+  color: var(--p-black);
+}
+.mdetail__accent {
+  width: 46px;
+  height: 4px;
+  background: var(--p-black);
+}
+.mdetail__standrow {
   display: flex;
   align-items: center;
-  gap: var(--s-2);
+  justify-content: space-between;
+  margin-top: var(--s-1);
+}
+.mdetail__stand {
   font: 400 12px/16px var(--font-text);
   color: var(--p-black);
 }
-.mdetail__name {
-  margin: 0;
-  font: 900 22px/26px var(--font-head-b);
-  letter-spacing: 0.01em;
-  color: var(--p-black);
+.mdetail__stand strong { font-family: var(--font-text-b); font-weight: 700; }
+.mdetail__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font: 400 12px/16px var(--font-text);
 }
-.mdetail__sub {
-  font: 400 13px/18px var(--font-text);
-  color: var(--p-steel-600);
+.mdetail__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
+.mdetail__status.is-online { color: var(--p-black); }
+.mdetail__status.is-online .mdetail__status-dot { background: #398713; }
+.mdetail__status.is-offline { color: #d91e1e; }
+.mdetail__status.is-offline .mdetail__status-dot { background: #d91e1e; }
 
 /* Tab bar */
 .mdetail__tabs {
   display: flex;
-  gap: var(--s-5);
-  border-bottom: 1px solid var(--p-steel-200);
-  margin-top: var(--s-1);
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
 }
 .mdetail__tab {
   position: relative;
   background: none;
   border: none;
-  padding: var(--s-2) 0 var(--s-3);
-  font: 400 15px/20px var(--font-text);
-  color: var(--p-steel-600);
+  padding: var(--s-2) 0;
+  font: 700 16px/24px var(--font-text-b);
+  color: var(--p-steel-800);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -803,16 +822,12 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
+  bottom: 0;
   height: 2px;
-  background: transparent;
+  background: var(--p-steel-300);
 }
 .mdetail__tab:hover { color: var(--p-black); }
-.mdetail__tab--active {
-  color: var(--p-black);
-  font-family: var(--font-text-b);
-  font-weight: 700;
-}
+.mdetail__tab--active { color: var(--p-black); }
 .mdetail__tab--active::after { background: var(--p-black); }
 
 .mdetail__panel {
@@ -1016,66 +1031,86 @@
 }
 
 /* Discrete slider */
+/* Stepped slider — Liebherr PatternLib (patternlib-slider, showStepDots):
+   evenly-spaced step dots + round handle. A custom track carries the
+   visuals; the native range input is overlaid invisibly for interaction. */
 .m-slider {
   position: relative;
-  padding: var(--s-3) 0;
+  height: 24px;
+  /* inset by the handle radius so the first/last dot + handle never clip */
+  padding: 0 11px;
+  display: flex;
+  align-items: center;
+}
+.m-slider__track {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--p-steel-300);
+}
+.m-slider__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--p-black);
+}
+.m-slider__dot {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--p-steel-300);
+  z-index: 1;
+}
+.m-slider__dot--on { background: var(--p-black); }
+.m-slider__handle {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--p-black);
+  border: 3px solid var(--p-white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+  pointer-events: none;
 }
 .m-slider input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
-  height: 4px;
-  border-radius: 2px;
+  height: 100%;
   margin: 0;
-  background: linear-gradient(to right,
-    var(--p-black) 0%, var(--p-black) var(--pct, 0%),
-    var(--p-steel-300) var(--pct, 0%), var(--p-steel-300) 100%);
+  background: transparent;
   cursor: pointer;
-  position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 .m-slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: var(--p-black);
-  border: 3px solid var(--p-white);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  background: transparent;
   cursor: pointer;
 }
 .m-slider input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  border: none;
   border-radius: 50%;
-  background: var(--p-black);
-  border: 3px solid var(--p-white);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  background: transparent;
   cursor: pointer;
 }
-/* Step knobs (Liebherr PatternLib): black when filled, grey otherwise */
-.m-slider__knobs {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-.m-slider__knob {
-  position: absolute;
-  top: 0;
-  width: 12px;
-  height: 12px;
-  margin-left: -6px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: var(--p-steel-300);
-}
-.m-slider__knob--on { background: var(--p-black); }
 
 /* Day pills (MO–SU) */
 .m-daypills {
@@ -4271,6 +4306,266 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ============================================================
+   MACHINE DETAIL — Figma 2.0 tabs (Übersicht/Maschine/Standort/Settings)
+   ============================================================ */
+/* Card with grey header band (Table header 👑) */
+.mdt-card {
+  border: 1px solid var(--p-steel-400);
+  background: var(--p-white);
+  overflow: hidden;
+}
+.mdt-card__header {
+  background: var(--p-steel-100);
+  border-bottom: 1px solid var(--p-steel-300);
+  padding: var(--s-4) var(--s-4);
+  font: 900 20px/24px var(--font-head-b);
+  color: var(--p-black);
+}
+.mdt-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+}
+
+/* --- Windinformationen --- */
+.windinfo__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.windinfo__label { font: 400 14px/20px var(--font-text); color: var(--p-black); }
+.windinfo__value { font: 700 14px/20px var(--font-text-b); color: var(--p-black); }
+.windinfo__subtitle {
+  font: 700 14px/20px var(--font-text-b);
+  color: var(--p-black);
+  margin-top: var(--s-1);
+}
+.windinfo__peak {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.windinfo__peak-left { display: flex; flex-direction: column; }
+.windinfo__peak-label { font: 400 14px/20px var(--font-text); color: var(--p-black); }
+.windinfo__peak-time { font: 400 12px/16px var(--font-text); color: var(--p-steel-700); }
+.windinfo__peak-value { font: 700 14px/20px var(--font-text-b); white-space: nowrap; }
+.windinfo__peak-value--safe { color: var(--p-black); }
+.windinfo__peak-value--warning { color: #996300; }
+.windinfo__peak-value--danger { color: #d91e1e; }
+
+/* --- Windgeschwindigkeit chart --- */
+.windchart { display: flex; flex-direction: column; gap: var(--s-2); }
+.windchart__plot {
+  position: relative;
+  height: 120px;
+  border-left: 1px solid var(--p-steel-300);
+  border-bottom: 1px solid var(--p-steel-300);
+  padding-left: 2px;
+}
+.windchart__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 100%;
+}
+.windchart__bar { flex: 1 1 0; min-width: 0; border-radius: 1px 1px 0 0; }
+.windchart__bar--safe { background: #398713; }
+.windchart__bar--warning { background: #ffd000; }
+.windchart__bar--danger { background: #d91e1e; }
+.windchart__threshold {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1.5px dashed #d91e1e;
+}
+.windchart__threshold-label {
+  position: absolute;
+  right: 2px; top: -8px;
+  font: 400 10px/14px var(--font-text);
+  color: #d91e1e;
+  background: var(--p-white);
+  padding: 0 2px;
+}
+.windchart__warning {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1px dashed #996300;
+}
+.windchart__labels {
+  display: flex;
+  justify-content: space-between;
+  font: 400 10px/14px var(--font-text);
+  color: var(--p-steel-700);
+}
+.windchart__legend {
+  display: flex;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+.windchart__legend-item {
+  position: relative;
+  padding-left: 14px;
+  font: 400 11px/16px var(--font-text);
+  color: var(--p-steel-800);
+}
+.windchart__legend-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 4px;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
+.windchart__legend-item--safe::before { background: #398713; }
+.windchart__legend-item--warning::before { background: #ffd000; }
+.windchart__legend-item--danger::before { background: #d91e1e; }
+
+/* --- Benachrichtigungen (machine notifications) --- */
+.mdetail__notifs { display: flex; flex-direction: column; gap: var(--s-2); }
+.mdetail__notifs-title { margin: 0; font: 900 18px/24px var(--font-head-b); color: var(--p-black); }
+.mdetail__notifs-empty { font: 400 13px/18px var(--font-text); color: var(--p-steel-700); }
+.mdt-notif {
+  border: 1px solid var(--p-steel-300);
+  background: var(--p-white);
+  padding: var(--s-3) var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.mdt-notif__top { display: flex; align-items: center; justify-content: space-between; }
+.mdt-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font: 700 11px/16px var(--font-text-b);
+}
+.mdt-pill--critical { background: #d91e1e; color: var(--p-white); }
+.mdt-pill--warning { background: #ffd000; color: var(--p-black); }
+.mdt-notif__assigned { font: 400 11px/16px var(--font-text); color: var(--p-steel-700); }
+.mdt-notif__title { font: 700 14px/20px var(--font-text-b); color: var(--p-black); }
+.mdt-notif__time { font: 400 12px/16px var(--font-text); color: var(--p-steel-700); }
+
+/* --- Maschine: Detailansicht table --- */
+.mdt-table {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--s-3);
+}
+.mdt-row { display: flex; gap: var(--s-1); }
+.mdt-row__head {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--s-2) 0 var(--s-2) var(--s-1);
+  border-bottom: 1px solid var(--p-steel-300);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.mdt-row__label { font: 400 14px/20px var(--font-text); color: var(--p-black); }
+.mdt-row__sub { font: 400 12px/16px var(--font-text); color: var(--p-steel-700); }
+.mdt-row__cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-2) 0 var(--s-2) var(--s-1);
+  border-bottom: 1px solid var(--p-steel-300);
+}
+.mdt-row__value { font: 500 14px/20px var(--font-text-m); color: var(--p-black); }
+.mdt-row__ok { color: #398713; font-weight: 700; }
+.mdt-row--last .mdt-row__head,
+.mdt-row--last .mdt-row__cell { border-bottom: none; }
+
+/* --- Lizenz card --- */
+.mdt-pricinghint {
+  background: var(--p-steel-50);
+  padding: var(--s-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.mdt-pricinghint__title { font: 700 14px/20px var(--font-text-b); color: var(--p-black); }
+.mdt-pricinghint__text { font: 400 12px/16px var(--font-text); color: var(--p-steel-800); }
+.mdt-license-active { font: 700 14px/20px var(--font-text-b); color: #398713; }
+
+/* --- Standort --- */
+.mdt-loc__addr {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font: 400 14px/20px var(--font-text);
+  color: var(--p-black);
+}
+.mdt-loc__icon { flex-shrink: 0; margin-top: 1px; color: var(--p-black); }
+.mdt-loc__gps {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: 400 12px/16px var(--font-text);
+  color: var(--p-steel-700);
+}
+.mdt-loc__gps svg { color: var(--p-steel-700); flex-shrink: 0; }
+.mdt-loc__map {
+  width: 100%;
+  height: 260px;
+  border: none;
+  display: block;
+}
+.mdt-loc__btn { letter-spacing: 0.04em; }
+.mdt-loc__hint { font: 400 13px/18px var(--font-text); color: var(--p-black); }
+
+/* --- Settings: Maschinen Konfiguration --- */
+.mdt-config { display: flex; flex-direction: column; gap: var(--s-3); }
+.mdt-config__maxwind { display: flex; flex-direction: column; gap: 2px; }
+.mdt-config__maxwind-label { font: 400 16px/22px var(--font-text); color: var(--p-black); }
+.mdt-config__maxwind-value { font: 900 20px/24px var(--font-head-b); color: var(--p-black); }
+.mdt-config__hint { font: 400 12px/16px var(--font-text); color: var(--p-steel-700); margin: 0; }
+.mdt-config__manual {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font: 400 12px/16px var(--font-text);
+  color: var(--p-black);
+  margin: 0;
+}
+.mdt-field { display: flex; flex-direction: column; gap: var(--s-1); }
+.mdt-field__label { font: 700 14px/20px var(--font-text-b); color: var(--p-black); }
+.mdt-select { position: relative; }
+.mdt-select::after {
+  content: '⌄';
+  position: absolute;
+  right: 14px;
+  top: 46%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--p-black);
+  font-size: 16px;
+}
+.mdt-select select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--p-white);
+  border: 1px solid var(--p-steel-400);
+  border-radius: 2px;
+  padding: var(--s-3) var(--s-6) var(--s-3) var(--s-3);
+  font: 400 15px/20px var(--font-text);
+  color: var(--p-black);
+  cursor: pointer;
+}
+.mdt-override {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-top: 1px solid var(--p-steel-200);
+}
+.mdt-override__label { font: 400 15px/20px var(--font-text); color: var(--p-black); }
 
 /* ============================================================
    RESPONSIVE — Tablet Landscape (600–1024px height, landscape)
