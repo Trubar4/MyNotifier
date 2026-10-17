@@ -179,7 +179,7 @@ export function MachineCard({
           ) : (
             <>
               <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpen}>
-                <FileSearch size={18} />
+                <img src={BASE + 'license-acquire.svg'} alt="" width={18} height={18} />
                 Lizenz jetzt erwerben
               </button>
               <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label="Details">
