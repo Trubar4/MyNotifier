@@ -1,4 +1,4 @@
-import { RefreshCw, MapPin, Bell, Settings, Ban, FileSearch } from 'lucide-react';
+import { RefreshCw, MapPin, Bell, Settings, Ban } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 
@@ -172,7 +172,7 @@ export function MachineCard({
                 Position
               </button>
               <button className="m-btn m-btn--outline" onClick={onOpen}>
-                <FileSearch size={18} />
+                <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
                 Details
               </button>
             </>
@@ -183,7 +183,7 @@ export function MachineCard({
                 Lizenz jetzt erwerben
               </button>
               <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label="Details">
-                <FileSearch size={18} />
+                <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
               </button>
             </>
           )}
