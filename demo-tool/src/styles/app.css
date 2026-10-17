@@ -925,10 +925,20 @@
 }
 .notif2__time svg { color: var(--p-steel-700); }
 
+.notif2__titlerow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
 .notif2__title {
   margin: 0;
   font: 400 18px/24px var(--font-head);
   color: var(--p-black);
+}
+.notif2__info {
+  display: inline-flex;
+  margin-top: 4px;
+  flex-shrink: 0;
 }
 .notif2__facts {
   display: flex;

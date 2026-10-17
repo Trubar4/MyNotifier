@@ -4,6 +4,7 @@ import type { Notification, MachineConfig, BoomPosition } from '../data/types';
 import { DEMO_USER, BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { AssignModal } from './AssignModal';
 import { PositionSelector, recommendPosition } from './PositionSelector';
+import { InfoPopover } from './InfoPopover';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -131,7 +132,16 @@ export function NotificationsPage({
           <span>{formatFull(n.timestamp)}</span>
         </div>
 
-        <h3 className="notif2__title">{n.title}</h3>
+        <div className="notif2__titlerow">
+          <h3 className="notif2__title">{n.title}</h3>
+          <span
+            className="notif2__info"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <InfoPopover>{n.body}</InfoPopover>
+          </span>
+        </div>
 
         {machine && (
           <div className="notif2__facts">
@@ -144,8 +154,6 @@ export function NotificationsPage({
 
         {isExpanded && (
           <div className="notif2__detail" onClick={(e) => e.stopPropagation()}>
-            <p className="notif2__body">{n.body}</p>
-
             {n.assignedTo && (
               <div className="notif2__field">
                 <span className="notif2__field-label">Übernommen durch:</span>
