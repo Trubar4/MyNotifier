@@ -92,7 +92,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
       <div className="config-modal">
         <div className="config-modal__header">
           <h2 className="config-modal__title">
-            Demo-Konfiguration
+            Konfiguration der Demo
           </h2>
           <button className="config-modal__close" onClick={onClose}>
             <X size={20} />

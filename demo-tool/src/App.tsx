@@ -9,6 +9,8 @@ import { NotificationsPage } from './components/NotificationsPage';
 import { SettingsPage } from './components/SettingsPage';
 import { DailyCheckPage } from './components/DailyCheckPage';
 import { ReportsPage } from './components/ReportsPage';
+import { DemoConfigMenu } from './components/DemoConfigMenu';
+import { ScenarioConfig } from './components/ScenarioConfig';
 import type { MachineConfig, Notification, NotificationSettings } from './data/types';
 import { DEFAULT_MACHINES } from './data/machines';
 import { DEFAULT_NOTIFICATIONS, DEFAULT_NOTIFICATION_SETTINGS } from './data/notifications';
@@ -24,6 +26,9 @@ export default function App() {
   const [notifFilterMachineId, setNotifFilterMachineId] = useState<string | null>(null);
   const [notifCameFromMachines, setNotifCameFromMachines] = useState(false);
   const [highlightNotifId, setHighlightNotifId] = useState<string | null>(null);
+  const [showDemoConfig, setShowDemoConfig] = useState(false);
+  const [demoConfigMachineId, setDemoConfigMachineId] = useState<string | null>(null);
+  const demoConfigMachine = demoConfigMachineId ? machines.find((m) => m.id === demoConfigMachineId) : null;
 
   const unreadNotifications = notifications.filter((n) => !n.read);
   const hasCriticalUnread = unreadNotifications.some((n) => n.level === 1);
@@ -74,7 +79,7 @@ export default function App() {
   return (
     <div className="app-backdrop">
       <div className="app-shell">
-        <AppHeader />
+        <AppHeader onAvatarClick={() => setShowDemoConfig(true)} />
         <DesktopSidebar
           activePage={activePage}
           onNavigate={handleNavigate}
@@ -157,6 +162,22 @@ export default function App() {
           hasCritical={hasCriticalUnread}
         />
       </div>
+
+      {/* Demo configuration — opened from the avatar (top-right) */}
+      {showDemoConfig && (
+        <DemoConfigMenu
+          machines={machines}
+          onPick={(id) => { setDemoConfigMachineId(id); setShowDemoConfig(false); }}
+          onClose={() => setShowDemoConfig(false)}
+        />
+      )}
+      {demoConfigMachine && (
+        <ScenarioConfig
+          machine={demoConfigMachine}
+          onSave={handleUpdateMachine}
+          onClose={() => setDemoConfigMachineId(null)}
+        />
+      )}
     </div>
   );
 }
