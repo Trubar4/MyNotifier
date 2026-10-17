@@ -23,12 +23,21 @@ export function StepSlider({ steps, value, onChange, domain, minSelectable }: {
   minSelectable?: number;
 }) {
   const [dMin, dMax] = domain ?? [steps[0], steps[steps.length - 1]];
-  const pct = dMax > dMin ? ((value - dMin) / (dMax - dMin)) * 100 : 0;
-  const lockPct = minSelectable != null && dMax > dMin ? ((minSelectable - dMin) / (dMax - dMin)) * 100 : null;
+  const pos = (v: number) => (dMax > dMin ? ((v - dMin) / (dMax - dMin)) * 100 : 0);
+  const pct = pos(value);
 
   return (
     <div className="m-slider">
-      {lockPct != null && <div className="m-slider__lock" style={{ width: `${lockPct}%` }} aria-hidden />}
+      {/* Step knobs — black when filled (≤ value), grey otherwise (Liebherr PatternLib) */}
+      <div className="m-slider__knobs" aria-hidden>
+        {steps.map((s) => (
+          <span
+            key={s}
+            className={`m-slider__knob ${s <= value ? 'm-slider__knob--on' : ''}`}
+            style={{ left: `${pos(s)}%` }}
+          />
+        ))}
+      </div>
       <input
         type="range"
         min={dMin}
@@ -89,7 +98,12 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
         <h2 className="m-settings-group__title">Warnungszeitraum</h2>
 
         <div className="m-settings-field">
-          <span className="m-settings-field__label">Prognosefenster</span>
+          <div className="m-settings-field__labelrow">
+            <span className="m-settings-field__label">Prognosefenster</span>
+            <span className="m-settings-field__range">
+              min. {PROGNOSE_STEPS[0]} h · max. {PROGNOSE_STEPS[PROGNOSE_STEPS.length - 1]} h
+            </span>
+          </div>
           <StepSlider steps={PROGNOSE_STEPS} value={prefs.prognoseWindowH} onChange={(v) => set({ prognoseWindowH: v })} />
           <span className="m-settings-field__value">{prefs.prognoseWindowH} h</span>
           <span className="m-settings-field__hint">Prognosefenster, in welchem Zeitraum Warnungen und Benachrichtigungen verschickt werden</span>

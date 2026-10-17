@@ -1,4 +1,4 @@
-import { User } from 'lucide-react';
+const BASE = import.meta.env.BASE_URL;
 
 interface AppHeaderProps {
   onAvatarClick?: () => void;
@@ -12,7 +12,7 @@ export function AppHeader({ onAvatarClick }: AppHeaderProps) {
         <span className="app-header__product">MyNotifier</span>
       </div>
       <button className="app-header__avatar" onClick={onAvatarClick} aria-label="Benutzerkonto">
-        <User size={24} strokeWidth={1.75} />
+        <img src={BASE + 'nav/person.svg'} alt="" className="app-header__avatar-icon" />
       </button>
     </header>
   );

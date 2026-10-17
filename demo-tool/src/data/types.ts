@@ -106,7 +106,7 @@ export type WeekDay = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
 export const WEEKDAYS: WeekDay[] = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
 /* Slider step values (Figma Settings) */
-export const PROGNOSE_STEPS = [12, 24, 36, 48, 60, 72];      // Stunden
+export const PROGNOSE_STEPS = [1, 6, 12, 24, 48, 72];        // Stunden
 export const VORWARN_STEPS = [50, 60, 70, 80, 90, 100];       // Prozent der Grenze
 export const REPEAT_STEPS = [5, 15, 30, 60];                  // Minuten
 
