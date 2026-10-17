@@ -80,8 +80,16 @@ export function NotificationsPage({
 
   function handleAssignConfirm(comment: string) {
     if (!assigningNotif) return;
+    const id = assigningNotif.id;
     onUpdateNotification({ ...assigningNotif, assignedTo: DEMO_USER, assignedAt: new Date(), assignedComment: comment || null });
     setAssigningNotif(null);
+    // Jump straight to the Angenommen tab, open this card, scroll to it —
+    // so the user can immediately hit "Position anpassen".
+    setTab('angenommen');
+    setExpandedId(id);
+    setTimeout(() => {
+      document.querySelector(`[data-notif-id="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
   }
 
   function renderCard(n: Notification) {
@@ -96,6 +104,7 @@ export function NotificationsPage({
     return (
       <div
         key={n.id}
+        data-notif-id={n.id}
         className={`notif2 notif2--${levelClass} notif2--clickable`}
         onClick={() => setExpandedId(isExpanded ? null : n.id)}
         role="button"

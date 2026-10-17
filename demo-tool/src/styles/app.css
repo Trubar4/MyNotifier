@@ -4688,6 +4688,33 @@
   /* Keep the location map from stretching too tall */
   .mdt-loc__map { height: 320px; }
 
+  /* ---- Benachrichtigungen list: multi-column feed ---- */
+  .notif2-page { max-width: 1100px; }
+  .notif2-tabs { justify-content: flex-start; gap: 40px; }
+  .notif2-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: var(--s-4);
+    align-items: start;
+  }
+  .notif-empty { grid-column: 1 / -1; }
+
+  /* ---- Windberichte ---- */
+  .reports-page { max-width: 1040px; }
+  /* Step 01 form reads better as a centered two-column grid */
+  .rep-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4) var(--s-5);
+    align-items: start;
+  }
+  .rep-form > .rep-section-title,
+  .rep-form > .rep-field:first-of-type,  /* Maschine */
+  .rep-form > .rep-field:has(.rep-limits),  /* Grenzwerte */
+  .rep-form > .m-btn { grid-column: 1 / -1; }
+  /* Taller chart with the extra width */
+  .reports-chart-area { height: 300px; }
+
   /* Machine grid → multi-column */
   .machine-grid {
     display: grid;
