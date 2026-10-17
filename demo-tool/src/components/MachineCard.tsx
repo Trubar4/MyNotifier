@@ -1,4 +1,4 @@
-import { RefreshCw, MapPin, Bell, Settings, Ban, PencilRuler, FileSearch } from 'lucide-react';
+import { RefreshCw, MapPin, Bell, Settings, Ban, FileSearch } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 
@@ -168,7 +168,7 @@ export function MachineCard({
           {hasLicense ? (
             <>
               <button className="m-btn m-btn--primary" onClick={onOpenPositionSelector}>
-                <PencilRuler size={18} />
+                <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
                 Position
               </button>
               <button className="m-btn m-btn--outline" onClick={onOpen}>

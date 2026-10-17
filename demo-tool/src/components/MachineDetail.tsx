@@ -278,7 +278,10 @@ export function MachineDetail({
                 {machine.license === 'active' ? (
                   <span className="mdt-license-active">● Lizenz aktiv</span>
                 ) : (
-                  <button className="m-btn m-btn--primary m-btn--block">LIZENZ JETZT ERWERBEN</button>
+                  <button className="m-btn m-btn--primary m-btn--block">
+                    <img src={`${import.meta.env.BASE_URL}license-acquire.svg`} alt="" width={18} height={18} />
+                    LIZENZ JETZT ERWERBEN
+                  </button>
                 )}
               </div>
             </section>

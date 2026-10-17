@@ -569,6 +569,8 @@
 /* "Arbeitsposition ohne Nadelausleger" is cropped tighter than the other
    icons, so it renders larger at the same height — scale it down to match. */
 .m-card__pos-icon--withoutNeedle { height: 38px; }
+/* Crane glyph on the "Position" action button (wide aspect) */
+.m-btn__icon-crane { height: 18px; width: auto; display: block; }
 .m-card__pos-label {
   font: 700 13px/1.2 var(--font-text-b);
   color: var(--p-steel-900);
