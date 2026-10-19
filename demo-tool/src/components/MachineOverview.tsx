@@ -4,7 +4,6 @@ import { Check } from 'lucide-react';
 const BASE = import.meta.env.BASE_URL;
 import type { MachineConfig, Notification } from '../data/types';
 import { MachineCard } from './MachineCard';
-import { ScenarioConfig } from './ScenarioConfig';
 import { PositionSelector } from './PositionSelector';
 import { CheckoutModal } from './CheckoutModal';
 
@@ -20,7 +19,6 @@ interface MachineOverviewProps {
 }
 
 export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick }: MachineOverviewProps) {
-  const [configMachineId, setConfigMachineId] = useState<string | null>(null);
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
@@ -28,7 +26,6 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
   const [showFilters, setShowFilters] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
-  const configMachine = machines.find((m) => m.id === configMachineId);
   const positionSelectorMachine = machines.find((m) => m.id === positionSelectorMachineId);
 
   function getMachineNotifInfo(machineId: string) {
@@ -155,7 +152,6 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
                 notifCritical={notifInfo.critical}
                 notifWarning={notifInfo.warning}
                 assignedUser={notifInfo.assignedUser}
-                onOpenConfig={() => setConfigMachineId(machine.id)}
                 onOpen={() => onOpenMachine(machine.id)}
                 onOpenPositionSelector={() => setPositionSelectorMachineId(machine.id)}
                 onNotifClick={() => onMachineNotifClick(machine.id)}
@@ -164,14 +160,6 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           })
         )}
       </div>
-
-      {configMachine && (
-        <ScenarioConfig
-          machine={configMachine}
-          onSave={onUpdateMachine}
-          onClose={() => setConfigMachineId(null)}
-        />
-      )}
 
       {positionSelectorMachine && (
         <PositionSelector
@@ -198,7 +186,6 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           machines={machines}
           getNotifInfo={getMachineNotifInfo}
           onClose={() => setShowCheckout(false)}
-          onOpenConfig={(id) => setConfigMachineId(id)}
           onOpen={(id) => { setShowCheckout(false); onOpenMachine(id); }}
           onOpenPositionSelector={(id) => setPositionSelectorMachineId(id)}
           onNotifClick={(id) => { setShowCheckout(false); onMachineNotifClick(id); }}

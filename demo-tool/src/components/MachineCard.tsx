@@ -9,7 +9,6 @@ interface MachineCardProps {
   notifCritical: number;
   notifWarning: number;
   assignedUser: string | null;
-  onOpenConfig: () => void;
   onOpen: () => void;
   onOpenPositionSelector: () => void;
   onNotifClick: () => void;
@@ -35,7 +34,7 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
 
 export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
-  onOpenConfig, onOpen, onOpenPositionSelector, onNotifClick,
+  onOpen, onOpenPositionSelector, onNotifClick,
 }: MachineCardProps) {
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
@@ -48,11 +47,6 @@ export function MachineCard({
 
   return (
     <div className="m-card">
-      {/* Demo config (hidden-ish) */}
-      <button className="m-card__demo" onClick={onOpenConfig} title="Demo-Konfiguration" aria-label="Demo-Konfiguration">
-        <img src={BASE + 'icon-gear.svg'} alt="" width={14} height={14} className="m-icon" />
-      </button>
-
       {/* Status row */}
       <div className="m-card__status">
         <div className="m-card__status-left">

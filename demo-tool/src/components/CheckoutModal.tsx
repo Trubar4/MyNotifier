@@ -12,7 +12,6 @@ interface CheckoutModalProps {
   machines: MachineConfig[];
   getNotifInfo: (machineId: string) => { critical: number; warning: number; assignedUser: string | null };
   onClose: () => void;
-  onOpenConfig: (id: string) => void;
   onOpen: (id: string) => void;
   onOpenPositionSelector: (id: string) => void;
   onNotifClick: (id: string) => void;
@@ -33,7 +32,7 @@ function needsAction(m: MachineConfig, hours: WindowH): boolean {
 
 export function CheckoutModal({
   machines, getNotifInfo, onClose,
-  onOpenConfig, onOpen, onOpenPositionSelector, onNotifClick,
+  onOpen, onOpenPositionSelector, onNotifClick,
 }: CheckoutModalProps) {
   const [windowH, setWindowH] = useState<WindowH>(24);
   const list = machines.filter((m) => needsAction(m, windowH));
@@ -77,7 +76,6 @@ export function CheckoutModal({
                   notifCritical={info.critical}
                   notifWarning={info.warning}
                   assignedUser={info.assignedUser}
-                  onOpenConfig={() => onOpenConfig(m.id)}
                   onOpen={() => onOpen(m.id)}
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
