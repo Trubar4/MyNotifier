@@ -1,4 +1,4 @@
-import { RefreshCw, MapPin, Bell, Settings, Ban } from 'lucide-react';
+import { RefreshCw, Ban } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 
@@ -50,7 +50,7 @@ export function MachineCard({
     <div className="m-card">
       {/* Demo config (hidden-ish) */}
       <button className="m-card__demo" onClick={onOpenConfig} title="Demo-Konfiguration" aria-label="Demo-Konfiguration">
-        <Settings size={14} />
+        <img src={BASE + 'icon-gear.svg'} alt="" width={14} height={14} className="m-icon" />
       </button>
 
       {/* Status row */}
@@ -96,7 +96,7 @@ export function MachineCard({
               </div>
             )}
             <div className="m-card__loc">
-              <MapPin size={14} />
+              <img src={BASE + 'icon-mappin.svg'} alt="" width={13} height={14} className="m-icon" />
               <span>{hasLicense ? machine.location.shortAddress : '-'}</span>
             </div>
           </div>
@@ -107,7 +107,7 @@ export function MachineCard({
               aria-label="Benachrichtigungen"
               style={totalNotif > 0 ? undefined : { cursor: 'default' }}
             >
-              <Bell size={22} strokeWidth={1.75} />
+              <img src={BASE + 'icon-bell.svg'} alt="" className="m-card__bell-icon" />
               {totalNotif > 0 && (
                 <span className={`m-card__bell-badge ${hasCritical ? 'm-card__bell-badge--critical' : ''}`}>
                   {totalNotif}

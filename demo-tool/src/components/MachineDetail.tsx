@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Crosshair, Home, Clock, BellOff } from 'lucide-react';
+import { Crosshair, Home, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
@@ -229,7 +229,7 @@ export function MachineDetail({
                             </div>
                           </div>
                           <div className="notif2__time">
-                            <Clock size={14} />
+                            <img src={`${import.meta.env.BASE_URL}icon-clock.svg`} alt="" width={14} height={14} className="m-icon" />
                             <span>{formatFull(n.timestamp)}</span>
                           </div>
                           <h3 className="notif2__title">{n.title}</h3>

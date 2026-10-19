@@ -1,5 +1,7 @@
-import { X, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { X, SlidersHorizontal } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
+
+const BASE = import.meta.env.BASE_URL;
 
 interface DemoConfigMenuProps {
   machines: MachineConfig[];
@@ -43,7 +45,7 @@ export function DemoConfigMenu({ machines, onPick, onClose }: DemoConfigMenuProp
                     {m.license === 'active' ? 'Lizenz aktiv' : m.license === 'expired' ? 'Lizenz abgelaufen' : 'Keine Lizenz'}
                   </span>
                 </span>
-                <ChevronRight size={18} className="demo-menu__item-chevron" />
+                <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="demo-menu__item-chevron" style={{ transform: 'rotate(-90deg)' }} />
               </button>
             ))}
           </div>

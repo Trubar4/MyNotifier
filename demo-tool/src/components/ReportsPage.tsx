@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
-import { Minus, Plus, BarChart3, FileText, Download } from 'lucide-react';
+import { Minus, Plus, BarChart3 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MachineConfig } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
@@ -275,8 +275,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
           </div>
 
           <div className="rep-export no-print">
-            <button className="m-btn m-btn--primary" onClick={handleExcelExport}><Download size={16} />XLSX exportieren</button>
-            <button className="m-btn m-btn--outline" onClick={handlePrint}><FileText size={16} />PDF drucken</button>
+            <button className="m-btn m-btn--primary" onClick={handleExcelExport}><img src={`${import.meta.env.BASE_URL}icon-xls.svg`} alt="" width={16} height={16} className="m-icon" />XLSX exportieren</button>
+            <button className="m-btn m-btn--outline" onClick={handlePrint}><img src={`${import.meta.env.BASE_URL}icon-print.svg`} alt="" width={16} height={16} className="m-icon" />PDF drucken</button>
           </div>
 
           <div className="reports-table-wrap">

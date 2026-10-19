@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Filter, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const BASE = import.meta.env.BASE_URL;
 import type { MachineConfig, Notification } from '../data/types';
@@ -91,7 +91,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
             aria-label="Filter"
             aria-expanded={showFilters}
           >
-            <Filter size={20} />
+            <img src={BASE + 'icon-filter.svg'} alt="" width={20} height={19} className="m-icon" />
             {filter !== null && <span className="m-toolbar__dot" />}
           </button>
 

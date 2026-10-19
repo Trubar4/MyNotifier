@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Clock, ChevronDown, ChevronUp, Filter, Check, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Check, MessageSquare } from 'lucide-react';
 import type { Notification, MachineConfig, BoomPosition } from '../data/types';
 import { DEMO_USER, BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { AssignModal } from './AssignModal';
@@ -128,7 +128,7 @@ export function NotificationsPage({
         </div>
 
         <div className="notif2__time">
-          <Clock size={14} />
+          <img src={BASE + 'icon-clock.svg'} alt="" width={14} height={14} className="m-icon" />
           <span>{formatFull(n.timestamp)}</span>
         </div>
 
@@ -229,7 +229,7 @@ export function NotificationsPage({
 
         <button className="notif2__toggle" onClick={(e) => { e.stopPropagation(); setExpandedId(isExpanded ? null : n.id); }}>
           <span>{isExpanded ? 'Weniger anzeigen' : 'Mehr anzeigen'}</span>
-          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="m-icon" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }} />
         </button>
       </div>
     );
@@ -247,7 +247,7 @@ export function NotificationsPage({
 
       {filterMachine && (
         <div className="notif-filter-banner">
-          <Filter size={14} />
+          <img src={BASE + 'icon-filter.svg'} alt="" width={14} height={13} className="m-icon" />
           <span>Gefiltert: <strong>{filterMachine.name} - {filterMachine.serialNumber}</strong></span>
           <button className="notif-filter-banner__clear" onClick={onClearFilter}>Aufheben</button>
         </div>
