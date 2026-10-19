@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Crosshair, Home, BellOff } from 'lucide-react';
+import { Crosshair, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
@@ -130,7 +130,7 @@ export function MachineDetail({
   }
 
   const gps = `GPS: ${Math.abs(machine.location.lat).toFixed(4)}° ${machine.location.lat >= 0 ? 'N' : 'S'}, ${Math.abs(machine.location.lng).toFixed(4)}°`;
-  const mapEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${machine.location.lng - 0.008},${machine.location.lat - 0.005},${machine.location.lng + 0.008},${machine.location.lat + 0.005}&layer=mapnik&marker=${machine.location.lat},${machine.location.lng}`;
+  const mapEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${machine.location.lng - 0.008},${machine.location.lat - 0.005},${machine.location.lng + 0.008},${machine.location.lat + 0.005}&layer=mapnik`;
 
   return (
     <div className="mdetail">
@@ -292,14 +292,17 @@ export function MachineDetail({
         {activeTab === 'standort' && (
           <>
             <div className="mdt-loc__addr">
-              <Home size={18} className="mdt-loc__icon" />
+              <img src={`${import.meta.env.BASE_URL}icon-home.svg`} alt="" width={18} height={18} className="mdt-loc__icon" />
               <span>{machine.location.address}</span>
             </div>
             <div className="mdt-loc__gps">
-              <Crosshair size={16} />
+              <img src={`${import.meta.env.BASE_URL}icon-gps.svg`} alt="" width={16} height={16} />
               <span>{gps}</span>
             </div>
-            <iframe className="mdt-loc__map" src={mapEmbedUrl} title="Standort auf Karte" loading="lazy" />
+            <div className="mdt-loc__mapwrap">
+              <iframe className="mdt-loc__map" src={mapEmbedUrl} title="Standort auf Karte" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}map-marker.svg`} alt="" className="mdt-loc__marker" />
+            </div>
             <button className="m-btn m-btn--primary m-btn--block mdt-loc__btn">
               <Crosshair size={18} />
               LOGGERSTANDORT NUTZEN

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, AlertTriangle, WifiOff, Wifi } from 'lucide-react';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 import type { MachineConfig, Notification, BoomPosition } from '../data/types';
 import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
 import { PositionSelector } from './PositionSelector';
@@ -151,7 +151,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
               <div className="dailycheck-row">
                 <span className="dailycheck-row__label">Maschinenstatus</span>
                 <span className={`dailycheck-row__value dailycheck-row__value--status ${isOnline ? 'dailycheck-row__value--online' : 'dailycheck-row__value--offline'}`}>
-                  {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
+                  <img src={`${import.meta.env.BASE_URL}${isOnline ? 'icon-wifi.svg' : 'icon-wifi-off.svg'}`} alt="" width={14} height={14} className="m-icon" />
                   {isOnline ? 'Online' : 'Offline'}
                 </span>
               </div>

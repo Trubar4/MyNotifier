@@ -4547,11 +4547,22 @@
   color: var(--p-steel-700);
 }
 .mdt-loc__gps svg { color: var(--p-steel-700); flex-shrink: 0; }
+.mdt-loc__mapwrap { position: relative; }
 .mdt-loc__map {
   width: 100%;
   height: 260px;
   border: none;
   display: block;
+}
+.mdt-loc__marker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  width: 24px;
+  height: 35px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
 }
 .mdt-loc__btn { letter-spacing: 0.04em; }
 .mdt-loc__hint { font: 400 13px/18px var(--font-text); color: var(--p-black); }
