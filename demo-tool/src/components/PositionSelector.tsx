@@ -1,6 +1,6 @@
 import { X, Ban } from 'lucide-react';
 import type { BoomPosition } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, positionThreshold } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -9,6 +9,7 @@ interface PositionSelectorProps {
   onSelect: (position: BoomPosition) => void;
   onClose: () => void;
   forecastMax?: number | null;
+  hasNeedle?: boolean;
   title?: string;
   subtitle?: string;
   allowNoAction?: boolean;
@@ -16,27 +17,27 @@ interface PositionSelectorProps {
 }
 
 /** Minimum (least-restrictive) position whose threshold still covers the forecast. */
-export function recommendPosition(positions: BoomPosition[], forecastMax: number): BoomPosition | null {
+export function recommendPosition(positions: BoomPosition[], forecastMax: number, hasNeedle = false): BoomPosition | null {
   const safe = positions
-    .map((p) => ({ p, t: BOOM_THRESHOLDS[p] }))
+    .map((p) => ({ p, t: positionThreshold(p, hasNeedle) }))
     .filter((x): x is { p: BoomPosition; t: number } => x.t !== null && x.t >= forecastMax)
     .sort((a, b) => a.t - b.t);
   if (safe.length > 0) return safe[0].p;
   // forecast exceeds every limit → the most resilient position
   const withThreshold = positions
-    .map((p) => ({ p, t: BOOM_THRESHOLDS[p] }))
+    .map((p) => ({ p, t: positionThreshold(p, hasNeedle) }))
     .filter((x): x is { p: BoomPosition; t: number } => x.t !== null)
     .sort((a, b) => b.t - a.t);
   return withThreshold[0]?.p ?? null;
 }
 
 export function PositionSelector({
-  currentPosition, onSelect, onClose, forecastMax,
+  currentPosition, onSelect, onClose, forecastMax, hasNeedle = false,
   title = 'Auslegerposition manuell setzen', subtitle,
   allowNoAction, onNoAction,
 }: PositionSelectorProps) {
   const positions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
-  const recommended = forecastMax != null ? recommendPosition(positions, forecastMax) : null;
+  const recommended = forecastMax != null ? recommendPosition(positions, forecastMax, hasNeedle) : null;
 
   return (
     <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -61,13 +62,13 @@ export function PositionSelector({
           {recommended != null && forecastMax != null && (
             <p className="position-selector-hint">
               Mindestens empfohlen: <strong>{BOOM_POSITION_LABELS[recommended]}</strong>
-              {BOOM_THRESHOLDS[recommended] !== null ? ` (${BOOM_THRESHOLDS[recommended]} m/s)` : ''}
+              {positionThreshold(recommended, hasNeedle) !== null ? ` (${positionThreshold(recommended, hasNeedle)} m/s)` : ''}
             </p>
           )}
 
           <div className="position-selector-list">
             {positions.map((pos) => {
-              const t = BOOM_THRESHOLDS[pos];
+              const t = positionThreshold(pos, hasNeedle);
               const isRecommended = pos === recommended;
               const inadequate = t !== null && forecastMax != null && t < forecastMax;
               return (

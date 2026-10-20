@@ -2,7 +2,7 @@ import { useState, useMemo, useRef } from 'react';
 import { Minus, Plus, BarChart3 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MachineConfig } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold } from '../data/types';
 import {
   generateHistoricalWind,
   aggregateToDaily,
@@ -58,7 +58,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
   const [filter, setFilter] = useState<Filter>('alle');
 
   const machine = machines.find(m => m.id === machineId);
-  const threshold = machine ? BOOM_THRESHOLDS[machine.position.position] : null;
+  const threshold = machine ? machineThreshold(machine) : null;
   const sensor = 'mainBoom' as const;          // Haupt-/Nadel müssen nicht gewählt werden → Hauptausleger
   const sensorLabel = 'Hauptausleger';
 
@@ -68,7 +68,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
   function handleMachineChange(id: string) {
     setMachineId(id);
     const m = machines.find(x => x.id === id);
-    const t = m ? BOOM_THRESHOLDS[m.position.position] : null;
+    const t = m ? machineThreshold(m) : null;
     setRedThreshold(t ?? 15);
     setOrangeThreshold(t ? Math.round(t * 0.8) : 12);
     setStepNo(1);
@@ -193,7 +193,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
             </div>
             {machine && threshold !== null && (
               <div className="rep-limit-ref">
-                Arbeitsposition {BOOM_POSITION_LABELS[machine.position.position]}: <strong>{threshold} m/s</strong>
+                Position {BOOM_POSITION_LABELS[machine.position.position]}: <strong>{threshold} m/s</strong>
               </div>
             )}
           </div>

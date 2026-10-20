@@ -3,7 +3,7 @@ import { Crosshair, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle } from '../data/types';
 import { PositionSelector } from './PositionSelector';
 import { NotifyPrefsControls } from './SettingsControls';
 
@@ -82,7 +82,7 @@ export function MachineDetail({
   }, [initialPositionSelectorOpen, onPositionSelectorOpened]);
 
   const isOnline = machine.status === 'online';
-  const threshold = BOOM_THRESHOLDS[machine.position.position];
+  const threshold = machineThreshold(machine);
   const windNow = Math.max(machine.wind.needleBoom, machine.wind.mainBoom);
 
   const peak24 = peakWithin(machine.forecast.hourly, machine.forecast.timestamp, 24);
@@ -391,6 +391,7 @@ export function MachineDetail({
           onSelect={handleSetPosition}
           onClose={() => setShowPositionSelector(false)}
           forecastMax={machine.forecast.max72h}
+          hasNeedle={configHasNeedle(machine.specs.boomConfiguration)}
         />
       )}
     </div>

@@ -3,7 +3,7 @@ import { X, CheckCircle } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
-import { BOOM_THRESHOLDS } from '../data/types';
+import { machineThreshold } from '../data/types';
 import { MachineCard } from './MachineCard';
 
 type WindowH = 24 | 48 | 72;
@@ -25,7 +25,7 @@ function maxForecastInWindow(m: MachineConfig, hours: WindowH): number {
 /** Needs action = licensed machine whose current position no longer covers the forecast in the window. */
 function needsAction(m: MachineConfig, hours: WindowH): boolean {
   if (m.license !== 'active') return false;
-  const threshold = BOOM_THRESHOLDS[m.position.position];
+  const threshold = machineThreshold(m);
   if (threshold === null) return true; // position laid down / unknown limit
   return maxForecastInWindow(m, hours) >= threshold;
 }

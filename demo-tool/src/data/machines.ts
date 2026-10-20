@@ -71,12 +71,12 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     status: 'offline',
     license: 'active',
     position: {
-      position: 'withoutNeedle',
+      position: 'arbeitsposition',
       timestamp: hoursAgo(1),
       manuallySet: false,
       fixedUntil: null,
       autoUpdate: false,
-      reportedPosition: 'withNeedle',
+      reportedPosition: 'parkposition',
       reportedAt: hoursAgo(0.5),
     },
     wind: {
@@ -113,7 +113,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     status: 'offline',
     license: 'active',
     position: {
-      position: 'withNeedle',
+      position: 'arbeitsposition',
       timestamp: hoursAgo(2),
       manuallySet: true,
       fixedUntil: null,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Check, MessageSquare } from 'lucide-react';
 import type { Notification, MachineConfig, BoomPosition } from '../data/types';
-import { DEMO_USER, BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { DEMO_USER, BOOM_POSITION_LABELS, machineThreshold, positionThreshold, configHasNeedle } from '../data/types';
 import { AssignModal } from './AssignModal';
 import { PositionSelector, recommendPosition } from './PositionSelector';
 import { InfoPopover } from './InfoPopover';
@@ -97,9 +97,10 @@ export function NotificationsPage({
     const machine = machineMap.get(n.machineId);
     const isExpanded = expandedId === n.id;
     const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
-    const threshold = machine ? BOOM_THRESHOLDS[machine.position.position] : null;
+    const machineHasNeedle = machine ? configHasNeedle(machine.specs.boomConfiguration) : false;
+    const threshold = machine ? machineThreshold(machine) : null;
     const isOnline = machine?.status === 'online';
-    const recommended = machine ? recommendPosition(allPositions, machine.forecast.max72h) : null;
+    const recommended = machine ? recommendPosition(allPositions, machine.forecast.max72h, machineHasNeedle) : null;
     const lastPosHours = machine ? hoursSince(machine.position.timestamp) : 0;
 
     return (
@@ -195,7 +196,7 @@ export function NotificationsPage({
                     <span className="notif2__field-label">Empfohlene Position:</span>
                     <span className="notif2__field-value">
                       {BOOM_POSITION_LABELS[recommended]}
-                      {BOOM_THRESHOLDS[recommended] !== null ? ` (${BOOM_THRESHOLDS[recommended]} m/s)` : ''}
+                      {positionThreshold(recommended, machineHasNeedle) !== null ? ` (${positionThreshold(recommended, machineHasNeedle)} m/s)` : ''}
                     </span>
                   </div>
                 )}
@@ -292,6 +293,7 @@ export function NotificationsPage({
           subtitle={`Auslegerposition für ${machineMap.get(anpassenNotif.machineId)!.name} - ${machineMap.get(anpassenNotif.machineId)!.serialNumber}`}
           currentPosition={machineMap.get(anpassenNotif.machineId)!.position.position}
           forecastMax={machineMap.get(anpassenNotif.machineId)!.forecast.max72h}
+          hasNeedle={configHasNeedle(machineMap.get(anpassenNotif.machineId)!.specs.boomConfiguration)}
           allowNoAction
           onSelect={(p) => handleAnpassenConfirm(p)}
           onNoAction={() => handleAnpassenConfirm(null)}

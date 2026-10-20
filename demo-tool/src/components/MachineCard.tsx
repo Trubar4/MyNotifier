@@ -1,6 +1,6 @@
 import { RefreshCw, Ban } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -41,7 +41,7 @@ export function MachineCard({
   const totalNotif = notifCritical + notifWarning;
   const hasCritical = notifCritical > 0;
 
-  const threshold = BOOM_THRESHOLDS[machine.position.position];
+  const threshold = machineThreshold(machine);
   const windNow = Math.max(machine.wind.needleBoom, machine.wind.mainBoom);
   const windExceeds = threshold !== null && windNow >= threshold;
 

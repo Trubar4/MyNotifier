@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
 import type { MachineConfig, Notification, BoomPosition } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS } from '../data/types';
+import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS, machineThreshold } from '../data/types';
 import { PositionSelector } from './PositionSelector';
 
 const BASE = import.meta.env.BASE_URL;
@@ -100,7 +100,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
           const { speed: maxWind } = getMaxWindUntil(machine, until);
           const recommendedPos = getRecommendedPosition(maxWind);
           const recThreshold = BOOM_THRESHOLDS[recommendedPos];
-          const currentThreshold = BOOM_THRESHOLDS[machine.position.position];
+          const currentThreshold = machineThreshold(machine);
           const positionOk = currentThreshold === null ||
             (recThreshold !== null && currentThreshold >= recThreshold);
           return !positionOk;
@@ -115,7 +115,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
           const currentPos = machine.position.position;
           const positionKnown = isOnline || machine.position.manuallySet;
-          const currentThreshold = positionKnown ? BOOM_THRESHOLDS[currentPos] : undefined;
+          const currentThreshold = positionKnown ? machineThreshold(machine) : undefined;
 
           // Green: current threshold >= recommended threshold (or boomDown chosen = always safe)
           const positionOk = positionKnown && (

@@ -3,26 +3,49 @@ export type LicenseStatus = 'active' | 'none' | 'expired';
 
 export type BoomPosition =
   | 'parkposition'
-  | 'withNeedle'
-  | 'withoutNeedle'
+  | 'arbeitsposition'
   | 'jackknife'
   | 'boomDown';
 
 export const BOOM_POSITION_LABELS: Record<BoomPosition, string> = {
   parkposition: 'Parkposition',
-  withNeedle: 'Arbeitsposition mit Nadelausleger',
-  withoutNeedle: 'Arbeitsposition ohne Nadelausleger',
+  arbeitsposition: 'Arbeitsposition',
   jackknife: 'Klappmesser-Position',
   boomDown: 'Ausleger abgelegt',
 };
 
+/**
+ * Base max. permissible wind per position. For the Arbeitsposition the
+ * limit depends on whether a Nadelausleger is configured (that is a matter
+ * of the Auslegerkonfiguration, not the position) — see positionThreshold.
+ * The value here is the Arbeitsposition limit WITHOUT Nadelausleger.
+ */
 export const BOOM_THRESHOLDS: Record<BoomPosition, number | null> = {
   parkposition: 20,
-  withNeedle: 9,
-  withoutNeedle: 15,
+  arbeitsposition: 15,
   jackknife: 25,
   boomDown: null,
 };
+
+/** Arbeitsposition limit when a Nadelausleger is mounted (more restrictive). */
+export const ARBEITSPOSITION_NEEDLE_THRESHOLD = 9;
+
+/** True when the boom configuration includes a Nadelausleger. */
+export function configHasNeedle(boomConfiguration: string): boolean {
+  const c = boomConfiguration.toLowerCase();
+  return c.includes('nadelausleger') && !c.includes('ohne nadelausleger');
+}
+
+/** Max. permissible wind for a position, accounting for the Nadelausleger config. */
+export function positionThreshold(position: BoomPosition, hasNeedle: boolean): number | null {
+  if (position === 'arbeitsposition' && hasNeedle) return ARBEITSPOSITION_NEEDLE_THRESHOLD;
+  return BOOM_THRESHOLDS[position];
+}
+
+/** Convenience: threshold for a machine's current position + configuration. */
+export function machineThreshold(machine: MachineConfig): number | null {
+  return positionThreshold(machine.position.position, configHasNeedle(machine.specs.boomConfiguration));
+}
 
 export interface WindData {
   needleBoom: number;
