@@ -113,6 +113,7 @@ export default function App() {
           <NotificationsPage
             notifications={notifications}
             machines={machines}
+            notifSettings={notifSettings}
             filterMachineId={notifFilterMachineId}
             onUpdateNotification={handleUpdateNotification}
             onUpdateMachine={handleUpdateMachine}

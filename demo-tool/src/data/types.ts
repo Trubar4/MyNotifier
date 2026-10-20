@@ -112,12 +112,24 @@ export interface MachineConfig {
 
 export type NotificationLevel = 1 | 2;
 
+/**
+ * Kind drives the (expanded) headline:
+ * - exceedance       → "Überschreitung: X m/s" (measured wind over the limit)
+ * - forecast         → "Vorhersage (X Std.) bis zu Y m/s" (offline forecast)
+ * - positionDeviation→ "Positionsabweichung erkannt"
+ * - noData           → keeps its own title
+ */
+export type NotificationKind = 'exceedance' | 'forecast' | 'positionDeviation' | 'noData';
+
 export interface Notification {
   id: string;
   machineId: string;
   level: NotificationLevel;
+  kind: NotificationKind;
   title: string;
   body: string;
+  /** For 'exceedance': the measured wind value that exceeded the limit. */
+  windValue?: number;
   timestamp: Date;
   read: boolean;
   assignedTo: string | null;

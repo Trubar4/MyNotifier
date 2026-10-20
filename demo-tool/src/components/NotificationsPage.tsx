@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Check, MessageSquare } from 'lucide-react';
-import type { Notification, MachineConfig, BoomPosition } from '../data/types';
+import type { Notification, MachineConfig, BoomPosition, NotificationSettings } from '../data/types';
 import { DEMO_USER, BOOM_POSITION_LABELS, machineThreshold, positionThreshold, configHasNeedle } from '../data/types';
 import { AssignModal } from './AssignModal';
 import { PositionSelector, recommendPosition } from './PositionSelector';
@@ -11,6 +11,7 @@ const BASE = import.meta.env.BASE_URL;
 interface NotificationsPageProps {
   notifications: Notification[];
   machines: MachineConfig[];
+  notifSettings: NotificationSettings;
   filterMachineId: string | null;
   onUpdateNotification: (updated: Notification) => void;
   onUpdateMachine: (updated: MachineConfig) => void;
@@ -31,8 +32,20 @@ function formatFull(date: Date): string {
   return `${p(date.getDate())}.${p(date.getMonth() + 1)}.${date.getFullYear()} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
 }
 
+/** 1 decimal, German comma. */
+function fmt1(v: number): string {
+  return v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
+/** Highest forecast speed within the next `hours` window. */
+function forecastPeakWithin(machine: MachineConfig, hours: number): number {
+  const cutoff = machine.forecast.timestamp.getTime() + hours * 3_600_000;
+  const within = machine.forecast.hourly.filter((h) => h.timestamp.getTime() <= cutoff);
+  return within.length ? Math.max(...within.map((h) => h.speed)) : machine.forecast.max72h;
+}
+
 export function NotificationsPage({
-  notifications, machines, filterMachineId, onUpdateNotification, onUpdateMachine,
+  notifications, machines, notifSettings, filterMachineId, onUpdateNotification, onUpdateMachine,
   onClearFilter, onBack, highlightNotifId,
 }: NotificationsPageProps) {
   const [tab, setTab] = useState<TabId>('offen');
@@ -42,6 +55,28 @@ export function NotificationsPage({
 
   const machineMap = new Map(machines.map((m) => [m.id, m]));
   const allPositions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
+
+  const effectiveWindow = (machineId: string) =>
+    notifSettings.machinePrefs[machineId]?.prognoseWindowH ?? notifSettings.prefs.prognoseWindowH;
+
+  /** Expanded headline per notification kind (see NotificationKind). */
+  function headlineFor(n: Notification, machine?: MachineConfig): string {
+    switch (n.kind) {
+      case 'exceedance': {
+        const v = n.windValue ?? (machine ? Math.max(machine.wind.needleBoom, machine.wind.mainBoom) : 0);
+        return `Überschreitung: ${fmt1(v)} m/s`;
+      }
+      case 'forecast':
+        return machine
+          ? `Vorhersage (${effectiveWindow(n.machineId)} Std.) bis zu ${fmt1(forecastPeakWithin(machine, effectiveWindow(n.machineId)))} m/s`
+          : n.title;
+      case 'positionDeviation':
+        return 'Positionsabweichung erkannt';
+      case 'noData':
+      default:
+        return n.title;
+    }
+  }
 
   function handleAnpassenConfirm(pos: BoomPosition | null) {
     if (!anpassenNotif) return;
@@ -133,28 +168,24 @@ export function NotificationsPage({
           <span>{formatFull(n.timestamp)}</span>
         </div>
 
-        <div className="notif2__titlerow">
-          <h3 className="notif2__title">{n.title}</h3>
-          <span
-            className="notif2__info"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-          >
-            <InfoPopover>{n.body}</InfoPopover>
-          </span>
-        </div>
-
-        {machine && (
-          <div className="notif2__facts">
-            {threshold !== null && (
-              <span>Position akt. bis: <strong>{threshold} m/s</strong></span>
-            )}
-            <span>Prognose max.: <strong>{machine.forecast.max72h.toFixed(1)} m/s</strong></span>
-          </div>
-        )}
-
         {isExpanded && (
           <div className="notif2__detail" onClick={(e) => e.stopPropagation()}>
+            <div className="notif2__titlerow">
+              <h3 className="notif2__title">{headlineFor(n, machine)}</h3>
+              <span className="notif2__info" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                <InfoPopover>{n.body}</InfoPopover>
+              </span>
+            </div>
+
+            {machine && (
+              <div className="notif2__facts">
+                {threshold !== null && (
+                  <span>Position akt. bis: <strong>{threshold} m/s</strong></span>
+                )}
+                <span>Prognose max.: <strong>{fmt1(machine.forecast.max72h)} m/s</strong></span>
+              </div>
+            )}
+
             {n.assignedTo && (
               <div className="notif2__field">
                 <span className="notif2__field-label">Übernommen durch:</span>
@@ -168,20 +199,12 @@ export function NotificationsPage({
               </div>
             )}
 
-            {/* Offen: aktuelle Position + max. Wind */}
+            {/* Offen: aktuelle Position (max. Wind steht bereits in den Fakten oben) */}
             {tab === 'offen' && machine && (
-              <>
-                <div className="notif2__field">
-                  <span className="notif2__field-label">Aktuelle Position:</span>
-                  <span className="notif2__field-value">{BOOM_POSITION_LABELS[machine.position.position]}</span>
-                </div>
-                {threshold !== null && (
-                  <div className="notif2__field">
-                    <span className="notif2__field-label">Max. zulässiger Wind:</span>
-                    <span className="notif2__field-value">{threshold} m/s</span>
-                  </div>
-                )}
-              </>
+              <div className="notif2__field">
+                <span className="notif2__field-label">Aktuelle Position:</span>
+                <span className="notif2__field-value">{BOOM_POSITION_LABELS[machine.position.position]}</span>
+              </div>
             )}
 
             {/* Angenommen: letzte + empfohlene Position */}

@@ -1,5 +1,5 @@
 import type { NotifyPrefs, WeekDay } from '../data/types';
-import { WEEKDAYS, PROGNOSE_STEPS, VORWARN_STEPS, REPEAT_STEPS } from '../data/types';
+import { WEEKDAYS, PROGNOSE_STEPS, REPEAT_STEPS } from '../data/types';
 import { InfoPopover } from './InfoPopover';
 
 const DAY_LABELS: Record<WeekDay, string> = {
@@ -44,6 +44,36 @@ export function StepSlider({ steps, value, onChange }: {
         step={1}
         value={idx}
         onChange={(e) => onChange(steps[parseInt(e.target.value, 10)])}
+      />
+    </div>
+  );
+}
+
+/**
+ * Continuous Liebherr slider (track + fill + handle, no step dots) for
+ * values that adjust in fine increments, e.g. the Vorwarnschwelle in 1 %.
+ */
+export function RangeSlider({ min, max, step = 1, value, onChange }: {
+  min: number;
+  max: number;
+  step?: number;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
+  return (
+    <div className="m-slider">
+      <div className="m-slider__track" aria-hidden>
+        <div className="m-slider__fill" style={{ width: `${pct}%` }} />
+        <span className="m-slider__handle" style={{ left: `${pct}%` }} />
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
       />
     </div>
   );
@@ -122,7 +152,7 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
               Windgeschwindigkeit gewarnt wird.
             </InfoPopover>
           </div>
-          <StepSlider steps={VORWARN_STEPS} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} />
+          <RangeSlider min={50} max={100} step={1} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} />
           <span className="m-settings-field__value">
             Warnung bei {prefs.vorwarnPercent} %{warnAt != null ? ` · ab ${warnAt.toFixed(1)} m/s` : ''}
           </span>
