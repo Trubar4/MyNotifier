@@ -63,13 +63,17 @@ export function NotificationsPage({
   function headlineFor(n: Notification, machine?: MachineConfig): string {
     switch (n.kind) {
       case 'exceedance': {
-        const v = n.windValue ?? (machine ? Math.max(machine.wind.needleBoom, machine.wind.mainBoom) : 0);
-        return `Überschreitung: ${fmt1(v)} m/s`;
+        const t = machine ? machineThreshold(machine) : null;
+        const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
+        const over = t != null ? Math.max(0, fc - t) : fc;
+        return `Überschreitung: ${fmt1(over)} m/s`;
       }
-      case 'forecast':
-        return machine
-          ? `Vorhersage (${effectiveWindow(n.machineId)} Std.) bis zu ${fmt1(forecastPeakWithin(machine, effectiveWindow(n.machineId)))} m/s`
-          : n.title;
+      case 'forecast': {
+        if (!machine) return n.title;
+        const w = effectiveWindow(n.machineId);
+        const y = n.forecastDisplay ?? forecastPeakWithin(machine, w);
+        return `Vorhersage (${w} Std.) bis zu ${fmt1(y)} m/s`;
+      }
       case 'positionDeviation':
         return 'Positionsabweichung erkannt';
       case 'noData':
@@ -182,7 +186,7 @@ export function NotificationsPage({
                 {threshold !== null && (
                   <span>Position akt. bis: <strong>{threshold} m/s</strong></span>
                 )}
-                <span>Prognose max.: <strong>{fmt1(machine.forecast.max72h)} m/s</strong></span>
+                <span>Prognose max.: <strong>{fmt1(n.forecastDisplay ?? machine.forecast.max72h)} m/s</strong></span>
               </div>
             )}
 

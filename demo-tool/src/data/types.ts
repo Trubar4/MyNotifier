@@ -114,8 +114,8 @@ export type NotificationLevel = 1 | 2;
 
 /**
  * Kind drives the (expanded) headline:
- * - exceedance       → "Überschreitung: X m/s" (measured wind over the limit)
- * - forecast         → "Vorhersage (X Std.) bis zu Y m/s" (offline forecast)
+ * - exceedance       → "Überschreitung: X m/s" where X = (forecast max − limit)
+ * - forecast         → "Vorhersage (X Std.) bis zu Y m/s"
  * - positionDeviation→ "Positionsabweichung erkannt"
  * - noData           → keeps its own title
  */
@@ -128,8 +128,8 @@ export interface Notification {
   kind: NotificationKind;
   title: string;
   body: string;
-  /** For 'exceedance': the measured wind value that exceeded the limit. */
-  windValue?: number;
+  /** Overrides the machine's forecast max for this notification's "Prognose max." / headline. */
+  forecastDisplay?: number;
   timestamp: Date;
   read: boolean;
   assignedTo: string | null;
