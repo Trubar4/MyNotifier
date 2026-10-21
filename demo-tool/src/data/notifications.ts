@@ -17,7 +17,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     kind: 'exceedance',
     forecastDisplay: 22.0,
     title: 'Hohe Windwarnung',
-    body: 'Die für {{ts}} Uhr prognostizierte Windgeschwindigkeit überschreitet am Standort 88400 Biberach den Schwellenwert (50%) für die Parkposition (max. zulässige Windgeschwindigkeit: 20 m/s) um 2,0 m/s.',
+    body: 'Die am {{ts}} Uhr gemessene Windgeschwindigkeit überschreitet am Standort 88400 Biberach die für die Parkposition max. zulässige Windgeschwindigkeit von 20 m/s um 2,0 m/s.',
     actionText: 'Ausleger in sichere Position bringen. Empfehlung: Klappmesserposition (Vmax. = 24 m/s).',
     timestamp: minutesAgo(35),
     read: false,
