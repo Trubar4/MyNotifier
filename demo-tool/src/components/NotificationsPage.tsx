@@ -199,12 +199,21 @@ export function NotificationsPage({
                   <span className="notif2__field-label">Aktuelle Auslegerposition:</span>
                   <span className="notif2__field-value">{BOOM_POSITION_LABELS[machine.position.position]}</span>
                 </div>
-                {n.actionText && (
-                  <div className="notif2__action">
-                    <span className="notif2__action-title">MASSNAHMEN ERFORDERLICH:</span>
-                    <span className="notif2__action-text">{n.actionText}</span>
-                  </div>
-                )}
+                {n.actionText && (() => {
+                  const measures = n.actionText.split('\n').map((l) => l.trim()).filter(Boolean);
+                  return (
+                    <div className="notif2__action">
+                      <h3 className="notif2__action-title">MASSNAHMEN ERFORDERLICH:</h3>
+                      {measures.length > 1 ? (
+                        <ul className="notif2__action-list">
+                          {measures.map((m, i) => <li key={i}>{m}</li>)}
+                        </ul>
+                      ) : (
+                        <span className="notif2__action-text">{measures[0]}</span>
+                      )}
+                    </div>
+                  );
+                })()}
               </>
             )}
 

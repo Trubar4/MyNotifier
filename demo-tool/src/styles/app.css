@@ -966,17 +966,26 @@
 }
 .notif2__kv-label { color: var(--p-steel-700); }
 .notif2__kv-value { font-family: var(--font-text-b); font-weight: 700; color: var(--p-black); }
-/* Maßnahmen block */
+/* Maßnahmen block — heading like the "Überschreitung" title, text like the field lines */
 .notif2__action {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--s-3);
-  background: var(--p-steel-50);
-  border-left: 3px solid var(--r-warning, #996300);
+  gap: var(--s-1);
 }
-.notif2__action-title { font: 700 13px/18px var(--font-text-b); color: var(--p-black); letter-spacing: 0.02em; }
-.notif2__action-text { font: 400 13px/18px var(--font-text); color: var(--p-black); white-space: pre-line; }
+.notif2__action-title {
+  margin: 0;
+  font: 400 18px/24px var(--font-head);
+  color: var(--p-black);
+}
+.notif2__action-text { font: 400 14px/20px var(--font-text); color: var(--p-black); }
+.notif2__action-list {
+  margin: 0;
+  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.notif2__action-list li { font: 400 14px/20px var(--font-text); color: var(--p-black); }
 .notif2__comment {
   display: flex;
   align-items: flex-start;
