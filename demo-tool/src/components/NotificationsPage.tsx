@@ -60,7 +60,7 @@ export function NotificationsPage({
         return `${prefix}Überschreitung: ${fmt1(over)} m/s`;
       }
       case 'forecast':
-        return 'WARNUNG';
+        return 'Prognose über Schwellwert';
       case 'positionDeviation':
         return 'Maschine offline - Auslegerposition setzen';
       case 'noData':
