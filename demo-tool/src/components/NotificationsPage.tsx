@@ -55,7 +55,9 @@ export function NotificationsPage({
         const t = machine ? machineThreshold(machine) : null;
         const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
         const over = t != null ? Math.max(0, fc - t) : fc;
-        return `Prognostizierte Überschreitung: ${fmt1(over)} m/s`;
+        // Online = actual exceedance; offline = forecast ("Prognostizierte").
+        const prefix = machine?.status === 'online' ? '' : 'Prognostizierte ';
+        return `${prefix}Überschreitung: ${fmt1(over)} m/s`;
       }
       case 'forecast':
         return 'WARNUNG';
@@ -188,7 +190,11 @@ export function NotificationsPage({
                 </div>
                 <div className="notif2__kv">
                   <span className="notif2__kv-label">
-                    {n.forecastPeakAt ? 'Prognostizierte max. Windgeschwindigkeit:' : 'Prognostizierte Windgeschwindigkeit:'}
+                    {n.forecastPeakAt
+                      ? 'Prognostizierte max. Windgeschwindigkeit:'
+                      : (n.kind === 'exceedance' && isOnline)
+                        ? 'Aktuelle Windgeschwindigkeit:'
+                        : 'Prognostizierte Windgeschwindigkeit:'}
                   </span>
                   <span className="notif2__kv-value">
                     {fmt1(n.forecastDisplay ?? machine.forecast.max72h)} m/s
@@ -203,7 +209,9 @@ export function NotificationsPage({
                   const measures = n.actionText.split('\n').map((l) => l.trim()).filter(Boolean);
                   return (
                     <div className="notif2__action">
-                      <h3 className="notif2__action-title">MASSNAHMEN ERFORDERLICH:</h3>
+                      <h3 className="notif2__action-title">
+                        {measures.length > 1 ? 'MASSNAHMEN ERFORDERLICH:' : 'MASSNAHME ERFORDERLICH:'}
+                      </h3>
                       {measures.length > 1 ? (
                         <ul className="notif2__action-list">
                           {measures.map((m, i) => <li key={i}>{m}</li>)}
