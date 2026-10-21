@@ -42,7 +42,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
   {
     id: 'n3',
     machineId: 'lr1110-133188',
-    level: 1,
+    level: 2,
     kind: 'exceedance',
     title: 'Kritische Windwarnung',
     body: 'Die für {{ts}} Uhr prognostizierte Windgeschwindigkeit überschreitet am Standort 80335 München die für die Arbeitsposition max. zulässige Windgeschwindigkeit von 15 m/s um 3,5 m/s.',

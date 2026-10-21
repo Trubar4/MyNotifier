@@ -55,12 +55,12 @@ export function NotificationsPage({
         const t = machine ? machineThreshold(machine) : null;
         const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
         const over = t != null ? Math.max(0, fc - t) : fc;
-        return `Überschreitung: ${fmt1(over)} m/s`;
+        return `Prognostizierte Überschreitung: ${fmt1(over)} m/s`;
       }
       case 'forecast':
         return 'WARNUNG';
       case 'positionDeviation':
-        return 'Auslegerposition aktualisiert';
+        return 'Maschine offline - Auslegerposition setzen';
       case 'noData':
       default:
         return n.title;
