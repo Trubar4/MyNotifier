@@ -4,16 +4,22 @@ function minutesAgo(m: number): Date {
   return new Date(Date.now() - m * 60 * 1000);
 }
 
+function hoursFromNow(h: number): Date {
+  return new Date(Date.now() + h * 60 * 60 * 1000);
+}
+
+// In the (i) texts, {{ts}} is replaced with the notification's own timestamp.
 export const DEFAULT_NOTIFICATIONS: Notification[] = [
   {
     id: 'n1',
     machineId: 'lr1130-137187',
-    level: 1,
+    level: 2,
     kind: 'exceedance',
     forecastDisplay: 22.0,
     title: 'Hohe Windwarnung',
-    body: 'Die Windprognose erreicht bis zu 22,0 m/s am Standort 88400 Biberach und überschreitet den Schwellenwert von 20 m/s (Parkposition) um 2,0 m/s. Bitte Auslegerposition prüfen und ggf. Maßnahmen einleiten.',
-    timestamp: minutesAgo(15),
+    body: 'Die für {{ts}} Uhr prognostizierte Windgeschwindigkeit überschreitet am Standort 88400 Biberach den Schwellenwert (50%) für die Parkposition (max. zulässige Windgeschwindigkeit: 20 m/s) um 2,0 m/s.',
+    actionText: 'Windentwicklung beobachten oder Ausleger vorsorglich in Klappmesserposition bringen (Vmax. = 24 m/s).',
+    timestamp: minutesAgo(35),
     read: false,
     assignedTo: null,
     assignedAt: null,
@@ -25,8 +31,9 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     level: 2,
     kind: 'forecast',
     title: 'Windwarnung — Bestätigung erforderlich',
-    body: 'Windvorhersage bis zu 12,0 m/s. Letzte bekannte Position: Parkposition (aktuell). Sie bekommen diese Info, weil die Vorwarnschwelle bei 50 % liegt. Die Maschine ist online, daher muss die Position nicht bestätigt werden.',
-    timestamp: minutesAgo(35),
+    body: 'Die für {{ts}} Uhr prognostizierte Windgeschwindigkeit am Standort 88400 Biberach wird für die Parkposition (max. zulässige Windgeschwindigkeit: 20 m/s) nicht überschritten. Durch den gesetzten Schwellenwert von 50% erfolgt dennoch eine Warnung.',
+    actionText: 'Windentwicklung beobachten oder Ausleger vorsorglich in Parkposition bringen (Vmax. = 24 m/s).',
+    timestamp: minutesAgo(55),
     read: false,
     assignedTo: null,
     assignedAt: null,
@@ -35,10 +42,11 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
   {
     id: 'n3',
     machineId: 'lr1110-133188',
-    level: 1,
+    level: 2,
     kind: 'exceedance',
     title: 'Kritische Windwarnung',
-    body: 'Die Windprognose erreicht bis zu 18,5 m/s am Standort 80335 München und überschreitet den Schwellenwert von 15 m/s (Arbeitsposition) um 3,5 m/s. Letzte bekannte Position: Arbeitsposition (vor 48 Stunden). SOFORTIGE MASSNAHME ERFORDERLICH: Bitte prüfen und aktualisieren Sie die Kranposition dringend.',
+    body: 'Die für {{ts}} Uhr prognostizierte Windgeschwindigkeit überschreitet am Standort 80335 München die für die Arbeitsposition max. zulässige Windgeschwindigkeit von 15 m/s um 3,5 m/s.',
+    actionText: 'Windentwicklung beobachten oder Ausleger vorsorglich in Parkposition bringen (Vmax. = 20 m/s).\nBitte die Ausleger-Position aktualisieren, falls sie von der angezeigten abweicht. Diese Maschine ist offline.',
     timestamp: minutesAgo(10),
     read: false,
     assignedTo: null,
@@ -63,9 +71,12 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     machineId: 'lr1250-135350',
     level: 2,
     kind: 'positionDeviation',
+    forecastDisplay: 22.0,
+    forecastPeakAt: hoursFromNow(31),
     title: 'Positionsabweichung erkannt',
-    body: 'Maschine LR 1250.1 UNPLUGGED - 135350 hat nach manueller Positionsauswahl die Position "Parkposition" gemeldet (manuell gesetzt: Arbeitsposition). Bitte Auslegerposition prüfen.',
-    timestamp: minutesAgo(30),
+    body: 'Die Maschine ist offline. Die zuletzt gemeldete Auslegerposition ist "Arbeitsposition".',
+    actionText: 'Bitte die Ausleger-Position aktualisieren, falls sie von der angezeigten abweicht. Diese Maschine ist offline.',
+    timestamp: minutesAgo(20),
     read: false,
     assignedTo: null,
     assignedAt: null,

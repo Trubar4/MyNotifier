@@ -115,8 +115,8 @@ export type NotificationLevel = 1 | 2;
 /**
  * Kind drives the (expanded) headline:
  * - exceedance       → "Überschreitung: X m/s" where X = (forecast max − limit)
- * - forecast         → "Vorhersage (X Std.) bis zu Y m/s"
- * - positionDeviation→ "Positionsabweichung erkannt"
+ * - forecast         → "WARNUNG" (threshold at 50 %, not exceeded)
+ * - positionDeviation→ "Auslegerposition aktualisiert"
  * - noData           → keeps its own title
  */
 export type NotificationKind = 'exceedance' | 'forecast' | 'positionDeviation' | 'noData';
@@ -127,9 +127,14 @@ export interface Notification {
   level: NotificationLevel;
   kind: NotificationKind;
   title: string;
+  /** Text shown behind the (i) info icon. */
   body: string;
-  /** Overrides the machine's forecast max for this notification's "Prognose max." / headline. */
+  /** "MASSNAHMEN ERFORDERLICH" body (one or more lines). */
+  actionText?: string;
+  /** Overrides the machine's forecast max for this notification's "Prognostizierte Windgeschwindigkeit" / headline. */
   forecastDisplay?: number;
+  /** When set, the forecast line reads "Prognostizierte max. Windgeschwindigkeit: … - <this>". */
+  forecastPeakAt?: Date;
   timestamp: Date;
   read: boolean;
   assignedTo: string | null;

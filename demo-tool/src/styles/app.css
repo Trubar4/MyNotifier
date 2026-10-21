@@ -957,6 +957,26 @@
 .notif2__field { display: flex; flex-direction: column; }
 .notif2__field-label { font: 700 14px/20px var(--font-text-b); color: var(--p-black); }
 .notif2__field-value { font: 400 14px/20px var(--font-text); color: var(--p-steel-700); }
+/* Inline label:value line */
+.notif2__kv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--s-2);
+  font: 400 14px/20px var(--font-text);
+}
+.notif2__kv-label { color: var(--p-steel-700); }
+.notif2__kv-value { font-family: var(--font-text-b); font-weight: 700; color: var(--p-black); }
+/* Maßnahmen block */
+.notif2__action {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-3);
+  background: var(--p-steel-50);
+  border-left: 3px solid var(--r-warning, #996300);
+}
+.notif2__action-title { font: 700 13px/18px var(--font-text-b); color: var(--p-black); letter-spacing: 0.02em; }
+.notif2__action-text { font: 400 13px/18px var(--font-text); color: var(--p-black); white-space: pre-line; }
 .notif2__comment {
   display: flex;
   align-items: flex-start;
