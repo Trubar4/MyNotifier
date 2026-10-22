@@ -7,6 +7,7 @@ import type {
   BoomPosition,
 } from '../data/types';
 import { BOOM_POSITION_LABELS } from '../data/types';
+import { useLang, boomLabel } from '../i18n';
 
 function generateHourlyForecast(peakValue: number, peakHour: number) {
   const now = new Date();
@@ -31,6 +32,7 @@ function formatDateTimeLocal(date: Date): string {
 }
 
 export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps) {
+  const { lang, t } = useLang();
   const [status, setStatus] = useState<MachineStatus>(machine.status);
   const [license, setLicense] = useState<LicenseStatus>(machine.license);
   const [position, setPosition] = useState<BoomPosition>(machine.position.position);
@@ -92,7 +94,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
       <div className="config-modal">
         <div className="config-modal__header">
           <h2 className="config-modal__title">
-            Konfiguration der Demo
+            {t('Konfiguration der Demo', 'Demo configuration')}
           </h2>
           <button className="config-modal__close" onClick={onClose}>
             <X size={20} />
@@ -106,7 +108,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
           {/* Maschinenstatus */}
           <div className="config-field">
-            <span className="config-field__label">Maschinenstatus</span>
+            <span className="config-field__label">{t('Maschinenstatus', 'Machine status')}</span>
             <div className="config-field__row">
               {(['online', 'offline'] as MachineStatus[]).map((s) => (
                 <button
@@ -122,7 +124,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
           {/* Lizenz */}
           <div className="config-field">
-            <span className="config-field__label">Lizenz</span>
+            <span className="config-field__label">{t('Lizenz', 'Licence')}</span>
             <div className="config-field__row">
               {(['active', 'none', 'expired'] as LicenseStatus[]).map((l) => (
                 <button
@@ -130,7 +132,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                   className={`config-chip ${license === l ? 'config-chip--active' : ''}`}
                   onClick={() => setLicense(l)}
                 >
-                  {l === 'active' ? 'Aktiv' : l === 'none' ? 'Keine Lizenz' : 'Abgelaufen'}
+                  {l === 'active' ? t('Aktiv', 'Active') : l === 'none' ? t('Keine Lizenz', 'No licence') : t('Abgelaufen', 'Expired')}
                 </button>
               ))}
             </div>
@@ -138,7 +140,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
           {/* Auslegerposition */}
           <div className="config-field">
-            <span className="config-field__label">Auslegerposition</span>
+            <span className="config-field__label">{t('Auslegerposition', 'Boom position')}</span>
             <div className="config-field__row">
               {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).map((p) => (
                 <button
@@ -146,7 +148,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                   className={`config-chip ${position === p ? 'config-chip--active' : ''}`}
                   onClick={() => setPosition(p)}
                 >
-                  {BOOM_POSITION_LABELS[p]}
+                  {boomLabel(p, lang)}
                 </button>
               ))}
             </div>
@@ -158,14 +160,14 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                 style={{ accentColor: 'var(--r-brand)' }}
               />
               <span style={{ font: '400 13px/18px var(--font-text)', color: 'var(--r-on-surface-muted)' }}>
-                Position manuell gesetzt
+                {t('Position manuell gesetzt', 'Position set manually')}
               </span>
             </label>
           </div>
 
           {/* Position fixieren bis */}
           <div className="config-field">
-            <span className="config-field__label">Position fixieren bis</span>
+            <span className="config-field__label">{t('Position fixieren bis', 'Fix position until')}</span>
             <input
               type="datetime-local"
               className="config-input"
@@ -176,19 +178,19 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
           {/* Auto-Update */}
           <div className="config-field">
-            <span className="config-field__label">Automatische Positionsaktualisierung</span>
+            <span className="config-field__label">{t('Automatische Positionsaktualisierung', 'Automatic position update')}</span>
             <div className="config-field__row">
               <button
                 className={`config-chip ${autoUpdate ? 'config-chip--active' : ''}`}
                 onClick={() => setAutoUpdate(true)}
               >
-                Ein (On)
+                {t('Ein (On)', 'On')}
               </button>
               <button
                 className={`config-chip ${!autoUpdate ? 'config-chip--active' : ''}`}
                 onClick={() => setAutoUpdate(false)}
               >
-                Aus (Off)
+                {t('Aus (Off)', 'Off')}
               </button>
             </div>
           </div>
@@ -196,13 +198,13 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
           {/* Gemeldete Position (wenn autoUpdate OFF) */}
           {!autoUpdate && (
             <div className="config-field">
-              <span className="config-field__label">Gemeldete Position (Maschine war online)</span>
+              <span className="config-field__label">{t('Gemeldete Position (Maschine war online)', 'Reported position (machine was online)')}</span>
               <div className="config-field__row">
                 <button
                   className={`config-chip ${reportedPosition === 'none' ? 'config-chip--active' : ''}`}
                   onClick={() => setReportedPosition('none')}
                 >
-                  Keine
+                  {t('Keine', 'None')}
                 </button>
                 {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).map((p) => (
                   <button
@@ -210,7 +212,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                     className={`config-chip ${reportedPosition === p ? 'config-chip--active' : ''}`}
                     onClick={() => setReportedPosition(p)}
                   >
-                    {BOOM_POSITION_LABELS[p]}
+                    {boomLabel(p, lang)}
                   </button>
                 ))}
               </div>
@@ -220,7 +222,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
           {/* Datenalter */}
           {status === 'offline' && (
             <div className="config-field">
-              <span className="config-field__label">Datenalter (Offline seit)</span>
+              <span className="config-field__label">{t('Datenalter (Offline seit)', 'Data age (offline since)')}</span>
               <div className="config-field__row">
                 {(['live', '1h', '24h', '48h'] as const).map((a) => (
                   <button
@@ -228,7 +230,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                     className={`config-chip ${dataAge === a ? 'config-chip--active' : ''}`}
                     onClick={() => setDataAge(a)}
                   >
-                    {a === 'live' ? 'Gerade eben' : a}
+                    {a === 'live' ? t('Gerade eben', 'Just now') : a}
                   </button>
                 ))}
               </div>
@@ -237,10 +239,10 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
           {/* Windgeschwindigkeit */}
           <div className="config-field">
-            <span className="config-field__label">Aktuelle Windgeschwindigkeit</span>
+            <span className="config-field__label">{t('Aktuelle Windgeschwindigkeit', 'Current wind speed')}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ font: '400 13px/18px var(--font-text)', color: 'var(--r-on-surface-muted)', minWidth: 100 }}>
-                Nadelausleger:
+                {t('Nadelausleger:', 'Jib:')}
               </span>
               <input
                 type="range"
@@ -258,7 +260,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ font: '400 13px/18px var(--font-text)', color: 'var(--r-on-surface-muted)', minWidth: 100 }}>
-                Hauptausleger:
+                {t('Hauptausleger:', 'Main boom:')}
               </span>
               <input
                 type="range"
@@ -278,7 +280,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
           {/* Vorhersage */}
           <div className="config-field">
-            <span className="config-field__label">Vorhersage 72h (Max)</span>
+            <span className="config-field__label">{t('Vorhersage 72h (Max)', 'Forecast 72h (max)')}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <input
                 type="range"
@@ -299,10 +301,10 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
 
         <div className="config-modal__footer">
           <button className="lds-btn lds-btn--ghost" onClick={onClose}>
-            Abbrechen
+            {t('Abbrechen', 'Cancel')}
           </button>
           <button className="lds-btn lds-btn--primary" onClick={handleSave}>
-            Übernehmen
+            {t('Übernehmen', 'Apply')}
           </button>
         </div>
       </div>

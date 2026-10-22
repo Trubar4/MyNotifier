@@ -5,6 +5,7 @@ import type { MachineConfig } from '../data/types';
 const BASE = import.meta.env.BASE_URL;
 import { machineThreshold } from '../data/types';
 import { MachineCard } from './MachineCard';
+import { useLang } from '../i18n';
 
 type WindowH = 24 | 48 | 72;
 
@@ -34,6 +35,7 @@ export function CheckoutModal({
   machines, getNotifInfo, onClose,
   onOpen, onOpenPositionSelector, onNotifClick,
 }: CheckoutModalProps) {
+  const { t } = useLang();
   const [windowH, setWindowH] = useState<WindowH>(24);
   const list = machines.filter((m) => needsAction(m, windowH));
 
@@ -42,8 +44,8 @@ export function CheckoutModal({
       <div className="checkout-sheet">
         <div className="checkout-sheet__header">
           <img src={BASE + 'checkout.svg'} alt="" width={22} height={22} />
-          <h2 className="checkout-sheet__title">Check-Out durchführen</h2>
-          <button className="config-modal__close" onClick={onClose} aria-label="Schließen">
+          <h2 className="checkout-sheet__title">{t('Check-Out durchführen', 'Perform check-out')}</h2>
+          <button className="config-modal__close" onClick={onClose} aria-label={t('Schließen', 'Close')}>
             <X size={20} />
           </button>
         </div>
@@ -64,7 +66,7 @@ export function CheckoutModal({
           {list.length === 0 ? (
             <div className="checkout-sheet__empty">
               <CheckCircle size={28} />
-              <span>Keine Maschine benötigt im {windowH}h-Fenster eine Handlung.</span>
+              <span>{t(`Keine Maschine benötigt im ${windowH}h-Fenster eine Handlung.`, `No machine requires action in the ${windowH}h window.`)}</span>
             </div>
           ) : (
             list.map((m) => {

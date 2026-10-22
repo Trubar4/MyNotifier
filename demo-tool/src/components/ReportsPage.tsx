@@ -2,7 +2,8 @@ import { useState, useMemo, useRef } from 'react';
 import { Minus, Plus, BarChart3 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MachineConfig } from '../data/types';
-import { BOOM_POSITION_LABELS, machineThreshold } from '../data/types';
+import { machineThreshold } from '../data/types';
+import { useLang, boomLabel } from '../i18n';
 import {
   generateHistoricalWind,
   aggregateToDaily,
@@ -48,6 +49,7 @@ function barColor(status: Status): string {
 }
 
 export function ReportsPage({ machines }: ReportsPageProps) {
+  const { lang, t } = useLang();
   const licensedMachines = machines.filter(m => m.license === 'active');
 
   const [stepNo, setStepNo] = useState<1 | 2>(1);
@@ -60,7 +62,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
   const machine = machines.find(m => m.id === machineId);
   const threshold = machine ? machineThreshold(machine) : null;
   const sensor = 'mainBoom' as const;          // Haupt-/Nadel müssen nicht gewählt werden → Hauptausleger
-  const sensorLabel = 'Hauptausleger';
+  const sensorLabel = t('Hauptausleger', 'Main boom');
 
   const [redThreshold, setRedThreshold] = useState<number>(() => threshold ?? 15);
   const [orangeThreshold, setOrangeThreshold] = useState<number>(() => threshold ? Math.round(threshold * 0.8) : 12);
@@ -116,7 +118,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
 
   return (
     <div className="reports-page" ref={printRef}>
-      <h1 className="page-title">Windberichte</h1>
+      <h1 className="page-title">{t('Windberichte', 'Wind reports')}</h1>
 
       {/* Step tabs 01 / 02 */}
       <div className="rep-steps no-print" role="tablist">
@@ -142,10 +144,10 @@ export function ReportsPage({ machines }: ReportsPageProps) {
       {/* ======================= STEP 01 — KONFIGURATION ======================= */}
       {stepNo === 1 && (
         <div className="rep-form no-print">
-          <h2 className="rep-section-title">Konfiguration</h2>
+          <h2 className="rep-section-title">{t('Konfiguration', 'Configuration')}</h2>
 
           <div className="rep-field">
-            <label className="rep-label">Maschine</label>
+            <label className="rep-label">{t('Maschine', 'Machine')}</label>
             <select className="rep-select" value={machineId} onChange={e => handleMachineChange(e.target.value)}>
               {licensedMachines.map(m => (
                 <option key={m.id} value={m.id}>{m.name} - {m.serialNumber}</option>
@@ -154,53 +156,53 @@ export function ReportsPage({ machines }: ReportsPageProps) {
           </div>
 
           <div className="rep-field">
-            <label className="rep-label">Von</label>
+            <label className="rep-label">{t('Von', 'From')}</label>
             <input type="datetime-local" className="rep-input" value={formatDateLocal(from)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) setFrom(d); }} />
           </div>
           <div className="rep-field">
-            <label className="rep-label">Bis</label>
+            <label className="rep-label">{t('Bis', 'To')}</label>
             <input type="datetime-local" className="rep-input" value={formatDateLocal(to)} onChange={e => { const d = new Date(e.target.value); if (!isNaN(d.getTime())) setTo(d); }} />
           </div>
 
           <div className="rep-field">
-            <label className="rep-label">Skalierung</label>
+            <label className="rep-label">{t('Skalierung', 'Resolution')}</label>
             <div className="m-segment m-segment--3">
-              <button className={`m-segment__btn ${resolution === '10min' ? 'm-segment__btn--active' : ''}`} onClick={() => setResolution('10min')}>10 Min</button>
-              <button className={`m-segment__btn ${resolution === '1h' ? 'm-segment__btn--active' : ''}`} onClick={() => setResolution('1h')}>1 Std</button>
-              <button className={`m-segment__btn ${resolution === '1day' ? 'm-segment__btn--active' : ''}`} onClick={() => setResolution('1day')}>1 Tag</button>
+              <button className={`m-segment__btn ${resolution === '10min' ? 'm-segment__btn--active' : ''}`} onClick={() => setResolution('10min')}>{t('10 Min', '10 min')}</button>
+              <button className={`m-segment__btn ${resolution === '1h' ? 'm-segment__btn--active' : ''}`} onClick={() => setResolution('1h')}>{t('1 Std', '1 h')}</button>
+              <button className={`m-segment__btn ${resolution === '1day' ? 'm-segment__btn--active' : ''}`} onClick={() => setResolution('1day')}>{t('1 Tag', '1 day')}</button>
             </div>
           </div>
 
           <div className="rep-field">
-            <label className="rep-label">Grenzwerte</label>
+            <label className="rep-label">{t('Grenzwerte', 'Limits')}</label>
             <div className="rep-limits">
               <div className="rep-limit">
-                <span className="rep-limit-head"><span className="rep-dot rep-dot--red" />Kritisch <span className="rep-limit-unit">m/s</span></span>
+                <span className="rep-limit-head"><span className="rep-dot rep-dot--red" />{t('Kritisch', 'Critical')} <span className="rep-limit-unit">m/s</span></span>
                 <div className="m-stepper">
-                  <button onClick={() => stepper(setRedThreshold, -0.5)} aria-label="weniger"><Minus size={16} /></button>
+                  <button onClick={() => stepper(setRedThreshold, -0.5)} aria-label={t('weniger', 'less')}><Minus size={16} /></button>
                   <input type="number" value={redThreshold} onChange={e => setRedThreshold(parseFloat(e.target.value) || 0)} />
-                  <button onClick={() => stepper(setRedThreshold, 0.5)} aria-label="mehr"><Plus size={16} /></button>
+                  <button onClick={() => stepper(setRedThreshold, 0.5)} aria-label={t('mehr', 'more')}><Plus size={16} /></button>
                 </div>
               </div>
               <div className="rep-limit">
-                <span className="rep-limit-head"><span className="rep-dot rep-dot--orange" />Warnung <span className="rep-limit-unit">m/s</span></span>
+                <span className="rep-limit-head"><span className="rep-dot rep-dot--orange" />{t('Warnung', 'Warning')} <span className="rep-limit-unit">m/s</span></span>
                 <div className="m-stepper">
-                  <button onClick={() => stepper(setOrangeThreshold, -0.5)} aria-label="weniger"><Minus size={16} /></button>
+                  <button onClick={() => stepper(setOrangeThreshold, -0.5)} aria-label={t('weniger', 'less')}><Minus size={16} /></button>
                   <input type="number" value={orangeThreshold} onChange={e => setOrangeThreshold(parseFloat(e.target.value) || 0)} />
-                  <button onClick={() => stepper(setOrangeThreshold, 0.5)} aria-label="mehr"><Plus size={16} /></button>
+                  <button onClick={() => stepper(setOrangeThreshold, 0.5)} aria-label={t('mehr', 'more')}><Plus size={16} /></button>
                 </div>
               </div>
             </div>
             {machine && threshold !== null && (
               <div className="rep-limit-ref">
-                Position {BOOM_POSITION_LABELS[machine.position.position]}: <strong>{threshold} m/s</strong>
+                {t('Position', 'Position')} {boomLabel(machine.position.position, lang)}: <strong>{threshold} m/s</strong>
               </div>
             )}
           </div>
 
           <button className="m-btn m-btn--primary m-btn--block" onClick={() => setStepNo(2)} disabled={!canReport}>
             <BarChart3 size={18} />
-            Bericht anzeigen
+            {t('Bericht anzeigen', 'Show report')}
           </button>
         </div>
       )}
@@ -208,14 +210,14 @@ export function ReportsPage({ machines }: ReportsPageProps) {
       {/* ======================= STEP 02 — BERICHT ======================= */}
       {stepNo === 2 && machine && (
         <div className="reports-content">
-          <h2 className="rep-section-title no-print">Bericht</h2>
+          <h2 className="rep-section-title no-print">{t('Bericht', 'Report')}</h2>
 
           <div className="rep-field no-print">
-            <label className="rep-label">Filter</label>
+            <label className="rep-label">{t('Filter', 'Filter')}</label>
             <select className="rep-select" value={filter} onChange={e => setFilter(e.target.value as Filter)}>
-              <option value="alle">Alle</option>
-              <option value="danger">Kritisch</option>
-              <option value="warning">Warnung</option>
+              <option value="alle">{t('Alle', 'All')}</option>
+              <option value="danger">{t('Kritisch', 'Critical')}</option>
+              <option value="warning">{t('Warnung', 'Warning')}</option>
               <option value="safe">OK</option>
             </select>
           </div>
@@ -268,21 +270,21 @@ export function ReportsPage({ machines }: ReportsPageProps) {
               })()}
             </div>
             <div className="reports-legend">
-              <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-error)' }} />Kritisch</span>
-              <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-warning)' }} />Warnung</span>
+              <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-error)' }} />{t('Kritisch', 'Critical')}</span>
+              <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-warning)' }} />{t('Warnung', 'Warning')}</span>
               <span className="reports-legend-item"><span className="reports-legend-dot" style={{ background: 'var(--r-success)' }} />OK</span>
             </div>
           </div>
 
           <div className="rep-export no-print">
-            <button className="m-btn m-btn--primary" onClick={handleExcelExport}><img src={`${import.meta.env.BASE_URL}icon-xls.svg`} alt="" width={16} height={16} className="m-icon" />XLSX exportieren</button>
-            <button className="m-btn m-btn--outline" onClick={handlePrint}><img src={`${import.meta.env.BASE_URL}icon-print.svg`} alt="" width={16} height={16} className="m-icon" />PDF drucken</button>
+            <button className="m-btn m-btn--primary" onClick={handleExcelExport}><img src={`${import.meta.env.BASE_URL}icon-xls.svg`} alt="" width={16} height={16} className="m-icon" />{t('XLSX exportieren', 'Export XLSX')}</button>
+            <button className="m-btn m-btn--outline" onClick={handlePrint}><img src={`${import.meta.env.BASE_URL}icon-print.svg`} alt="" width={16} height={16} className="m-icon" />{t('PDF drucken', 'Print PDF')}</button>
           </div>
 
           <div className="reports-table-wrap">
             <table className="reports-table">
               <thead>
-                <tr><th>Zeitpunkt</th><th>Nadel</th><th>Haupt</th><th>Status</th></tr>
+                <tr><th>{t('Zeitpunkt', 'Time')}</th><th>{t('Nadel', 'Jib')}</th><th>{t('Haupt', 'Main')}</th><th>{t('Status', 'Status')}</th></tr>
               </thead>
               <tbody>
                 {resolved.filter(e => filterMatch(statusOf(e[sensor], orangeThreshold, redThreshold))).map((e, i) => {
@@ -293,7 +295,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                       <td>{e.needleBoom.toFixed(1)}</td>
                       <td>{e.mainBoom.toFixed(1)}</td>
                       <td className={`reports-table__status--${st}`}>
-                        {st === 'danger' ? 'ÜBERSCHR.' : st === 'warning' ? 'WARNUNG' : 'OK'}
+                        {st === 'danger' ? t('ÜBERSCHR.', 'EXCEED.') : st === 'warning' ? t('WARNUNG', 'WARNING') : 'OK'}
                       </td>
                     </tr>
                   );

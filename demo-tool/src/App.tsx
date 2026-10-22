@@ -14,9 +14,11 @@ import { ScenarioConfig } from './components/ScenarioConfig';
 import type { MachineConfig, Notification, NotificationSettings } from './data/types';
 import { DEFAULT_MACHINES } from './data/machines';
 import { DEFAULT_NOTIFICATIONS, DEFAULT_NOTIFICATION_SETTINGS } from './data/notifications';
+import { useLang } from './i18n';
 import './styles/app.css';
 
 export default function App() {
+  const { t } = useLang();
   const [activePage, setActivePage] = useState<Page>('machines');
   const [machines, setMachines] = useState<MachineConfig[]>(DEFAULT_MACHINES);
   const [notifications, setNotifications] = useState<Notification[]>(DEFAULT_NOTIFICATIONS);
@@ -147,10 +149,10 @@ export default function App() {
         {activePage !== 'machines' && activePage !== 'notifications' && activePage !== 'settings' && activePage !== 'dailycheck' && activePage !== 'reports' && (
           <div style={{ padding: 'var(--s-6)', color: 'var(--r-on-surface-muted)' }}>
             <h1 className="page-title">
-              {activePage === 'users' && 'Benutzer'}
+              {activePage === 'users' && t('Benutzer', 'Users')}
             </h1>
             <p style={{ font: '400 14px/20px var(--font-text)' }}>
-              Diese Seite ist im Demonstrator nicht verfügbar.
+              {t('Diese Seite ist im Demonstrator nicht verfügbar.', 'This page is not available in the demonstrator.')}
             </p>
           </div>
         )}

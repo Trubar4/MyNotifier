@@ -1,4 +1,5 @@
 import type { Page } from './AppSidebar';
+import { useLang } from '../i18n';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -9,16 +10,17 @@ interface DesktopSidebarProps {
   hasCritical: boolean;
 }
 
-const ITEMS: { page: Page; icon: string; label: string }[] = [
-  { page: 'notifications', icon: 'nav/bell.svg', label: 'Benachrichtigungen' },
-  { page: 'machines', icon: 'crane-lwn.svg', label: 'Maschinen' },
-  { page: 'reports', icon: 'nav/chart.svg', label: 'Berichte' },
-  { page: 'settings', icon: 'nav/gear.svg', label: 'Einstellungen' },
+const ITEMS: { page: Page; icon: string; de: string; en: string }[] = [
+  { page: 'notifications', icon: 'nav/bell.svg', de: 'Benachrichtigungen', en: 'Notifications' },
+  { page: 'machines', icon: 'crane-lwn.svg', de: 'Maschinen', en: 'Machines' },
+  { page: 'reports', icon: 'nav/chart.svg', de: 'Berichte', en: 'Reports' },
+  { page: 'settings', icon: 'nav/gear.svg', de: 'Einstellungen', en: 'Settings' },
 ];
 
 export function DesktopSidebar({ activePage, onNavigate, unreadCount, hasCritical }: DesktopSidebarProps) {
+  const { t } = useLang();
   return (
-    <nav className="desk-sidebar" aria-label="Hauptnavigation">
+    <nav className="desk-sidebar" aria-label={t('Hauptnavigation', 'Main navigation')}>
       {ITEMS.map((item) => (
         <button
           key={item.page}
@@ -33,7 +35,7 @@ export function DesktopSidebar({ activePage, onNavigate, unreadCount, hasCritica
               </span>
             )}
           </span>
-          <span className="desk-sidebar__label">{item.label}</span>
+          <span className="desk-sidebar__label">{t(item.de, item.en)}</span>
         </button>
       ))}
     </nav>

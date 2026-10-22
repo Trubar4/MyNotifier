@@ -1,6 +1,7 @@
 import { RefreshCw, Ban } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
-import { BOOM_POSITION_LABELS, machineThreshold } from '../data/types';
+import { machineThreshold } from '../data/types';
+import { useLang, boomLabel } from '../i18n';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -36,6 +37,7 @@ export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
   onOpen, onOpenPositionSelector, onNotifClick,
 }: MachineCardProps) {
+  const { lang, t } = useLang();
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
   const totalNotif = notifCritical + notifWarning;
@@ -58,7 +60,7 @@ export function MachineCard({
           ) : (
             <>
               <Ban size={14} className="m-card__status-icon" />
-              <span>Keine Lizenz</span>
+              <span>{t('Keine Lizenz', 'No licence')}</span>
             </>
           )}
         </div>
@@ -86,7 +88,7 @@ export function MachineCard({
               </div>
             ) : (
               <div className="m-card__sn">
-                <span>Stand: {formatStamp(machine.wind.timestamp)} Uhr</span>
+                <span>{t(`Stand: ${formatStamp(machine.wind.timestamp)} Uhr`, `As of: ${formatStamp(machine.wind.timestamp)}`)}</span>
               </div>
             )}
             <div className="m-card__loc">
@@ -98,7 +100,7 @@ export function MachineCard({
             <button
               className="m-card__bell"
               onClick={totalNotif > 0 ? onNotifClick : undefined}
-              aria-label="Benachrichtigungen"
+              aria-label={t('Benachrichtigungen', 'Notifications')}
               style={totalNotif > 0 ? undefined : { cursor: 'default' }}
             >
               <img src={BASE + 'icon-bell.svg'} alt="" className="m-card__bell-icon" />
@@ -113,28 +115,28 @@ export function MachineCard({
 
         {assignedUser && (
           <div className="m-card__assigned">
-            <span>{assignedUser} hat die Aufgabe übernommen</span>
+            <span>{t(`${assignedUser} hat die Aufgabe übernommen`, `${assignedUser} took over the task`)}</span>
           </div>
         )}
 
         {/* Machine state panel */}
         <div className="m-card__state">
           <div className="m-card__state-col">
-            <span className="m-card__state-label">Auslegerposition</span>
+            <span className="m-card__state-label">{t('Auslegerposition', 'Boom position')}</span>
             {hasLicense ? (
               <div className="m-card__pos">
                 <PositionIcon position={machine.position.position} />
-                <span className="m-card__pos-label">{BOOM_POSITION_LABELS[machine.position.position]}</span>
+                <span className="m-card__pos-label">{boomLabel(machine.position.position, lang)}</span>
               </div>
             ) : (
-              <span className="m-card__nodata">No Data</span>
+              <span className="m-card__nodata">{t('Keine Daten', 'No data')}</span>
             )}
           </div>
 
           <div className="m-card__state-divider" />
 
           <div className="m-card__state-col">
-            <span className="m-card__state-label">Windmessung</span>
+            <span className="m-card__state-label">{t('Windmessung', 'Wind measurement')}</span>
             {hasLicense ? (
               <div className="m-card__wind">
                 <div className="m-card__wind-value">
@@ -145,14 +147,14 @@ export function MachineCard({
                 </div>
                 {threshold !== null && (
                   <div className="m-card__wind-max">
-                    <span>max. zulässig:</span>
+                    <span>{t('max. zulässig:', 'max. permissible:')}</span>
                     <strong>{threshold}</strong>
                     <span>m/s</span>
                   </div>
                 )}
               </div>
             ) : (
-              <span className="m-card__nodata">No Data</span>
+              <span className="m-card__nodata">{t('Keine Daten', 'No data')}</span>
             )}
           </div>
         </div>
@@ -163,20 +165,20 @@ export function MachineCard({
             <>
               <button className="m-btn m-btn--primary" onClick={onOpenPositionSelector}>
                 <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
-                Position
+                {t('Position', 'Position')}
               </button>
               <button className="m-btn m-btn--outline" onClick={onOpen}>
                 <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
-                Details
+                {t('Details', 'Details')}
               </button>
             </>
           ) : (
             <>
               <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpen}>
                 <img src={BASE + 'license-acquire.svg'} alt="" width={18} height={18} />
-                Lizenz jetzt erwerben
+                {t('Lizenz jetzt erwerben', 'Acquire licence now')}
               </button>
-              <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label="Details">
+              <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label={t('Details', 'Details')}>
                 <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
               </button>
             </>

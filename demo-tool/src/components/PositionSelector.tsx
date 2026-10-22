@@ -1,6 +1,7 @@
 import { X, Ban } from 'lucide-react';
 import type { BoomPosition } from '../data/types';
 import { BOOM_POSITION_LABELS, positionThreshold } from '../data/types';
+import { useLang, boomLabel } from '../i18n';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -33,17 +34,19 @@ export function recommendPosition(positions: BoomPosition[], forecastMax: number
 
 export function PositionSelector({
   currentPosition, onSelect, onClose, forecastMax, hasNeedle = false,
-  title = 'Auslegerposition manuell setzen', subtitle,
+  title, subtitle,
   allowNoAction, onNoAction,
 }: PositionSelectorProps) {
+  const { lang, t } = useLang();
   const positions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
   const recommended = forecastMax != null ? recommendPosition(positions, forecastMax, hasNeedle) : null;
+  const heading = title ?? t('Auslegerposition manuell setzen', 'Set boom position manually');
 
   return (
     <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="config-modal">
         <div className="config-modal__header">
-          <h2 className="config-modal__title">{title}</h2>
+          <h2 className="config-modal__title">{heading}</h2>
           <button className="config-modal__close" onClick={onClose}>
             <X size={20} />
           </button>
@@ -52,25 +55,25 @@ export function PositionSelector({
         <div className="config-modal__body">
           {forecastMax != null && (
             <div className="position-selector-forecast">
-              <span className="position-selector-forecast__label">Prognose max. Windgeschwindigkeit</span>
+              <span className="position-selector-forecast__label">{t('Prognose max. Windgeschwindigkeit', 'Forecast max. wind speed')}</span>
               <span className="position-selector-forecast__value">{forecastMax.toFixed(1)} m/s</span>
             </div>
           )}
           <p style={{ font: '400 14px/20px var(--font-text)', color: 'var(--r-on-surface-muted)', margin: 0 }}>
-            {subtitle ?? 'Wählen Sie die Auslegerposition. Der Windschwellenwert passt sich automatisch an.'}
+            {subtitle ?? t('Wählen Sie die Auslegerposition. Der Windschwellenwert passt sich automatisch an.', 'Choose the boom position. The wind threshold adjusts automatically.')}
           </p>
           {recommended != null && forecastMax != null && (
             <p className="position-selector-hint">
-              Mindestens empfohlen: <strong>{BOOM_POSITION_LABELS[recommended]}</strong>
+              {t('Mindestens empfohlen:', 'Minimum recommended:')} <strong>{boomLabel(recommended, lang)}</strong>
               {positionThreshold(recommended, hasNeedle) !== null ? ` (${positionThreshold(recommended, hasNeedle)} m/s)` : ''}
             </p>
           )}
 
           <div className="position-selector-list">
             {positions.map((pos) => {
-              const t = positionThreshold(pos, hasNeedle);
+              const thr = positionThreshold(pos, hasNeedle);
               const isRecommended = pos === recommended;
-              const inadequate = t !== null && forecastMax != null && t < forecastMax;
+              const inadequate = thr !== null && forecastMax != null && thr < forecastMax;
               return (
                 <button
                   key={pos}
@@ -80,19 +83,19 @@ export function PositionSelector({
                   <img src={`${BASE}positions/${pos}.svg`} alt="" className={`position-selector-item__icon position-selector-item__icon--${pos}`} />
                   <div className="position-selector-item__info">
                     <span className="position-selector-item__name">
-                      {BOOM_POSITION_LABELS[pos]}
+                      {boomLabel(pos, lang)}
                     </span>
                     <span className={`position-selector-item__threshold ${inadequate ? 'position-selector-item__threshold--bad' : ''}`}>
-                      Max. {t !== null ? `${t} m/s` : 'nicht definiert'}
-                      {inadequate ? ' · nicht ausreichend' : ''}
+                      {t('Max.', 'Max.')} {thr !== null ? `${thr} m/s` : t('nicht definiert', 'not defined')}
+                      {inadequate ? t(' · nicht ausreichend', ' · not sufficient') : ''}
                     </span>
                   </div>
                   <div className="position-selector-item__tags">
                     {currentPosition === pos && (
-                      <span className="position-selector-item__current">Aktuell</span>
+                      <span className="position-selector-item__current">{t('Aktuell', 'Current')}</span>
                     )}
                     {isRecommended && (
-                      <span className="position-selector-item__recommended">Empfohlen</span>
+                      <span className="position-selector-item__recommended">{t('Empfohlen', 'Recommended')}</span>
                     )}
                   </div>
                 </button>
@@ -103,8 +106,8 @@ export function PositionSelector({
               <button className="position-selector-item position-selector-item--noaction" onClick={() => onNoAction?.()}>
                 <span className="position-selector-item__noaction-icon"><Ban size={22} /></span>
                 <div className="position-selector-item__info">
-                  <span className="position-selector-item__name">Kein Eingriff notwendig</span>
-                  <span className="position-selector-item__threshold">Position bleibt unverändert</span>
+                  <span className="position-selector-item__name">{t('Kein Eingriff notwendig', 'No action needed')}</span>
+                  <span className="position-selector-item__threshold">{t('Position bleibt unverändert', 'Position stays unchanged')}</span>
                 </div>
               </button>
             )}
@@ -113,7 +116,7 @@ export function PositionSelector({
 
         <div className="config-modal__footer">
           <button className="m-btn m-btn--outline m-btn--block" onClick={onClose}>
-            Abbrechen
+            {t('Abbrechen', 'Cancel')}
           </button>
         </div>
       </div>

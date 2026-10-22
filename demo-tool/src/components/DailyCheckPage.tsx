@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
 import type { MachineConfig, Notification, BoomPosition } from '../data/types';
-import { BOOM_POSITION_LABELS, BOOM_THRESHOLDS, machineThreshold } from '../data/types';
+import { BOOM_THRESHOLDS, machineThreshold } from '../data/types';
+import { useLang, boomLabel } from '../i18n';
 import { PositionSelector } from './PositionSelector';
 
 const BASE = import.meta.env.BASE_URL;
@@ -47,6 +48,7 @@ function tomorrowAt6(): Date {
 }
 
 export function DailyCheckPage({ machines, notifications, onUpdateMachine }: DailyCheckPageProps) {
+  const { lang, t } = useLang();
   const [until, setUntil] = useState<Date>(tomorrowAt6());
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [filterActionNeeded, setFilterActionNeeded] = useState(false);
@@ -67,11 +69,11 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
   return (
     <>
-      <h1 className="page-title">Check für Auslegerposition außerhalb Betrieb</h1>
+      <h1 className="page-title">{t('Check für Auslegerposition außerhalb Betrieb', 'Check for boom position outside operation')}</h1>
 
       <div className="dailycheck-header">
         <label className="dailycheck-until__label" htmlFor="dailycheck-until">
-          Position vorschlagen bis:
+          {t('Position vorschlagen bis:', 'Suggest position until:')}
         </label>
         <input
           id="dailycheck-until"
@@ -87,7 +89,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
           className={`config-chip${filterActionNeeded ? ' config-chip--active' : ''} dailycheck-filter-btn`}
           onClick={() => setFilterActionNeeded(f => !f)}
         >
-          Handlung nötig
+          {t('Handlung nötig', 'Action needed')}
         </button>
       </div>
 
@@ -149,7 +151,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
               {/* Status */}
               <div className="dailycheck-row">
-                <span className="dailycheck-row__label">Maschinenstatus</span>
+                <span className="dailycheck-row__label">{t('Maschinenstatus', 'Machine status')}</span>
                 <span className={`dailycheck-row__value dailycheck-row__value--status ${isOnline ? 'dailycheck-row__value--online' : 'dailycheck-row__value--offline'}`}>
                   <img src={`${import.meta.env.BASE_URL}${isOnline ? 'icon-wifi.svg' : 'icon-wifi-off.svg'}`} alt="" width={14} height={14} className="m-icon" />
                   {isOnline ? 'Online' : 'Offline'}
@@ -158,17 +160,17 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
               {/* Aktuelle Position */}
               <div className="dailycheck-row">
-                <span className="dailycheck-row__label">Aktuelle Auslegerposition</span>
+                <span className="dailycheck-row__label">{t('Aktuelle Auslegerposition', 'Current boom position')}</span>
                 <span className="dailycheck-row__value">
-                  {positionKnown ? BOOM_POSITION_LABELS[currentPos] : 'Unbekannt'}
+                  {positionKnown ? boomLabel(currentPos, lang) : t('Unbekannt', 'Unknown')}
                 </span>
               </div>
 
               {/* Empfehlung */}
               <div className="dailycheck-row dailycheck-row--highlight">
-                <span className="dailycheck-row__label">Empfohlene Position</span>
+                <span className="dailycheck-row__label">{t('Empfohlene Position', 'Recommended position')}</span>
                 <span className="dailycheck-row__value">
-                  {BOOM_POSITION_LABELS[recommendedPos]}
+                  {boomLabel(recommendedPos, lang)}
                   {recThreshold !== null && (
                     <span className="dailycheck-row__sub"> ({recThreshold} m/s)</span>
                   )}
@@ -177,16 +179,16 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
               {/* Prognose */}
               <div className="dailycheck-row">
-                <span className="dailycheck-row__label">Windprognose bis {formatDateTime(until)}</span>
+                <span className="dailycheck-row__label">{t('Windprognose bis', 'Wind forecast until')} {formatDateTime(until)}</span>
                 <span className="dailycheck-row__value">
                   {maxWind > 0 ? (
                     <>
                       <strong>{maxWind.toFixed(1)} m/s</strong>
-                      {peakTime && <span className="dailycheck-row__sub"> um {formatDateTime(peakTime)}</span>}
-                      {buffer !== null && <span className="dailycheck-row__sub">, {buffer}% Puffer</span>}
+                      {peakTime && <span className="dailycheck-row__sub"> {t('um', 'at')} {formatDateTime(peakTime)}</span>}
+                      {buffer !== null && <span className="dailycheck-row__sub">, {buffer}% {t('Puffer', 'buffer')}</span>}
                     </>
                   ) : (
-                    <span className="dailycheck-row__sub">Keine Prognosedaten</span>
+                    <span className="dailycheck-row__sub">{t('Keine Prognosedaten', 'No forecast data')}</span>
                   )}
                 </span>
               </div>
@@ -195,7 +197,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
               {recThreshold !== null && maxWind >= recThreshold && (
                 <div className="dailycheck-card__warning">
                   <AlertTriangle size={13} />
-                  Prognose überschreitet Schwellenwert der empfohlenen Position
+                  {t('Prognose überschreitet Schwellenwert der empfohlenen Position', 'Forecast exceeds the threshold of the recommended position')}
                 </div>
               )}
 
@@ -207,7 +209,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
                 >
                   {positionOk && <CheckCircle size={14} />}
                   {(positionWarning || positionInsufficient) && <AlertTriangle size={14} />}
-                  Position manuell setzen
+                  {t('Position manuell setzen', 'Set position manually')}
                 </button>
               )}
             </div>

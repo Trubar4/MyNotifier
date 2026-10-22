@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 const BASE = import.meta.env.BASE_URL;
 import type { MachineConfig, Notification } from '../data/types';
 import { configHasNeedle } from '../data/types';
+import { useLang } from '../i18n';
 import { MachineCard } from './MachineCard';
 import { PositionSelector } from './PositionSelector';
 import { CheckoutModal } from './CheckoutModal';
@@ -20,6 +21,7 @@ interface MachineOverviewProps {
 }
 
 export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick }: MachineOverviewProps) {
+  const { t } = useLang();
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
@@ -68,7 +70,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
 
   return (
     <>
-      <h1 className="page-title">Maschinen</h1>
+      <h1 className="page-title">{t('Maschinen', 'Machines')}</h1>
 
       <div className="m-toolbar">
         <div className="m-search">
@@ -76,7 +78,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           <input
             type="text"
             className="m-search__input"
-            placeholder="Suchen..."
+            placeholder={t('Suchen...', 'Search...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -86,7 +88,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           <button
             className={`m-toolbar__btn ${showFilters || filter !== null ? 'm-toolbar__btn--active' : ''}`}
             onClick={() => setShowFilters((s) => !s)}
-            aria-label="Filter"
+            aria-label={t('Filter', 'Filter')}
             aria-expanded={showFilters}
           >
             <img src={BASE + 'icon-filter.svg'} alt="" width={20} height={19} className="m-icon" />
@@ -98,9 +100,9 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
               <div className="m-filterdrop__backdrop" onClick={() => setShowFilters(false)} />
               <div className="m-filterdrop" role="menu">
                 {([
-                  ['offlineNoManual', 'Ohne Positionsangabe'],
-                  ['offline', 'Offline'],
-                  ['warnings', 'Mit Warnungen'],
+                  ['offlineNoManual', t('Ohne Positionsangabe', 'Without position')],
+                  ['offline', t('Offline', 'Offline')],
+                  ['warnings', t('Mit Warnungen', 'With warnings')],
                 ] as [FilterMode, string][]).map(([key, label]) => (
                   <button
                     key={key}
@@ -115,10 +117,10 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
                 ))}
                 <div className="m-filterdrop__sort">
                   <button className={`m-filterdrop__item ${sort === 'recent' ? 'm-filterdrop__item--active' : ''}`} onClick={() => setSort('recent')}>
-                    <span>Sortierung: Neueste</span>{sort === 'recent' && <Check size={16} />}
+                    <span>{t('Sortierung: Neueste', 'Sort: Most recent')}</span>{sort === 'recent' && <Check size={16} />}
                   </button>
                   <button className={`m-filterdrop__item ${sort === 'name' ? 'm-filterdrop__item--active' : ''}`} onClick={() => setSort('name')}>
-                    <span>Sortierung: A–Z</span>{sort === 'name' && <Check size={16} />}
+                    <span>{t('Sortierung: A–Z', 'Sort: A–Z')}</span>{sort === 'name' && <Check size={16} />}
                   </button>
                 </div>
               </div>
@@ -129,8 +131,8 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
         <button
           className="m-toolbar__btn m-toolbar__btn--primary"
           onClick={() => setShowCheckout(true)}
-          aria-label="Check-Out durchführen"
-          title="Check-Out durchführen"
+          aria-label={t('Check-Out durchführen', 'Perform check-out')}
+          title={t('Check-Out durchführen', 'Perform check-out')}
         >
           <img src={BASE + 'checkout.svg'} alt="" width={20} height={20} />
         </button>
@@ -140,8 +142,8 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
         {sorted.length === 0 ? (
           <div className="machine-empty">
             {query
-              ? `Keine Maschinen gefunden für "${search}"`
-              : 'Keine Maschinen entsprechen dem aktiven Filter.'}
+              ? t(`Keine Maschinen gefunden für "${search}"`, `No machines found for "${search}"`)
+              : t('Keine Maschinen entsprechen dem aktiven Filter.', 'No machines match the active filter.')}
           </div>
         ) : (
           sorted.map((machine) => {

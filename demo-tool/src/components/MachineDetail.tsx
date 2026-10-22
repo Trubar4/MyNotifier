@@ -4,6 +4,7 @@ import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
 import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle } from '../data/types';
+import { useLang, boomLabel, configLabel } from '../i18n';
 import { PositionSelector } from './PositionSelector';
 import { NotifyPrefsControls } from './SettingsControls';
 
@@ -34,7 +35,7 @@ function formatSec(date: Date): string {
 }
 
 function formatFull(date: Date): string {
-  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())} Uhr`;
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warning' | 'danger' {
@@ -52,11 +53,11 @@ function peakWithin(hourly: ForecastHour[], from: Date, hours: number): Forecast
   return within.reduce((a, h) => (h.speed > a.speed ? h : a), within[0]);
 }
 
-const TABS: { id: DetailTab; label: string }[] = [
-  { id: 'overview', label: 'Übersicht' },
-  { id: 'machine', label: 'Maschine' },
-  { id: 'standort', label: 'Standort' },
-  { id: 'settings', label: 'Settings' },
+const TABS: { id: DetailTab; de: string; en: string }[] = [
+  { id: 'overview', de: 'Übersicht', en: 'Overview' },
+  { id: 'machine', de: 'Maschine', en: 'Machine' },
+  { id: 'standort', de: 'Standort', en: 'Location' },
+  { id: 'settings', de: 'Settings', en: 'Settings' },
 ];
 
 const BOOM_CONFIG_OPTIONS = [
@@ -70,6 +71,7 @@ export function MachineDetail({
   machine, notifications, notifSettings, onUpdateMachine, onUpdateNotifSettings,
   initialPositionSelectorOpen, onPositionSelectorOpened,
 }: MachineDetailProps) {
+  const { lang, t } = useLang();
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
   const [showPositionSelector, setShowPositionSelector] = useState(false);
 
@@ -140,7 +142,7 @@ export function MachineDetail({
         <span className="mdetail__accent" />
         <div className="mdetail__standrow">
           <span className="mdetail__stand">
-            <strong>Stand:</strong> {formatStand(machine.wind.timestamp)} Uhr
+            <strong>{t('Stand:', 'As of:')}</strong> {formatStand(machine.wind.timestamp)}{t(' Uhr', '')}
           </span>
           <span className={`mdetail__status ${isOnline ? 'is-online' : 'is-offline'}`}>
             <span className="mdetail__status-dot" />
@@ -151,15 +153,15 @@ export function MachineDetail({
 
       {/* ===== Tabs ===== */}
       <div className="mdetail__tabs" role="tablist">
-        {TABS.map((t) => (
+        {TABS.map((tab) => (
           <button
-            key={t.id}
+            key={tab.id}
             role="tab"
-            aria-selected={activeTab === t.id}
-            className={`mdetail__tab ${activeTab === t.id ? 'mdetail__tab--active' : ''}`}
-            onClick={() => setActiveTab(t.id)}
+            aria-selected={activeTab === tab.id}
+            className={`mdetail__tab ${activeTab === tab.id ? 'mdetail__tab--active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
           >
-            {t.label}
+            {t(tab.de, tab.en)}
           </button>
         ))}
       </div>
@@ -170,17 +172,17 @@ export function MachineDetail({
           <div className="mdt-overview">
             {/* Windinformationen */}
             <section className="mdt-card">
-              <div className="mdt-card__header">Windinformationen</div>
+              <div className="mdt-card__header">{t('Windinformationen', 'Wind information')}</div>
               <div className="mdt-card__body">
                 <div className="windinfo__row windinfo__row--top">
-                  <span className="windinfo__label">Wind aktuell:</span>
+                  <span className="windinfo__label">{t('Wind aktuell:', 'Current wind:')}</span>
                   <span className="windinfo__value">{windNow.toFixed(1)} m/s</span>
                 </div>
-                <div className="windinfo__subtitle">Windspitzen je Zeitpunkt:</div>
+                <div className="windinfo__subtitle">{t('Windspitzen je Zeitpunkt:', 'Wind peaks by time:')}</div>
                 {[
-                  { label: '24 Stunden', peak: peak24 },
-                  { label: '48 Stunden', peak: peak48 },
-                  { label: '72 Stunden', peak: peak72 },
+                  { label: t('24 Stunden', '24 hours'), peak: peak24 },
+                  { label: t('48 Stunden', '48 hours'), peak: peak48 },
+                  { label: t('72 Stunden', '72 hours'), peak: peak72 },
                 ].map(({ label, peak }) => (
                   <div className="windinfo__peak" key={label}>
                     <div className="windinfo__peak-left">
@@ -197,7 +199,7 @@ export function MachineDetail({
 
             {/* Windgeschwindigkeit (Diagramm) */}
             <section className="mdt-card">
-              <div className="mdt-card__header">Windgeschwindigkeit</div>
+              <div className="mdt-card__header">{t('Windgeschwindigkeit', 'Wind speed')}</div>
               <div className="mdt-card__body">
                 <WindChart hourly={machine.forecast.hourly} threshold={threshold} />
               </div>
@@ -205,9 +207,9 @@ export function MachineDetail({
 
             {/* Benachrichtigungen für diese Maschine */}
             <section className="mdetail__notifs">
-              <h2 className="mdetail__notifs-title">Benachrichtigungen</h2>
+              <h2 className="mdetail__notifs-title">{t('Benachrichtigungen', 'Notifications')}</h2>
               {notifications.length === 0 ? (
-                <p className="mdetail__notifs-empty">Keine Benachrichtigungen für diese Maschine.</p>
+                <p className="mdetail__notifs-empty">{t('Keine Benachrichtigungen für diese Maschine.', 'No notifications for this machine.')}</p>
               ) : (
                 <div className="mdetail__notifs-list">
                   {notifications
@@ -220,7 +222,7 @@ export function MachineDetail({
                           <div className="notif2__pillrow">
                             <div className="notif2__pillleft">
                               <span className={`notif2__pill notif2__pill--${levelClass}`}>
-                                {n.level === 1 ? 'Kritisch' : 'Warnung'}
+                                {n.level === 1 ? t('Kritisch', 'Critical') : t('Warnung', 'Warning')}
                               </span>
                             </div>
                             <div className="notif2__status">
@@ -230,12 +232,12 @@ export function MachineDetail({
                           </div>
                           <div className="notif2__time">
                             <img src={`${import.meta.env.BASE_URL}icon-clock.svg`} alt="" width={14} height={14} className="m-icon" />
-                            <span>{formatFull(n.timestamp)}</span>
+                            <span>{formatFull(n.timestamp)}{t(' Uhr', '')}</span>
                           </div>
-                          <h3 className="notif2__title">{n.title}</h3>
+                          <h3 className="notif2__title">{lang === 'en' ? (n.titleEn ?? n.title) : n.title}</h3>
                           <div className="notif2__facts">
-                            {threshold !== null && <span>Position akt. bis: <strong>{threshold} m/s</strong></span>}
-                            <span>Prognose max.: <strong>{machine.forecast.max72h.toFixed(1)} m/s</strong></span>
+                            {threshold !== null && <span>{t('Position akt. bis:', 'Limit for position:')} <strong>{threshold} m/s</strong></span>}
+                            <span>{t('Prognose max.:', 'Forecast max.:')} <strong>{machine.forecast.max72h.toFixed(1)} m/s</strong></span>
                           </div>
                         </div>
                       );
@@ -250,37 +252,37 @@ export function MachineDetail({
         {activeTab === 'machine' && (
           <>
             <section className="mdt-card">
-              <div className="mdt-card__header">Detailansicht</div>
+              <div className="mdt-card__header">{t('Detailansicht', 'Details')}</div>
               <div className="mdt-table">
-                <DataRow label="Maschinenstatus" sub="Aktueller Maschinenstatus" value={isOnline ? 'Online' : 'Offline'} />
-                <DataRow label="Letzter Erfassungszeitpunkt" sub="Zeitpunkt, zu dem das Datenpaket der letzten 10 Minuten geschrieben wurde" value={formatSec(machine.wind.timestamp)} />
-                <DataRow label="Letzter Empfang von Maschinendaten" value={formatSec(machine.position.reportedAt ?? machine.position.timestamp)} />
-                <DataRow label="Außentemperatur" sub="Aktuelle Temperatur anhand des Standorts der Maschine" value={machine.specs.outsideTemperature !== null ? `${machine.specs.outsideTemperature.toFixed(1)} °C` : '—'} />
-                <DataRow label="Status der Bordnetzbatterie" sub="Aktueller Batteriestatus" value="Ok" valueOk />
-                <DataRow label="Auslegerkonfiguration" sub="Letzte aufgezeichnete Auslegerkonfiguration" value={machine.specs.boomConfiguration} />
-                <DataRow label="Hauptausleger" sub="Länge / Winkel" value={machine.specs.mainBoomLength !== null ? `${machine.specs.mainBoomLength} m` : '—'} />
-                <DataRow label="Auslegerkopfhöhe" sub="Hauptausleger / Nadelausleger" value={`${machine.specs.boomHeadHeight !== null ? machine.specs.boomHeadHeight.toLocaleString('de-DE') + ' m' : '—'} / ${machine.specs.jibLength !== null ? machine.specs.jibLength.toLocaleString('de-DE') + ' m' : '—'}`} />
-                <DataRow label="Windlogger-IMEI" sub="Aktuell gekoppelter Windlogger" value={machine.specs.windloggerImei} />
-                <DataRow label="Auslegerposition" value={BOOM_POSITION_LABELS[machine.position.position]} />
-                <DataRow label="Max. zulässige Windgeschwindigkeit" value={threshold !== null ? `${threshold} m/s` : '—'} last />
+                <DataRow label={t('Maschinenstatus', 'Machine status')} sub={t('Aktueller Maschinenstatus', 'Current machine status')} value={isOnline ? 'Online' : 'Offline'} />
+                <DataRow label={t('Letzter Erfassungszeitpunkt', 'Last recording time')} sub={t('Zeitpunkt, zu dem das Datenpaket der letzten 10 Minuten geschrieben wurde', 'Time at which the last 10-minute data packet was written')} value={formatSec(machine.wind.timestamp)} />
+                <DataRow label={t('Letzter Empfang von Maschinendaten', 'Last receipt of machine data')} value={formatSec(machine.position.reportedAt ?? machine.position.timestamp)} />
+                <DataRow label={t('Außentemperatur', 'Outside temperature')} sub={t('Aktuelle Temperatur anhand des Standorts der Maschine', 'Current temperature based on the machine location')} value={machine.specs.outsideTemperature !== null ? `${machine.specs.outsideTemperature.toFixed(1)} °C` : '—'} />
+                <DataRow label={t('Status der Bordnetzbatterie', 'Auxiliary battery status')} sub={t('Aktueller Batteriestatus', 'Current battery status')} value="Ok" valueOk />
+                <DataRow label={t('Auslegerkonfiguration', 'Boom configuration')} sub={t('Letzte aufgezeichnete Auslegerkonfiguration', 'Last recorded boom configuration')} value={configLabel(machine.specs.boomConfiguration, lang)} />
+                <DataRow label={t('Hauptausleger', 'Main boom')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.mainBoomLength !== null ? `${machine.specs.mainBoomLength} m` : '—'} />
+                <DataRow label={t('Auslegerkopfhöhe', 'Boom head height')} sub={t('Hauptausleger / Nadelausleger', 'Main boom / jib')} value={`${machine.specs.boomHeadHeight !== null ? machine.specs.boomHeadHeight.toLocaleString('de-DE') + ' m' : '—'} / ${machine.specs.jibLength !== null ? machine.specs.jibLength.toLocaleString('de-DE') + ' m' : '—'}`} />
+                <DataRow label={t('Windlogger-IMEI', 'Wind logger IMEI')} sub={t('Aktuell gekoppelter Windlogger', 'Currently paired wind logger')} value={machine.specs.windloggerImei} />
+                <DataRow label={t('Auslegerposition', 'Boom position')} value={boomLabel(machine.position.position, lang)} />
+                <DataRow label={t('Max. zulässige Windgeschwindigkeit', 'Max. permissible wind speed')} value={threshold !== null ? `${threshold} m/s` : '—'} last />
               </div>
             </section>
 
             <section className="mdt-card">
-              <div className="mdt-card__header">Lizenz</div>
+              <div className="mdt-card__header">{t('Lizenz', 'Licence')}</div>
               <div className="mdt-card__body">
                 <div className="mdt-pricinghint">
-                  <span className="mdt-pricinghint__title">MyNotifier Lizenz</span>
+                  <span className="mdt-pricinghint__title">{t('MyNotifier Lizenz', 'MyNotifier licence')}</span>
                   <span className="mdt-pricinghint__text">
-                    Inklusive Echtzeit-SMS/Push-Alarmen und 72h Windprognose für beide Ausleger.
+                    {t('Inklusive Echtzeit-SMS/Push-Alarmen und 72h Windprognose für beide Ausleger.', 'Includes real-time SMS/push alerts and a 72 h wind forecast for both booms.')}
                   </span>
                 </div>
                 {machine.license === 'active' ? (
-                  <span className="mdt-license-active">● Lizenz aktiv</span>
+                  <span className="mdt-license-active">● {t('Lizenz aktiv', 'Licence active')}</span>
                 ) : (
                   <button className="m-btn m-btn--primary m-btn--block">
                     <img src={`${import.meta.env.BASE_URL}license-acquire.svg`} alt="" width={18} height={18} />
-                    LIZENZ JETZT ERWERBEN
+                    {t('LIZENZ JETZT ERWERBEN', 'ACQUIRE LICENCE NOW')}
                   </button>
                 )}
               </div>
@@ -300,15 +302,15 @@ export function MachineDetail({
               <span>{gps}</span>
             </div>
             <div className="mdt-loc__mapwrap">
-              <iframe className="mdt-loc__map" src={mapEmbedUrl} title="Standort auf Karte" loading="lazy" />
+              <iframe className="mdt-loc__map" src={mapEmbedUrl} title={t('Standort auf Karte', 'Location on map')} loading="lazy" />
               <img src={`${import.meta.env.BASE_URL}map-marker.svg`} alt="" className="mdt-loc__marker" />
             </div>
             <button className="m-btn m-btn--primary m-btn--block mdt-loc__btn">
               <Crosshair size={18} />
-              LOGGERSTANDORT NUTZEN
+              {t('LOGGERSTANDORT NUTZEN', 'USE LOGGER LOCATION')}
             </button>
             <p className="mdt-loc__hint">
-              Verwenden Sie den Standort des Loggers, wenn die Maschinenposition nicht verfügbar ist.
+              {t('Verwenden Sie den Standort des Loggers, wenn die Maschinenposition nicht verfügbar ist.', 'Use the logger location when the machine position is not available.')}
             </p>
           </>
         )}
@@ -317,37 +319,37 @@ export function MachineDetail({
         {activeTab === 'settings' && (
           <>
             <section className="mdt-config">
-              <h2 className="m-settings-group__title">Maschinen Konfiguration</h2>
+              <h2 className="m-settings-group__title">{t('Maschinen Konfiguration', 'Machine configuration')}</h2>
 
               <div className="mdt-config__maxwind">
-                <span className="mdt-config__maxwind-label">Maximal zulässige Windgeschwindigkeit:</span>
+                <span className="mdt-config__maxwind-label">{t('Maximal zulässige Windgeschwindigkeit:', 'Max. permissible wind speed:')}</span>
                 <span className="mdt-config__maxwind-value">{threshold !== null ? `${threshold} m/s` : '—'}</span>
               </div>
-              <p className="mdt-config__hint">Manuelle Eingaben gelten nur bis neue Maschinendaten empfangen werden</p>
+              <p className="mdt-config__hint">{t('Manuelle Eingaben gelten nur bis neue Maschinendaten empfangen werden', 'Manual entries apply only until new machine data is received')}</p>
 
               <label className="mdt-field">
-                <span className="mdt-field__label">Auslegerkonfiguration</span>
+                <span className="mdt-field__label">{t('Auslegerkonfiguration', 'Boom configuration')}</span>
                 <div className="mdt-select">
                   <select value={machine.specs.boomConfiguration} onChange={(e) => handleConfigChange(e.target.value)}>
                     {[...new Set([machine.specs.boomConfiguration, ...BOOM_CONFIG_OPTIONS])].map((o) => (
-                      <option key={o} value={o}>{o}</option>
+                      <option key={o} value={o}>{configLabel(o, lang)}</option>
                     ))}
                   </select>
                 </div>
               </label>
               {machine.position.manuallySet && (
-                <p className="mdt-config__manual">ⓘ Manuell angepasst: {formatSec(machine.position.timestamp)}</p>
+                <p className="mdt-config__manual">ⓘ {t('Manuell angepasst:', 'Manually adjusted:')} {formatSec(machine.position.timestamp)}</p>
               )}
 
               <label className="mdt-field">
-                <span className="mdt-field__label">Auslegerposition</span>
+                <span className="mdt-field__label">{t('Auslegerposition', 'Boom position')}</span>
                 <div className="mdt-select">
                   <select
                     value={machine.position.position}
                     onChange={(e) => handleSetPosition(e.target.value as BoomPosition)}
                   >
                     {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).map((p) => (
-                      <option key={p} value={p}>{BOOM_POSITION_LABELS[p]}</option>
+                      <option key={p} value={p}>{boomLabel(p, lang)}</option>
                     ))}
                   </select>
                 </div>
@@ -355,7 +357,7 @@ export function MachineDetail({
             </section>
 
             <div className="mdt-override">
-              <span className="mdt-override__label">Globale Einstellung überschreiben</span>
+              <span className="mdt-override__label">{t('Globale Einstellung überschreiben', 'Override global setting')}</span>
               <button
                 className={`toggle-switch ${overrideOn ? 'toggle-switch--on' : ''}`}
                 onClick={() => setOverrideOn(!overrideOn)}
@@ -379,7 +381,7 @@ export function MachineDetail({
               onClick={() => setMachineEnabled(!machineEnabled)}
             >
               <BellOff size={18} />
-              {machineEnabled ? 'Benachrichtigung deaktivieren' : 'Benachrichtigung aktivieren'}
+              {machineEnabled ? t('Benachrichtigung deaktivieren', 'Disable notifications') : t('Benachrichtigung aktivieren', 'Enable notifications')}
             </button>
           </>
         )}
@@ -418,6 +420,7 @@ function DataRow({ label, sub, value, valueOk, last }: {
 
 /* ----- wind-speed bar chart (Übersicht) ----- */
 function WindChart({ hourly, threshold }: { hourly: ForecastHour[]; threshold: number | null }) {
+  const { lang, t } = useLang();
   if (hourly.length === 0) return null;
   const maxSpeed = Math.max(...hourly.map((h) => h.speed), threshold ?? 0, 1);
   const thresholdPct = threshold !== null ? (threshold / maxSpeed) * 100 : null;
@@ -451,14 +454,14 @@ function WindChart({ hourly, threshold }: { hourly: ForecastHour[]; threshold: n
       <div className="windchart__labels">
         {labelHours.map((h, i) => (
           <span key={i} className="windchart__label">
-            {h.timestamp.toLocaleString('de-DE', { weekday: 'short' })} {pad(h.timestamp.getHours())}h
+            {h.timestamp.toLocaleString(lang === 'en' ? 'en-US' : 'de-DE', { weekday: 'short' })} {pad(h.timestamp.getHours())}h
           </span>
         ))}
       </div>
       <div className="windchart__legend">
-        <span className="windchart__legend-item windchart__legend-item--safe">Sicher</span>
-        <span className="windchart__legend-item windchart__legend-item--warning">80 % Schwelle</span>
-        <span className="windchart__legend-item windchart__legend-item--danger">Überschritten</span>
+        <span className="windchart__legend-item windchart__legend-item--safe">{t('Sicher', 'Safe')}</span>
+        <span className="windchart__legend-item windchart__legend-item--warning">{t('80 % Schwelle', '80 % threshold')}</span>
+        <span className="windchart__legend-item windchart__legend-item--danger">{t('Überschritten', 'Exceeded')}</span>
       </div>
     </div>
   );

@@ -127,8 +127,14 @@ export interface Notification {
   level: NotificationLevel;
   kind: NotificationKind;
   title: string;
+  /** English title (for the compact machine-detail list). */
+  titleEn?: string;
   /** Text shown behind the (i) info icon. */
   body: string;
+  /** English (i) info text. */
+  bodyEn?: string;
+  /** English "MASSNAHMEN" text. */
+  actionTextEn?: string;
   /** "MASSNAHMEN ERFORDERLICH" body (one or more lines). */
   actionText?: string;
   /** Overrides the machine's forecast max for this notification's "Prognostizierte Windgeschwindigkeit" / headline. */
