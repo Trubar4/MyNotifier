@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, CheckCircle, WifiOff, Wind } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import type { MachineConfig } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
@@ -94,26 +94,21 @@ export function CheckoutModal({
           ) : (
             list.map(({ m, reason }) => {
               const info = getNotifInfo(m.id);
+              const label = reason === 'offline'
+                ? t('Position überprüfen (Offline)', 'Check position (offline)')
+                : t('Position anpassen (Prognose)', 'Adjust position (forecast)');
               return (
-                <div className="checkout-item" key={m.id}>
-                  <div className={`checkout-reason checkout-reason--${reason}`}>
-                    {reason === 'offline' ? <WifiOff size={15} /> : <Wind size={15} />}
-                    <span>
-                      {reason === 'offline'
-                        ? t('Position überprüfen (Offline)', 'Check position (offline)')
-                        : t('Position anpassen (Prognose)', 'Adjust position (forecast)')}
-                    </span>
-                  </div>
-                  <MachineCard
-                    machine={m}
-                    notifCritical={info.critical}
-                    notifWarning={info.warning}
-                    assignedUser={info.assignedUser}
-                    onOpen={() => onOpen(m.id)}
-                    onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
-                    onNotifClick={() => onNotifClick(m.id)}
-                  />
-                </div>
+                <MachineCard
+                  key={m.id}
+                  machine={m}
+                  notifCritical={info.critical}
+                  notifWarning={info.warning}
+                  assignedUser={info.assignedUser}
+                  onOpen={() => onOpen(m.id)}
+                  onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
+                  onNotifClick={() => onNotifClick(m.id)}
+                  primaryActionLabel={label}
+                />
               );
             })
           )}

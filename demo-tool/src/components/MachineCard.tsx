@@ -13,6 +13,9 @@ interface MachineCardProps {
   onOpen: () => void;
   onOpenPositionSelector: () => void;
   onNotifClick: () => void;
+  /** When set (e.g. in the check-out), the primary button shows this recommendation
+   *  as its label and takes the full width; Details collapses to an icon button. */
+  primaryActionLabel?: string;
 }
 
 function formatStamp(date: Date): string {
@@ -35,7 +38,7 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
 
 export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
-  onOpen, onOpenPositionSelector, onNotifClick,
+  onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel,
 }: MachineCardProps) {
   const { lang, t } = useLang();
   const hasLicense = machine.license === 'active';
@@ -162,16 +165,28 @@ export function MachineCard({
         {/* Actions */}
         <div className="m-card__actions">
           {hasLicense ? (
-            <>
-              <button className="m-btn m-btn--primary" onClick={onOpenPositionSelector}>
-                <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
-                {t('Position', 'Position')}
-              </button>
-              <button className="m-btn m-btn--outline" onClick={onOpen}>
-                <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
-                {t('Details', 'Details')}
-              </button>
-            </>
+            primaryActionLabel ? (
+              <>
+                <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpenPositionSelector}>
+                  <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
+                  {primaryActionLabel}
+                </button>
+                <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label={t('Details', 'Details')}>
+                  <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="m-btn m-btn--primary" onClick={onOpenPositionSelector}>
+                  <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
+                  {t('Position', 'Position')}
+                </button>
+                <button className="m-btn m-btn--outline" onClick={onOpen}>
+                  <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />
+                  {t('Details', 'Details')}
+                </button>
+              </>
+            )
           ) : (
             <>
               <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpen}>
