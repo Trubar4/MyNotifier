@@ -62,8 +62,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
 
   const machine = machines.find(m => m.id === machineId);
   const threshold = machine ? machineThreshold(machine) : null;
-  const sensor = 'mainBoom' as const;          // Haupt-/Nadel müssen nicht gewählt werden → Hauptausleger
-  const sensorLabel = t('Hauptausleger', 'Main boom');
+  // Always evaluate the higher of the two sensor values — regardless of sensor.
+  const windOf = (e: WindEntry) => Math.max(e.needleBoom, e.mainBoom);
 
   const [redThreshold, setRedThreshold] = useState<number>(() => threshold ?? 15);
   const [orangeThreshold, setOrangeThreshold] = useState<number>(() => threshold ? Math.round(threshold * 0.8) : 12);
@@ -90,7 +90,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
     return filteredRange;
   }, [filteredRange, resolution]);
 
-  const maxValue = useMemo(() => Math.max(...resolved.map(e => e[sensor]), redThreshold, 1), [resolved, redThreshold]);
+  const maxValue = useMemo(() => Math.max(...resolved.map(e => windOf(e)), redThreshold, 1), [resolved, redThreshold]);
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +102,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
       [t('Zeitpunkt', 'Time')]: formatDT(e.timestamp, resolution, loc),
       [t('Nadelausleger (m/s)', 'Jib (m/s)')]: e.needleBoom,
       [t('Hauptausleger (m/s)', 'Main boom (m/s)')]: e.mainBoom,
-      [t('Status', 'Status')]: e[sensor] >= redThreshold ? t('ÜBERSCHRITTEN', 'EXCEEDED') : e[sensor] >= orangeThreshold ? t('WARNUNG', 'WARNING') : 'OK',
+      [t('Status', 'Status')]: windOf(e) >= redThreshold ? t('ÜBERSCHRITTEN', 'EXCEEDED') : windOf(e) >= orangeThreshold ? t('WARNUNG', 'WARNING') : 'OK',
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
@@ -226,7 +226,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
           <div className="reports-chart-wrap">
             <div className="reports-chart-title">
               <strong>{machine.name} - {machine.serialNumber}</strong><br />
-              {sensorLabel} · {formatDT(from, resolution, loc)} – {formatDT(to, resolution, loc)}
+              {formatDT(from, resolution, loc)} – {formatDT(to, resolution, loc)}
             </div>
             <div className="reports-chart-area">
               <div className="reports-y-axis">
@@ -241,7 +241,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                 <div className="reports-threshold-line reports-threshold-line--orange" style={{ bottom: `${(orangeThreshold / maxValue) * 100}%` }} />
                 <div className="reports-bars">
                   {resolved.map((e, i) => {
-                    const val = e[sensor];
+                    const val = windOf(e);
                     const st = statusOf(val, orangeThreshold, redThreshold);
                     const h = (val / maxValue) * 100;
                     return (
@@ -288,8 +288,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                 <tr><th>{t('Zeitpunkt', 'Time')}</th><th>{t('Nadel', 'Jib')}</th><th>{t('Haupt', 'Main')}</th><th>{t('Status', 'Status')}</th></tr>
               </thead>
               <tbody>
-                {resolved.filter(e => filterMatch(statusOf(e[sensor], orangeThreshold, redThreshold))).map((e, i) => {
-                  const st = statusOf(e[sensor], orangeThreshold, redThreshold);
+                {resolved.filter(e => filterMatch(statusOf(windOf(e), orangeThreshold, redThreshold))).map((e, i) => {
+                  const st = statusOf(windOf(e), orangeThreshold, redThreshold);
                   return (
                     <tr key={i} className={`reports-table__row--${st}`}>
                       <td>{formatDT(e.timestamp, resolution, loc)}</td>

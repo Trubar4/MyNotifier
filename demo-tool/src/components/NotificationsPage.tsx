@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Check } from 'lucide-react';
 import type { Notification, MachineConfig, BoomPosition } from '../data/types';
-import { DEMO_USER, configHasNeedle } from '../data/types';
+import { DEMO_USER, configHasNeedle, forecastPeakTime } from '../data/types';
 import { useLang } from '../i18n';
 import { AssignModal } from './AssignModal';
 import { PositionSelector } from './PositionSelector';
@@ -158,6 +158,7 @@ export function NotificationsPage({
           )}
           currentPosition={machineMap.get(anpassenNotif.machineId)!.position.position}
           forecastMax={machineMap.get(anpassenNotif.machineId)!.forecast.max72h}
+          forecastPeakAt={forecastPeakTime(machineMap.get(anpassenNotif.machineId)!)}
           hasNeedle={configHasNeedle(machineMap.get(anpassenNotif.machineId)!.specs.boomConfiguration)}
           allowNoAction
           onSelect={(p) => handleAnpassenConfirm(p)}

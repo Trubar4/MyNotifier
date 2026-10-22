@@ -10,6 +10,7 @@ interface PositionSelectorProps {
   onSelect: (position: BoomPosition) => void;
   onClose: () => void;
   forecastMax?: number | null;
+  forecastPeakAt?: Date | null;
   hasNeedle?: boolean;
   title?: string;
   subtitle?: string;
@@ -33,7 +34,7 @@ export function recommendPosition(positions: BoomPosition[], forecastMax: number
 }
 
 export function PositionSelector({
-  currentPosition, onSelect, onClose, forecastMax, hasNeedle = false,
+  currentPosition, onSelect, onClose, forecastMax, forecastPeakAt, hasNeedle = false,
   title, subtitle,
   allowNoAction, onNoAction,
 }: PositionSelectorProps) {
@@ -55,8 +56,17 @@ export function PositionSelector({
         <div className="config-modal__body">
           {forecastMax != null && (
             <div className="position-selector-forecast">
-              <span className="position-selector-forecast__label">{t('Prognose max. Windgeschwindigkeit', 'Forecast max. wind speed')}</span>
-              <span className="position-selector-forecast__value">{forecastMax.toFixed(1)} m/s</span>
+              <div className="position-selector-forecast__head">
+                <span className="position-selector-forecast__label">{t('Prognose max. Windgeschwindigkeit', 'Forecast max. wind speed')}</span>
+                <span className="position-selector-forecast__value">{forecastMax.toFixed(1)} m/s</span>
+              </div>
+              {forecastPeakAt && (
+                <span className="position-selector-forecast__time">
+                  {t('voraussichtlich am', 'expected on')}{' '}
+                  {forecastPeakAt.toLocaleString(lang === 'en' ? 'en-GB' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                  {t(' Uhr', '')}
+                </span>
+              )}
             </div>
           )}
           <p style={{ font: '400 14px/20px var(--font-text)', color: 'var(--r-on-surface-muted)', margin: 0 }}>

@@ -47,6 +47,13 @@ export function machineThreshold(machine: MachineConfig): number | null {
   return positionThreshold(machine.position.position, configHasNeedle(machine.specs.boomConfiguration));
 }
 
+/** Timestamp of the highest forecast wind speed in the machine's forecast. */
+export function forecastPeakTime(machine: MachineConfig): Date | null {
+  const h = machine.forecast.hourly;
+  if (!h.length) return null;
+  return h.reduce((a, x) => (x.speed > a.speed ? x : a), h[0]).timestamp;
+}
+
 export interface WindData {
   needleBoom: number;
   mainBoom: number;

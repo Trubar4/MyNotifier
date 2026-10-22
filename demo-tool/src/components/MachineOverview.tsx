@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 
 const BASE = import.meta.env.BASE_URL;
 import type { MachineConfig, Notification } from '../data/types';
-import { configHasNeedle } from '../data/types';
+import { configHasNeedle, forecastPeakTime } from '../data/types';
 import { useLang } from '../i18n';
 import { MachineCard } from './MachineCard';
 import { PositionSelector } from './PositionSelector';
@@ -168,6 +168,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
         <PositionSelector
           currentPosition={positionSelectorMachine.position.position}
           forecastMax={positionSelectorMachine.forecast.max72h}
+          forecastPeakAt={forecastPeakTime(positionSelectorMachine)}
           hasNeedle={configHasNeedle(positionSelectorMachine.specs.boomConfiguration)}
           onSelect={(pos) => {
             onUpdateMachine({

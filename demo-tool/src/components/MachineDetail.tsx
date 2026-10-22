@@ -3,7 +3,7 @@ import { Crosshair, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
-import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle, DEMO_USER } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle, forecastPeakTime, DEMO_USER } from '../data/types';
 import { useLang, boomLabel, configLabel } from '../i18n';
 import { PositionSelector } from './PositionSelector';
 import { NotifyPrefsControls } from './SettingsControls';
@@ -134,17 +134,11 @@ export function MachineDetail({
     });
   }
 
-  const overridePrefs: NotifyPrefs | null = notifSettings.machinePrefs[machine.id] ?? null;
-  const overrideOn = overridePrefs !== null;
+  // Per-machine prefs: start from the global defaults; any change writes a
+  // machine-specific override for this one machine.
+  const machinePrefs: NotifyPrefs = notifSettings.machinePrefs[machine.id] ?? notifSettings.prefs;
 
-  function setOverrideOn(on: boolean) {
-    const next = { ...notifSettings.machinePrefs };
-    if (on) next[machine.id] = { ...notifSettings.prefs };
-    else delete next[machine.id];
-    onUpdateNotifSettings({ ...notifSettings, machinePrefs: next });
-  }
-
-  function updateOverridePrefs(prefs: NotifyPrefs) {
+  function updateMachinePrefs(prefs: NotifyPrefs) {
     onUpdateNotifSettings({
       ...notifSettings,
       machinePrefs: { ...notifSettings.machinePrefs, [machine.id]: prefs },
@@ -219,7 +213,7 @@ export function MachineDetail({
 
             {/* Windgeschwindigkeit (Diagramm) */}
             <section className="mdt-card">
-              <div className="mdt-card__header">{t('Windgeschwindigkeit', 'Wind speed')}</div>
+              <div className="mdt-card__header">{t('Windgeschwindigkeit Prognose', 'Wind speed forecast')}</div>
               <div className="mdt-card__body">
                 <WindChart hourly={machine.forecast.hourly} threshold={threshold} />
               </div>
@@ -364,25 +358,11 @@ export function MachineDetail({
               </label>
             </section>
 
-            <div className="mdt-override">
-              <span className="mdt-override__label">{t('Globale Einstellung überschreiben', 'Override global setting')}</span>
-              <button
-                className={`toggle-switch ${overrideOn ? 'toggle-switch--on' : ''}`}
-                onClick={() => setOverrideOn(!overrideOn)}
-                role="switch"
-                aria-checked={overrideOn}
-              >
-                <span className="toggle-switch__thumb" />
-              </button>
-            </div>
-
-            {overrideOn && overridePrefs && (
-              <NotifyPrefsControls
-                prefs={overridePrefs}
-                onChange={updateOverridePrefs}
-                thresholdMs={threshold}
-              />
-            )}
+            <NotifyPrefsControls
+              prefs={machinePrefs}
+              onChange={updateMachinePrefs}
+              thresholdMs={threshold}
+            />
 
             <button
               className={`m-btn m-btn--block ${machineEnabled ? 'm-btn--danger' : 'm-btn--primary'} mdt-deactivate`}
@@ -401,6 +381,7 @@ export function MachineDetail({
           onSelect={handleSetPosition}
           onClose={() => setShowPositionSelector(false)}
           forecastMax={machine.forecast.max72h}
+          forecastPeakAt={forecastPeakTime(machine)}
           hasNeedle={configHasNeedle(machine.specs.boomConfiguration)}
         />
       )}
@@ -422,6 +403,7 @@ export function MachineDetail({
           )}
           currentPosition={machine.position.position}
           forecastMax={machine.forecast.max72h}
+          forecastPeakAt={forecastPeakTime(machine)}
           hasNeedle={configHasNeedle(machine.specs.boomConfiguration)}
           allowNoAction
           onSelect={(p) => handleNotifAnpassenConfirm(p)}
