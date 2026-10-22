@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
 import type { Notification, MachineConfig, BoomPosition } from '../data/types';
-import { DEMO_USER, BOOM_POSITION_LABELS, machineThreshold, positionThreshold, configHasNeedle } from '../data/types';
-import { useLang, boomLabel } from '../i18n';
+import { DEMO_USER, configHasNeedle } from '../data/types';
+import { useLang } from '../i18n';
 import { AssignModal } from './AssignModal';
-import { PositionSelector, recommendPosition } from './PositionSelector';
-import { InfoPopover } from './InfoPopover';
+import { PositionSelector } from './PositionSelector';
+import { NotificationCard } from './NotificationCard';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -21,51 +21,19 @@ interface NotificationsPageProps {
   onOpenMachine?: (machineId: string) => void;
 }
 
-function hoursSince(date: Date): number {
-  return Math.max(0, Math.round((Date.now() - date.getTime()) / 3_600_000));
-}
-
 type TabId = 'offen' | 'angenommen' | 'erledigt';
-
-function formatFull(date: Date): string {
-  const p = (n: number) => n.toString().padStart(2, '0');
-  return `${p(date.getDate())}.${p(date.getMonth() + 1)}.${date.getFullYear()} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
-}
 
 export function NotificationsPage({
   notifications, machines, filterMachineId, onUpdateNotification, onUpdateMachine,
   onClearFilter, onBack, highlightNotifId,
 }: NotificationsPageProps) {
-  const { lang, t: tr, nf1 } = useLang();
+  const { lang, t: tr } = useLang();
   const [tab, setTab] = useState<TabId>('offen');
   const [expandedId, setExpandedId] = useState<string | null>(highlightNotifId ?? null);
   const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
   const [anpassenNotif, setAnpassenNotif] = useState<Notification | null>(null);
 
   const machineMap = new Map(machines.map((m) => [m.id, m]));
-  const allPositions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
-
-  /** Expanded headline per notification kind (see NotificationKind). */
-  function headlineFor(n: Notification, machine?: MachineConfig): string {
-    switch (n.kind) {
-      case 'exceedance': {
-        const limit = machine ? machineThreshold(machine) : null;
-        const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
-        const over = limit != null ? Math.max(0, fc - limit) : fc;
-        const online = machine?.status === 'online';
-        return online
-          ? tr(`Überschreitung: ${nf1(over)} m/s`, `Exceedance: ${nf1(over)} m/s`)
-          : tr(`Prognostizierte Überschreitung: ${nf1(over)} m/s`, `Forecast exceedance: ${nf1(over)} m/s`);
-      }
-      case 'forecast':
-        return tr('Prognose über Schwellwert', 'Forecast above threshold');
-      case 'positionDeviation':
-        return tr('Maschine offline - Auslegerposition setzen', 'Machine offline - set boom position');
-      case 'noData':
-      default:
-        return lang === 'en' ? (n.titleEn ?? n.title) : n.title;
-    }
-  }
 
   function handleAnpassenConfirm(pos: BoomPosition | null) {
     if (!anpassenNotif) return;
@@ -117,165 +85,6 @@ export function NotificationsPage({
     }, 80);
   }
 
-  function renderCard(n: Notification) {
-    const machine = machineMap.get(n.machineId);
-    const isExpanded = expandedId === n.id;
-    const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
-    const machineHasNeedle = machine ? configHasNeedle(machine.specs.boomConfiguration) : false;
-    const threshold = machine ? machineThreshold(machine) : null;
-    const isOnline = machine?.status === 'online';
-    const recommended = machine ? recommendPosition(allPositions, machine.forecast.max72h, machineHasNeedle) : null;
-    const lastPosHours = machine ? hoursSince(machine.position.timestamp) : 0;
-
-    return (
-      <div
-        key={n.id}
-        data-notif-id={n.id}
-        className={`notif2 notif2--${levelClass} notif2--clickable`}
-        onClick={() => setExpandedId(isExpanded ? null : n.id)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpandedId(isExpanded ? null : n.id)}
-      >
-        <div className="notif2__pillrow">
-          <div className="notif2__pillleft">
-            <span className={`notif2__pill notif2__pill--${levelClass}`}>
-              {n.level === 1 ? tr('Kritisch', 'Critical') : tr('Warnung', 'Warning')}
-            </span>
-            {machine && <span className="notif2__machine">{machine.name} - {machine.serialNumber}</span>}
-          </div>
-          {machine && (
-            <div className="notif2__status">
-              <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
-              <span>{isOnline ? 'Online' : 'Offline'}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="notif2__time">
-          <img src={BASE + 'icon-clock.svg'} alt="" width={14} height={14} className="m-icon" />
-          <span>{formatFull(n.timestamp)}</span>
-        </div>
-
-        {isExpanded && (
-          <div className="notif2__detail" onClick={(e) => e.stopPropagation()}>
-            <div className="notif2__titlerow">
-              <h3 className="notif2__title">{headlineFor(n, machine)}</h3>
-              <span className="notif2__info" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-                <InfoPopover>{(lang === 'en' ? (n.bodyEn ?? n.body) : n.body).replace('{{ts}}', formatFull(n.timestamp))}</InfoPopover>
-              </span>
-            </div>
-
-            {n.assignedTo && (
-              <div className="notif2__field">
-                <span className="notif2__field-label">{tr('Übernommen durch:', 'Taken over by:')}</span>
-                <span className="notif2__field-value">{n.assignedTo}</span>
-              </div>
-            )}
-            {n.assignedTo && n.assignedComment && (
-              <div className="notif2__comment">
-                <MessageSquare size={12} />
-                <span>{n.assignedComment}</span>
-              </div>
-            )}
-
-            {/* Offen: Kennwerte + aktuelle Position + Maßnahmen */}
-            {tab === 'offen' && machine && (
-              <>
-                <div className="notif2__kv">
-                  <span className="notif2__kv-label">{tr('Akt. max. zulässige Windgeschw.:', 'Current max. permissible wind speed:')}</span>
-                  <span className="notif2__kv-value">{threshold !== null ? `${threshold} m/s` : '—'}</span>
-                </div>
-                <div className="notif2__kv">
-                  <span className="notif2__kv-label">
-                    {n.forecastPeakAt
-                      ? tr('Prognostizierte max. Windgeschwindigkeit:', 'Forecast max. wind speed:')
-                      : (n.kind === 'exceedance' && isOnline)
-                        ? tr('Aktuelle Windgeschwindigkeit:', 'Current wind speed:')
-                        : tr('Prognostizierte Windgeschwindigkeit:', 'Forecast wind speed:')}
-                  </span>
-                  <span className="notif2__kv-value">
-                    {nf1(n.forecastDisplay ?? machine.forecast.max72h)} m/s
-                    {n.forecastPeakAt ? ` - ${formatFull(n.forecastPeakAt)}` : ''}
-                  </span>
-                </div>
-                <div className="notif2__field">
-                  <span className="notif2__field-label">{tr('Aktuelle Auslegerposition:', 'Current boom position:')}</span>
-                  <span className="notif2__field-value">{boomLabel(machine.position.position, lang)}</span>
-                </div>
-                {(lang === 'en' ? (n.actionTextEn ?? n.actionText) : n.actionText) && (() => {
-                  const at = lang === 'en' ? (n.actionTextEn ?? n.actionText ?? '') : (n.actionText ?? '');
-                  const measures = at.split('\n').map((l) => l.trim()).filter(Boolean);
-                  return (
-                    <div className="notif2__action">
-                      <h3 className="notif2__action-title">
-                        {measures.length > 1 ? tr('MASSNAHMEN ERFORDERLICH:', 'ACTION REQUIRED:') : tr('MASSNAHME ERFORDERLICH:', 'ACTION REQUIRED:')}
-                      </h3>
-                      {measures.length > 1 ? (
-                        <ul className="notif2__action-list">
-                          {measures.map((m, i) => <li key={i}>{m}</li>)}
-                        </ul>
-                      ) : (
-                        <span className="notif2__action-text">{measures[0]}</span>
-                      )}
-                    </div>
-                  );
-                })()}
-              </>
-            )}
-
-            {/* Angenommen: letzte + empfohlene Position */}
-            {tab === 'angenommen' && machine && (
-              <>
-                <div className="notif2__field">
-                  <span className="notif2__field-label">{tr(`Letzte Position (seit ${lastPosHours} Std.):`, `Last position (for ${lastPosHours} h):`)}</span>
-                  <span className="notif2__field-value">{boomLabel(machine.position.position, lang)}</span>
-                </div>
-                {recommended && (
-                  <div className="notif2__field">
-                    <span className="notif2__field-label">{tr('Empfohlene Position:', 'Recommended position:')}</span>
-                    <span className="notif2__field-value">
-                      {boomLabel(recommended, lang)}
-                      {positionThreshold(recommended, machineHasNeedle) !== null ? ` (${positionThreshold(recommended, machineHasNeedle)} m/s)` : ''}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-
-            <div className="notif2__actions">
-              {tab === 'offen' && (
-                <>
-                  <button className="m-btn m-btn--primary" onClick={() => setAssigningNotif(n)}>{tr('Übernehmen', 'Accept')}</button>
-                  <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, read: true })}>
-                    <Check size={16} /> {tr('Erledigt', 'Done')}
-                  </button>
-                </>
-              )}
-              {tab === 'angenommen' && (
-                <>
-                  <button className="m-btn m-btn--primary" onClick={() => setAnpassenNotif(n)}>
-                    <img src={BASE + 'boom-angle.svg'} alt="" width={18} height={18} />
-                    {tr('Position anpassen', 'Adjust position')}
-                  </button>
-                  <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, assignedTo: null, assignedAt: null, assignedComment: null })}>{tr('Abgeben', 'Release')}</button>
-                </>
-              )}
-              {tab === 'erledigt' && (
-                <button className="m-btn m-btn--outline" onClick={() => onUpdateNotification({ ...n, read: false })}>{tr('Wieder öffnen', 'Reopen')}</button>
-              )}
-            </div>
-          </div>
-        )}
-
-        <button className="notif2__toggle" onClick={(e) => { e.stopPropagation(); setExpandedId(isExpanded ? null : n.id); }}>
-          <span>{isExpanded ? tr('Weniger anzeigen', 'Show less') : tr('Mehr anzeigen', 'Show more')}</span>
-          <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="m-icon" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }} />
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="notif2-page">
       {onBack && (
@@ -295,15 +104,15 @@ export function NotificationsPage({
       )}
 
       <div className="notif2-tabs" role="tablist">
-        {tabs.map((t) => (
+        {tabs.map((tb) => (
           <button
-            key={t.id}
+            key={tb.id}
             role="tab"
-            aria-selected={tab === t.id}
-            className={`notif2-tab ${tab === t.id ? 'notif2-tab--active' : ''}`}
-            onClick={() => { setTab(t.id); setExpandedId(null); }}
+            aria-selected={tab === tb.id}
+            className={`notif2-tab ${tab === tb.id ? 'notif2-tab--active' : ''}`}
+            onClick={() => { setTab(tb.id); setExpandedId(null); }}
           >
-            {t.label}
+            {tb.label}
           </button>
         ))}
       </div>
@@ -315,7 +124,20 @@ export function NotificationsPage({
             <span>{tr('Keine Benachrichtigungen in', 'No notifications in')} „{tabs.find((x) => x.id === tab)?.label.replace(/ \(\d+\)/, '')}".</span>
           </div>
         ) : (
-          list.map(renderCard)
+          list.map((n) => (
+            <NotificationCard
+              key={n.id}
+              n={n}
+              machine={machineMap.get(n.machineId)}
+              expanded={expandedId === n.id}
+              onToggle={() => setExpandedId(expandedId === n.id ? null : n.id)}
+              onAssign={(x) => setAssigningNotif(x)}
+              onDone={(x) => onUpdateNotification({ ...x, read: true })}
+              onAdjust={(x) => setAnpassenNotif(x)}
+              onRelease={(x) => onUpdateNotification({ ...x, assignedTo: null, assignedAt: null, assignedComment: null })}
+              onReopen={(x) => onUpdateNotification({ ...x, read: false })}
+            />
+          ))
         )}
       </div>
 

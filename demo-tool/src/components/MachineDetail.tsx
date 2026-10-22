@@ -3,10 +3,12 @@ import { Crosshair, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
-import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle, DEMO_USER } from '../data/types';
 import { useLang, boomLabel, configLabel } from '../i18n';
 import { PositionSelector } from './PositionSelector';
 import { NotifyPrefsControls } from './SettingsControls';
+import { NotificationCard } from './NotificationCard';
+import { AssignModal } from './AssignModal';
 
 type DetailTab = 'overview' | 'machine' | 'standort' | 'settings';
 
@@ -32,10 +34,6 @@ function formatStand(date: Date): string {
 /** dd.MM.yyyy HH:mm:ss (machine data rows) */
 function formatSec(date: Date): string {
   return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-}
-
-function formatFull(date: Date): string {
-  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function getWindLevel(speed: number, threshold: number | null): 'safe' | 'warning' | 'danger' {
@@ -68,12 +66,34 @@ const BOOM_CONFIG_OPTIONS = [
 ];
 
 export function MachineDetail({
-  machine, notifications, notifSettings, onUpdateMachine, onUpdateNotifSettings,
+  machine, notifications, notifSettings, onUpdateMachine, onUpdateNotification, onUpdateNotifSettings,
   initialPositionSelectorOpen, onPositionSelectorOpened,
 }: MachineDetailProps) {
   const { lang, t } = useLang();
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
   const [showPositionSelector, setShowPositionSelector] = useState(false);
+  const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null);
+  const [assigningNotif, setAssigningNotif] = useState<Notification | null>(null);
+  const [anpassenNotif, setAnpassenNotif] = useState<Notification | null>(null);
+
+  function handleNotifAssignConfirm(comment: string) {
+    if (!assigningNotif) return;
+    onUpdateNotification({ ...assigningNotif, assignedTo: DEMO_USER, assignedAt: new Date(), assignedComment: comment || null });
+    setExpandedNotifId(assigningNotif.id);
+    setAssigningNotif(null);
+  }
+
+  function handleNotifAnpassenConfirm(pos: BoomPosition | null) {
+    if (!anpassenNotif) return;
+    if (pos) {
+      onUpdateMachine({
+        ...machine,
+        position: { ...machine.position, position: pos, timestamp: new Date(), manuallySet: true },
+      });
+    }
+    onUpdateNotification({ ...anpassenNotif, read: true });
+    setAnpassenNotif(null);
+  }
 
   useEffect(() => {
     if (initialPositionSelectorOpen) {
@@ -215,33 +235,21 @@ export function MachineDetail({
                   {notifications
                     .slice()
                     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-                    .map((n) => {
-                      const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
-                      return (
-                        <div className={`notif2 notif2--${levelClass}`} key={n.id}>
-                          <div className="notif2__pillrow">
-                            <div className="notif2__pillleft">
-                              <span className={`notif2__pill notif2__pill--${levelClass}`}>
-                                {n.level === 1 ? t('Kritisch', 'Critical') : t('Warnung', 'Warning')}
-                              </span>
-                            </div>
-                            <div className="notif2__status">
-                              <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
-                              <span>{isOnline ? 'Online' : 'Offline'}</span>
-                            </div>
-                          </div>
-                          <div className="notif2__time">
-                            <img src={`${import.meta.env.BASE_URL}icon-clock.svg`} alt="" width={14} height={14} className="m-icon" />
-                            <span>{formatFull(n.timestamp)}{t(' Uhr', '')}</span>
-                          </div>
-                          <h3 className="notif2__title">{lang === 'en' ? (n.titleEn ?? n.title) : n.title}</h3>
-                          <div className="notif2__facts">
-                            {threshold !== null && <span>{t('Position akt. bis:', 'Limit for position:')} <strong>{threshold} m/s</strong></span>}
-                            <span>{t('Prognose max.:', 'Forecast max.:')} <strong>{machine.forecast.max72h.toFixed(1)} m/s</strong></span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    .map((n) => (
+                      <NotificationCard
+                        key={n.id}
+                        n={n}
+                        machine={machine}
+                        showMachineName={false}
+                        expanded={expandedNotifId === n.id}
+                        onToggle={() => setExpandedNotifId(expandedNotifId === n.id ? null : n.id)}
+                        onAssign={(x) => setAssigningNotif(x)}
+                        onDone={(x) => onUpdateNotification({ ...x, read: true })}
+                        onAdjust={(x) => setAnpassenNotif(x)}
+                        onRelease={(x) => onUpdateNotification({ ...x, assignedTo: null, assignedAt: null, assignedComment: null })}
+                        onReopen={(x) => onUpdateNotification({ ...x, read: false })}
+                      />
+                    ))}
                 </div>
               )}
             </section>
@@ -394,6 +402,31 @@ export function MachineDetail({
           onClose={() => setShowPositionSelector(false)}
           forecastMax={machine.forecast.max72h}
           hasNeedle={configHasNeedle(machine.specs.boomConfiguration)}
+        />
+      )}
+
+      {assigningNotif && (
+        <AssignModal
+          notificationTitle={lang === 'en' ? (assigningNotif.titleEn ?? assigningNotif.title) : assigningNotif.title}
+          onConfirm={handleNotifAssignConfirm}
+          onCancel={() => setAssigningNotif(null)}
+        />
+      )}
+
+      {anpassenNotif && (
+        <PositionSelector
+          title={t('Manuell anpassen', 'Adjust manually')}
+          subtitle={t(
+            `Auslegerposition für ${machine.name} - ${machine.serialNumber}`,
+            `Boom position for ${machine.name} - ${machine.serialNumber}`,
+          )}
+          currentPosition={machine.position.position}
+          forecastMax={machine.forecast.max72h}
+          hasNeedle={configHasNeedle(machine.specs.boomConfiguration)}
+          allowNoAction
+          onSelect={(p) => handleNotifAnpassenConfirm(p)}
+          onNoAction={() => handleNotifAnpassenConfirm(null)}
+          onClose={() => setAnpassenNotif(null)}
         />
       )}
     </div>

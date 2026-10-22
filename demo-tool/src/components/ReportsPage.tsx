@@ -19,11 +19,11 @@ interface ReportsPageProps {
   machines: MachineConfig[];
 }
 
-function formatDT(d: Date, resolution: Resolution): string {
+function formatDT(d: Date, resolution: Resolution, loc = 'de-DE'): string {
   if (resolution === '1day') {
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    return d.toLocaleDateString(loc, { day: '2-digit', month: '2-digit', year: '2-digit' });
   }
-  return d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleString(loc, { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function formatDateLocal(d: Date): string {
@@ -50,6 +50,7 @@ function barColor(status: Status): string {
 
 export function ReportsPage({ machines }: ReportsPageProps) {
   const { lang, t } = useLang();
+  const loc = lang === 'en' ? 'en-GB' : 'de-DE';
   const licensedMachines = machines.filter(m => m.license === 'active');
 
   const [stepNo, setStepNo] = useState<1 | 2>(1);
@@ -98,15 +99,15 @@ export function ReportsPage({ machines }: ReportsPageProps) {
   function handleExcelExport() {
     if (!machine) return;
     const rows = resolved.map(e => ({
-      'Zeitpunkt': formatDT(e.timestamp, resolution),
-      'Nadelausleger (m/s)': e.needleBoom,
-      'Hauptausleger (m/s)': e.mainBoom,
-      'Status': e[sensor] >= redThreshold ? 'ÜBERSCHRITTEN' : e[sensor] >= orangeThreshold ? 'WARNUNG' : 'OK',
+      [t('Zeitpunkt', 'Time')]: formatDT(e.timestamp, resolution, loc),
+      [t('Nadelausleger (m/s)', 'Jib (m/s)')]: e.needleBoom,
+      [t('Hauptausleger (m/s)', 'Main boom (m/s)')]: e.mainBoom,
+      [t('Status', 'Status')]: e[sensor] >= redThreshold ? t('ÜBERSCHRITTEN', 'EXCEEDED') : e[sensor] >= orangeThreshold ? t('WARNUNG', 'WARNING') : 'OK',
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Windbericht');
-    XLSX.writeFile(wb, `Windbericht_${machine.serialNumber}_${from.toISOString().slice(0, 10)}_${to.toISOString().slice(0, 10)}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, t('Windbericht', 'Wind report'));
+    XLSX.writeFile(wb, `${t('Windbericht', 'Wind_report')}_${machine.serialNumber}_${from.toISOString().slice(0, 10)}_${to.toISOString().slice(0, 10)}.xlsx`);
   }
 
   function stepper(setter: (fn: (v: number) => number) => void, delta: number) {
@@ -225,7 +226,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
           <div className="reports-chart-wrap">
             <div className="reports-chart-title">
               <strong>{machine.name} - {machine.serialNumber}</strong><br />
-              {sensorLabel} · {formatDT(from, resolution)} – {formatDT(to, resolution)}
+              {sensorLabel} · {formatDT(from, resolution, loc)} – {formatDT(to, resolution, loc)}
             </div>
             <div className="reports-chart-area">
               <div className="reports-y-axis">
@@ -248,7 +249,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                         key={i}
                         className="reports-bar"
                         style={{ height: `${h}%`, background: barColor(st), opacity: filterMatch(st) ? 1 : 0.15 }}
-                        title={`${formatDT(e.timestamp, resolution)}: ${val.toFixed(1)} m/s`}
+                        title={`${formatDT(e.timestamp, resolution, loc)}: ${val.toFixed(1)} m/s`}
                       />
                     );
                   })}
@@ -258,7 +259,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
             <div className="reports-x-axis">
               {(() => {
                 const axisLabel = (d: Date) => {
-                  const dm = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+                  const dm = d.toLocaleDateString(loc, { day: '2-digit', month: '2-digit' });
                   if (resolution === '1day') return dm;
                   const p = (n: number) => n.toString().padStart(2, '0');
                   return `${dm} ${p(d.getHours())}:${p(d.getMinutes())}`;
@@ -291,7 +292,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                   const st = statusOf(e[sensor], orangeThreshold, redThreshold);
                   return (
                     <tr key={i} className={`reports-table__row--${st}`}>
-                      <td>{formatDT(e.timestamp, resolution)}</td>
+                      <td>{formatDT(e.timestamp, resolution, loc)}</td>
                       <td>{e.needleBoom.toFixed(1)}</td>
                       <td>{e.mainBoom.toFixed(1)}</td>
                       <td className={`reports-table__status--${st}`}>
