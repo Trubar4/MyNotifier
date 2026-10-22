@@ -40,9 +40,10 @@ export function useLang() {
 
 /* ---------- Data-level translations (used outside of React too) ---------- */
 
+// Same canonical order as BOOM_POSITION_LABELS: Arbeits → Park → Klappmesser → abgelegt.
 export const BOOM_POSITION_LABELS_I18N: Record<BoomPosition, { de: string; en: string }> = {
-  parkposition: { de: 'Parkposition', en: 'Park position' },
   arbeitsposition: { de: 'Arbeitsposition', en: 'Working position' },
+  parkposition: { de: 'Parkposition', en: 'Park position' },
   jackknife: { de: 'Klappmesser-Position', en: 'Jackknife position' },
   boomDown: { de: 'Ausleger abgelegt', en: 'Boom lowered' },
 };

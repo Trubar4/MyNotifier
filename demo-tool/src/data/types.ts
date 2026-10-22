@@ -7,9 +7,15 @@ export type BoomPosition =
   | 'jackknife'
   | 'boomDown';
 
+/**
+ * Canonical order for every position list in the UI:
+ * Arbeitsposition → Parkposition → Klappmesser → Ausleger abgelegt.
+ * All lists iterate Object.keys(BOOM_POSITION_LABELS), so this key order
+ * is the single source of truth for that order.
+ */
 export const BOOM_POSITION_LABELS: Record<BoomPosition, string> = {
-  parkposition: 'Parkposition',
   arbeitsposition: 'Arbeitsposition',
+  parkposition: 'Parkposition',
   jackknife: 'Klappmesser-Position',
   boomDown: 'Ausleger abgelegt',
 };
