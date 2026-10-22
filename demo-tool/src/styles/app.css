@@ -394,12 +394,18 @@
 
 /* Hidden-ish demo config trigger */
 
-/* Status row above the card body */
+/* Status row above the card body — a small raised card of its own,
+   so it reads as a surface lifted off the (white) background, like in Figma. */
 .m-card__status {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--s-1) var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-2);
+  background: var(--p-steel-50);
+  border: 1px solid var(--p-steel-200);
+  border-radius: var(--radius-1);
+  box-shadow: var(--shadow-2);
 }
 .m-card__status-left,
 .m-card__status-right {
