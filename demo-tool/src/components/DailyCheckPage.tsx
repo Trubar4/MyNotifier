@@ -160,7 +160,11 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
 
               {/* Aktuelle Position */}
               <div className="dailycheck-row">
-                <span className="dailycheck-row__label">{t('Aktuelle Auslegerposition', 'Current boom position')}</span>
+                <span className="dailycheck-row__label">
+                  {isOnline
+                    ? t('Aktuelle Auslegerposition', 'Current boom position')
+                    : t('Letzte übertragene Auslegerposition', 'Last transmitted boom position')}
+                </span>
                 <span className="dailycheck-row__value">
                   {positionKnown ? boomLabel(currentPos, lang) : t('Unbekannt', 'Unknown')}
                 </span>

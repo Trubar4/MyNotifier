@@ -140,7 +140,11 @@ export function NotificationCard({
                 </span>
               </div>
               <div className="notif2__field">
-                <span className="notif2__field-label">{tr('Aktuelle Auslegerposition:', 'Current boom position:')}</span>
+                <span className="notif2__field-label">
+                  {isOnline
+                    ? tr('Aktuelle Auslegerposition:', 'Current boom position:')
+                    : tr('Letzte übertragene Auslegerposition:', 'Last transmitted boom position:')}
+                </span>
                 <span className="notif2__field-value">{boomLabel(machine.position.position, lang)}</span>
               </div>
               {(lang === 'en' ? (n.actionTextEn ?? n.actionText) : n.actionText) && (() => {
