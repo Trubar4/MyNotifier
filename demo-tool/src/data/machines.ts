@@ -45,7 +45,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     forecast: {
       max72h: 22.0,
       timestamp: hoursAgo(2),
-      hourly: generateHourlyForecast(22.0, 20),
+      hourly: generateHourlyForecast(22.0, 36),
     },
     location: {
       lat: 47.6292,
