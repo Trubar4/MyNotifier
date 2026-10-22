@@ -592,6 +592,10 @@
   font: 700 16px/24px var(--font-text-b);
   color: var(--p-steel-700);
 }
+.m-card__wind-when {
+  font: 400 12px/1.3 var(--font-text);
+  color: var(--p-steel-600);
+}
 .m-card__wind-max {
   display: flex;
   align-items: center;

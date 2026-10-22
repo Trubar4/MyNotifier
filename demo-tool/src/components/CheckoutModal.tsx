@@ -22,9 +22,16 @@ interface CheckoutModalProps {
   onNotifClick: (id: string) => void;
 }
 
-function maxForecastInWindow(m: MachineConfig, hours: WindowH): number {
+/** Highest forecast hour within the window, with its timestamp. */
+function forecastPeakInWindow(m: MachineConfig, hours: WindowH): { value: number; at: Date } {
   const slice = m.forecast.hourly.slice(0, hours);
-  return slice.length ? Math.max(...slice.map((h) => h.speed)) : m.forecast.max72h;
+  if (!slice.length) return { value: m.forecast.max72h, at: m.forecast.timestamp };
+  const peak = slice.reduce((a, x) => (x.speed > a.speed ? x : a), slice[0]);
+  return { value: peak.speed, at: peak.timestamp };
+}
+
+function maxForecastInWindow(m: MachineConfig, hours: WindowH): number {
+  return forecastPeakInWindow(m, hours).value;
 }
 
 /**
@@ -108,6 +115,7 @@ export function CheckoutModal({
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
+                  forecastWind={forecastPeakInWindow(m, windowH)}
                 />
               );
             })

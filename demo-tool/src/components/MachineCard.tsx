@@ -16,6 +16,9 @@ interface MachineCardProps {
   /** When set (e.g. in the check-out), the primary button shows this recommendation
    *  as its label and takes the full width; Details collapses to an icon button. */
   primaryActionLabel?: string;
+  /** When set (check-out), the wind panel shows this forecast peak + its time
+   *  instead of the current wind measurement. */
+  forecastWind?: { value: number; at: Date };
 }
 
 function formatStamp(date: Date): string {
@@ -38,9 +41,9 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
 
 export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
-  onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel,
+  onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel, forecastWind,
 }: MachineCardProps) {
-  const { lang, t } = useLang();
+  const { lang, t, nf1 } = useLang();
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
   const totalNotif = notifCritical + notifWarning;
@@ -48,7 +51,14 @@ export function MachineCard({
 
   const threshold = machineThreshold(machine);
   const windNow = Math.max(machine.wind.needleBoom, machine.wind.mainBoom);
-  const windExceeds = threshold !== null && windNow >= threshold;
+  const windValue = forecastWind ? forecastWind.value : windNow;
+  const windExceeds = threshold !== null && windValue >= threshold;
+
+  function formatForecastAt(d: Date): string {
+    return d.toLocaleString(lang === 'en' ? 'en-GB' : 'de-DE', {
+      day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit',
+    }) + t(' Uhr', '');
+  }
 
   return (
     <div className="m-card">
@@ -139,15 +149,20 @@ export function MachineCard({
           <div className="m-card__state-divider" />
 
           <div className="m-card__state-col">
-            <span className="m-card__state-label">{t('Windmessung', 'Wind measurement')}</span>
+            <span className="m-card__state-label">
+              {forecastWind ? t('Windprognose', 'Wind forecast') : t('Windmessung', 'Wind measurement')}
+            </span>
             {hasLicense ? (
               <div className="m-card__wind">
                 <div className="m-card__wind-value">
                   <span className={`m-card__wind-num ${windExceeds ? 'm-card__wind-num--danger' : ''}`}>
-                    {windNow.toFixed(1)}
+                    {nf1(windValue)}
                   </span>
                   <span className="m-card__wind-unit">m/s</span>
                 </div>
+                {forecastWind && (
+                  <div className="m-card__wind-when">{formatForecastAt(forecastWind.at)}</div>
+                )}
                 {threshold !== null && (
                   <div className="m-card__wind-max">
                     <span>{t('max. zulässig:', 'max. permissible:')}</span>
