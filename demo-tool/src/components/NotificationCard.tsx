@@ -1,6 +1,6 @@
 import { Check, MessageSquare } from 'lucide-react';
 import type { Notification, MachineConfig, BoomPosition } from '../data/types';
-import { BOOM_POSITION_LABELS, machineThreshold, positionThreshold, configHasNeedle } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold, positionThreshold, configHasNeedle, forecastPeakTime } from '../data/types';
 import { useLang, boomLabel } from '../i18n';
 import { recommendPosition } from './PositionSelector';
 import { InfoPopover } from './InfoPopover';
@@ -98,15 +98,15 @@ export function NotificationCard({
         <span>{formatFull(n.timestamp)}</span>
       </div>
 
+      <div className="notif2__titlerow">
+        <h3 className="notif2__title">{headline()}</h3>
+        <span className="notif2__info" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+          <InfoPopover>{(lang === 'en' ? (n.bodyEn ?? n.body) : n.body).replace('{{ts}}', formatFull(n.timestamp))}</InfoPopover>
+        </span>
+      </div>
+
       {expanded && (
         <div className="notif2__detail" onClick={(e) => e.stopPropagation()}>
-          <div className="notif2__titlerow">
-            <h3 className="notif2__title">{headline()}</h3>
-            <span className="notif2__info" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-              <InfoPopover>{(lang === 'en' ? (n.bodyEn ?? n.body) : n.body).replace('{{ts}}', formatFull(n.timestamp))}</InfoPopover>
-            </span>
-          </div>
-
           {n.assignedTo && (
             <div className="notif2__field">
               <span className="notif2__field-label">{tr('Übernommen durch:', 'Taken over by:')}</span>
@@ -126,19 +126,23 @@ export function NotificationCard({
                 <span className="notif2__kv-label">{tr('Akt. max. zulässige Windgeschw.:', 'Current max. permissible wind speed:')}</span>
                 <span className="notif2__kv-value">{threshold !== null ? `${threshold} m/s` : '—'}</span>
               </div>
-              <div className="notif2__kv">
-                <span className="notif2__kv-label">
-                  {n.forecastPeakAt
-                    ? tr('Prognostizierte max. Windgeschwindigkeit:', 'Forecast max. wind speed:')
-                    : (n.kind === 'exceedance' && isOnline)
-                      ? tr('Aktuelle Windgeschwindigkeit:', 'Current wind speed:')
-                      : tr('Prognostizierte Windgeschwindigkeit:', 'Forecast wind speed:')}
-                </span>
-                <span className="notif2__kv-value">
-                  {nf1(n.forecastDisplay ?? machine.forecast.max72h)} m/s
-                  {n.forecastPeakAt ? ` - ${formatFull(n.forecastPeakAt)}` : ''}
-                </span>
-              </div>
+              {(() => {
+                const currentWind = n.kind === 'exceedance' && isOnline;
+                const peakAt = n.forecastPeakAt ?? forecastPeakTime(machine);
+                return (
+                  <div className="notif2__kv">
+                    <span className="notif2__kv-label">
+                      {currentWind
+                        ? tr('Aktuelle Windgeschwindigkeit:', 'Current wind speed:')
+                        : tr('Prognostizierte max. Windgeschwindigkeit:', 'Forecast max. wind speed:')}
+                    </span>
+                    <span className="notif2__kv-value">
+                      {nf1(n.forecastDisplay ?? machine.forecast.max72h)} m/s
+                      {!currentWind && peakAt ? ` - ${formatFull(peakAt)}` : ''}
+                    </span>
+                  </div>
+                );
+              })()}
               <div className="notif2__field">
                 <span className="notif2__field-label">
                   {isOnline

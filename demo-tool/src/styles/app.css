@@ -937,6 +937,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--s-2);
+  margin-top: var(--s-2);
 }
 .notif2__title {
   margin: 0;
