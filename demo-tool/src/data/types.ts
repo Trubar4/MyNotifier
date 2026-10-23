@@ -123,18 +123,28 @@ export interface MachineConfig {
   location: LocationData;
   notifications: NotificationData;
   specs: MachineSpecs;
+  /** Data source 2 — wind logger (own GSM link). Undefined = online. */
+  windloggerStatus?: 'online' | 'offline' | 'fault';
+  /** Data source 3 — wind forecast. Undefined = available. */
+  forecastStatus?: 'ok' | 'unavailable';
 }
 
 export type NotificationLevel = 1 | 2;
 
 /**
  * Kind drives the (expanded) headline:
- * - exceedance       → "Überschreitung: X m/s" where X = (forecast max − limit)
- * - forecast         → "WARNUNG" (threshold at 50 %, not exceeded)
- * - positionDeviation→ "Auslegerposition aktualisiert"
- * - noData           → keeps its own title
+ * - exceedance        → "Überschreitung: X m/s" where X = (forecast max − limit)
+ * - forecast          → "WARNUNG" (threshold at 50 %, not exceeded)
+ * - positionDeviation → "Auslegerposition aktualisiert"
+ * - noData            → keeps its own title
+ * Failures of the three data sources (2 = wind logger, 3 = forecast):
+ * - windloggerOffline → "Windlogger offline seit <ts>"
+ * - noForecast        → "Keine Windprognose seit <ts>"
+ * - windloggerFault   → "Windlogger Sensor defekt seit <ts>"
  */
-export type NotificationKind = 'exceedance' | 'forecast' | 'positionDeviation' | 'noData';
+export type NotificationKind =
+  | 'exceedance' | 'forecast' | 'positionDeviation' | 'noData'
+  | 'windloggerOffline' | 'noForecast' | 'windloggerFault';
 
 export interface Notification {
   id: string;

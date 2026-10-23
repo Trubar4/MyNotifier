@@ -63,6 +63,12 @@ export function NotificationCard({
         return tr('Prognose über Schwellwert', 'Forecast above threshold');
       case 'positionDeviation':
         return tr('Maschine offline - Auslegerposition setzen', 'Machine offline - set boom position');
+      case 'windloggerOffline':
+        return tr(`Windlogger offline seit ${formatFull(n.timestamp)}`, `Wind logger offline since ${formatFull(n.timestamp)}`);
+      case 'noForecast':
+        return tr(`Keine Windprognose seit ${formatFull(n.timestamp)}`, `No wind forecast since ${formatFull(n.timestamp)}`);
+      case 'windloggerFault':
+        return tr(`Windlogger Sensor defekt seit ${formatFull(n.timestamp)}`, `Wind logger sensor faulty since ${formatFull(n.timestamp)}`);
       case 'noData':
       default:
         return lang === 'en' ? (n.titleEn ?? n.title) : n.title;
@@ -129,6 +135,21 @@ export function NotificationCard({
               {(() => {
                 const currentWind = n.kind === 'exceedance' && isOnline;
                 const peakAt = n.forecastPeakAt ?? forecastPeakTime(machine);
+                const value = `${nf1(n.forecastDisplay ?? machine.forecast.max72h)} m/s${!currentWind && peakAt ? ` - ${formatFull(peakAt)}` : ''}`;
+                // Source 3 is down → label the figure as the LAST available forecast + when it was received.
+                if (n.kind === 'noForecast') {
+                  return (
+                    <div className="notif2__kv">
+                      <span className="notif2__kv-label">
+                        {tr(
+                          `Letzte prognostizierte max. Windgeschwindigkeit von ${formatFull(machine.forecast.timestamp)}:`,
+                          `Last forecast max. wind speed from ${formatFull(machine.forecast.timestamp)}:`,
+                        )}
+                      </span>
+                      <span className="notif2__kv-value">{value}</span>
+                    </div>
+                  );
+                }
                 return (
                   <div className="notif2__kv">
                     <span className="notif2__kv-label">
@@ -136,10 +157,7 @@ export function NotificationCard({
                         ? tr('Aktuelle Windgeschwindigkeit:', 'Current wind speed:')
                         : tr('Prognostizierte max. Windgeschwindigkeit:', 'Forecast max. wind speed:')}
                     </span>
-                    <span className="notif2__kv-value">
-                      {nf1(n.forecastDisplay ?? machine.forecast.max72h)} m/s
-                      {!currentWind && peakAt ? ` - ${formatFull(peakAt)}` : ''}
-                    </span>
+                    <span className="notif2__kv-value">{value}</span>
                   </div>
                 );
               })()}
