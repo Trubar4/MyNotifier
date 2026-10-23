@@ -28,13 +28,13 @@ export const BOOM_POSITION_LABELS: Record<BoomPosition, string> = {
  */
 export const BOOM_THRESHOLDS: Record<BoomPosition, number | null> = {
   parkposition: 20,
-  arbeitsposition: 15,
+  arbeitsposition: 16,
   jackknife: 25,
   boomDown: null,
 };
 
-/** Arbeitsposition limit when a Nadelausleger is mounted (more restrictive). */
-export const ARBEITSPOSITION_NEEDLE_THRESHOLD = 9;
+/** Arbeitsposition limit (same with or without Nadelausleger). */
+export const ARBEITSPOSITION_NEEDLE_THRESHOLD = 16;
 
 /** True when the boom configuration includes a Nadelausleger. */
 export function configHasNeedle(boomConfiguration: string): boolean {
@@ -103,8 +103,10 @@ export interface MachineSpecs {
   outsideTemperature: number | null;   // °C
   boomConfiguration: string;           // z.B. "Hauptausleger + Nadelausleger"
   mainBoomLength: number | null;       // m
+  mainBoomAngle: number | null;        // ° (Winkel des Hauptauslegers)
   jibLength: number | null;            // m
-  boomHeadHeight: number | null;       // m
+  boomHeadHeight: number | null;       // m (Kopfhöhe Hauptausleger)
+  jibHeadHeight: number | null;        // m (Kopfhöhe Nadelausleger; 0 ohne Nadel)
   windloggerImei: string;
 }
 

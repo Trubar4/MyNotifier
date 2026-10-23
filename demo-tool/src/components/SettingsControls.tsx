@@ -3,7 +3,10 @@ import { WEEKDAYS, PROGNOSE_STEPS, REPEAT_STEPS } from '../data/types';
 import { useLang } from '../i18n';
 import { InfoPopover } from './InfoPopover';
 
-const DAY_LABELS: Record<WeekDay, string> = {
+const DAY_LABELS_DE: Record<WeekDay, string> = {
+  MO: 'MO', TU: 'DI', WE: 'MI', TH: 'DO', FR: 'FR', SA: 'SA', SU: 'SO',
+};
+const DAY_LABELS_EN: Record<WeekDay, string> = {
   MO: 'MO', TU: 'TU', WE: 'WE', TH: 'TH', FR: 'FR', SA: 'SA', SU: 'SU',
 };
 
@@ -84,6 +87,8 @@ export function DayPills({ value, onChange }: {
   value: WeekDay[];
   onChange: (days: WeekDay[]) => void;
 }) {
+  const { lang } = useLang();
+  const dayLabels = lang === 'en' ? DAY_LABELS_EN : DAY_LABELS_DE;
   function toggle(d: WeekDay) {
     onChange(value.includes(d) ? value.filter((x) => x !== d) : [...WEEKDAYS].filter((x) => value.includes(x) || x === d));
   }
@@ -96,7 +101,7 @@ export function DayPills({ value, onChange }: {
           onClick={() => toggle(d)}
           aria-pressed={value.includes(d)}
         >
-          {DAY_LABELS[d]}
+          {dayLabels[d]}
         </button>
       ))}
     </div>

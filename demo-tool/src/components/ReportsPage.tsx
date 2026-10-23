@@ -3,7 +3,7 @@ import { Minus, Plus, BarChart3 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MachineConfig } from '../data/types';
 import { machineThreshold } from '../data/types';
-import { useLang, boomLabel } from '../i18n';
+import { useLang } from '../i18n';
 import {
   generateHistoricalWind,
   aggregateToDaily,
@@ -100,8 +100,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
     if (!machine) return;
     const rows = resolved.map(e => ({
       [t('Zeitpunkt', 'Time')]: formatDT(e.timestamp, resolution, loc),
-      [t('Nadelausleger (m/s)', 'Jib (m/s)')]: e.needleBoom,
       [t('Hauptausleger (m/s)', 'Main boom (m/s)')]: e.mainBoom,
+      [t('Nadelausleger (m/s)', 'Jib (m/s)')]: e.needleBoom,
       [t('Status', 'Status')]: windOf(e) >= redThreshold ? t('ÜBERSCHRITTEN', 'EXCEEDED') : windOf(e) >= orangeThreshold ? t('WARNUNG', 'WARNING') : 'OK',
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -194,11 +194,6 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                 </div>
               </div>
             </div>
-            {machine && threshold !== null && (
-              <div className="rep-limit-ref">
-                {t('Position', 'Position')} {boomLabel(machine.position.position, lang)}: <strong>{threshold} m/s</strong>
-              </div>
-            )}
           </div>
 
           <button className="m-btn m-btn--primary m-btn--block" onClick={() => setStepNo(2)} disabled={!canReport}>
@@ -285,7 +280,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
           <div className="reports-table-wrap">
             <table className="reports-table">
               <thead>
-                <tr><th>{t('Zeitpunkt', 'Time')}</th><th>{t('Nadel', 'Jib')}</th><th>{t('Haupt', 'Main')}</th><th>{t('Status', 'Status')}</th></tr>
+                <tr><th>{t('Zeitpunkt', 'Time')}</th><th>{t('Haupt', 'Main')}</th><th>{t('Nadel', 'Jib')}</th><th>{t('Status', 'Status')}</th></tr>
               </thead>
               <tbody>
                 {resolved.filter(e => filterMatch(statusOf(windOf(e), orangeThreshold, redThreshold))).map((e, i) => {
@@ -293,8 +288,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                   return (
                     <tr key={i} className={`reports-table__row--${st}`}>
                       <td>{formatDT(e.timestamp, resolution, loc)}</td>
-                      <td>{e.needleBoom.toFixed(1)}</td>
                       <td>{e.mainBoom.toFixed(1)}</td>
+                      <td>{e.needleBoom.toFixed(1)}</td>
                       <td className={`reports-table__status--${st}`}>
                         {st === 'danger' ? t('ÜBERSCHR.', 'EXCEED.') : st === 'warning' ? t('WARNUNG', 'WARNING') : 'OK'}
                       </td>
