@@ -116,6 +116,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     type: 'LR 1110',
     status: 'offline',
     license: 'active',
+    windloggerStatus: 'offline',
     position: {
       position: 'arbeitsposition',
       timestamp: hoursAgo(2),

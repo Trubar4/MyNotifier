@@ -74,6 +74,9 @@ export function MachineDetail({
   const { lang, t } = useLang();
   const loc = lang === 'en' ? 'en-US' : 'de-DE';
   const fmt2 = (v: number) => v.toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const wlOffline = machine.windloggerStatus === 'offline';
+  const wlFault = machine.windloggerStatus === 'fault';
+  const fcStale = machine.forecastStatus === 'unavailable';
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
   const [showPositionSelector, setShowPositionSelector] = useState(false);
   const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null);
@@ -275,7 +278,7 @@ export function MachineDetail({
                 />
                 <DataRow label={t('Auslegerposition', 'Boom position')} value={boomLabel(machine.position.position, lang)} />
                 <DataRow label={t('Max. zulässige Windgeschwindigkeit', 'Max. permissible wind speed')} value={threshold !== null ? `${threshold} m/s` : '—'} />
-                <DataRow label={t('Letzte Übertragung Prognose', 'Last forecast transmission')} sub={t('Zeitpunkt des letzten Prognose-Updates', 'Time of the last forecast update')} value={formatSec(machine.forecast.timestamp)} />
+                <DataRow label={t('Letzte Übertragung Prognose', 'Last forecast transmission')} sub={t('Zeitpunkt des letzten Prognose-Updates', 'Time of the last forecast update')} value={formatSec(machine.forecast.timestamp)} danger={fcStale} badge={fcStale ? t('Nicht mehr aktuell', 'Out of date') : undefined} />
                 <DataRow label={t('Außentemperatur', 'Outside temperature')} sub={t('Aktuelle Temperatur anhand des Standorts der Maschine', 'Current temperature based on the machine location')} value={machine.specs.outsideTemperature !== null ? `${machine.specs.outsideTemperature.toFixed(1)} °C` : '—'} />
                 <DataRow label={t('Status der Bordnetzbatterie', 'Auxiliary battery status')} sub={t('Aktueller Batteriestatus', 'Current battery status')} value="Ok" valueOk />
                 <DataRow label={t('Auslegerkonfiguration', 'Boom configuration')} sub={t('Letzte aufgezeichnete Auslegerkonfiguration', 'Last recorded boom configuration')} value={configLabel(machine.specs.boomConfiguration, lang)} />
@@ -285,12 +288,14 @@ export function MachineDetail({
                   label={t('Windlogger-IMEI', 'Wind logger IMEI')}
                   sub={t('Aktuell gekoppelter Windlogger', 'Currently paired wind logger')}
                   value={machine.specs.windloggerImei}
+                  danger={wlFault}
+                  badge={wlFault ? t('Sensor defekt', 'Sensor faulty') : undefined}
                   info={t(
                     'Der Windlogger ist das an der Maschine verbaute Messgerät. Er erfasst Windgeschwindigkeit und Auslegerposition und überträgt die Daten per Mobilfunk an MyNotifier.',
                     'The wind logger is the device mounted on the machine. It records wind speed and boom position and transmits the data to MyNotifier over cellular.',
                   )}
                 />
-                <DataRow label={t('Letzte Übertragung Windlogger', 'Last wind-logger transmission')} sub={t('Zeitpunkt der letzten vom Windlogger übertragenen Messung', "Time of the wind logger's last transmitted measurement")} value={formatSec(machine.wind.timestamp)} last />
+                <DataRow label={t('Letzte Übertragung Windlogger', 'Last wind-logger transmission')} sub={t('Zeitpunkt der letzten vom Windlogger übertragenen Messung', "Time of the wind logger's last transmitted measurement")} value={formatSec(machine.wind.timestamp)} danger={wlOffline} badge={wlOffline ? t('Offline', 'Offline') : undefined} last />
               </div>
             </section>
 
@@ -440,8 +445,9 @@ export function MachineDetail({
 }
 
 /* ----- machine-data table row ----- */
-function DataRow({ label, sub, value, valueOk, last, info }: {
+function DataRow({ label, sub, value, valueOk, last, info, danger, badge }: {
   label: string; sub?: string; value: string; valueOk?: boolean; last?: boolean; info?: ReactNode;
+  danger?: boolean; badge?: string;
 }) {
   return (
     <div className={`mdt-row ${last ? 'mdt-row--last' : ''}`}>
@@ -453,8 +459,9 @@ function DataRow({ label, sub, value, valueOk, last, info }: {
         {sub && <span className="mdt-row__sub">{sub}</span>}
       </div>
       <div className="mdt-row__cell">
-        <span className="mdt-row__value">{value}</span>
+        <span className={`mdt-row__value ${danger ? 'mdt-row__value--danger' : ''}`}>{value}</span>
         {valueOk && <span className="mdt-row__ok" aria-hidden>✓</span>}
+        {badge && <span className="mdt-row__badge">{badge}</span>}
       </div>
     </div>
   );
