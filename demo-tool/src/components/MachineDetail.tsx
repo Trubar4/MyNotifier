@@ -264,7 +264,17 @@ export function MachineDetail({
               <div className="mdt-card__header">{t('Detailansicht', 'Details')}</div>
               <div className="mdt-table">
                 <DataRow label={t('Maschinenstatus', 'Machine status')} sub={t('Aktueller Maschinenstatus', 'Current machine status')} value={isOnline ? 'Online' : 'Offline'} />
-                <DataRow label={t('Letzte Übertragung Windlogger', 'Last wind-logger transmission')} sub={t('Zeitpunkt der letzten vom Windlogger übertragenen Messung', "Time of the wind logger's last transmitted measurement")} value={formatSec(machine.wind.timestamp)} />
+                <DataRow
+                  label={t('Letzte Übertragung Maschine', 'Last machine transmission')}
+                  sub={t('Zeitpunkt des letzten Empfangs von Maschinendaten', 'Time of the last receipt of machine data')}
+                  value={formatSec(machine.position.reportedAt ?? machine.position.timestamp)}
+                  info={t(
+                    'Die Maschine überträgt keine Daten, wenn die Zündung aus ist. Nur der Windlogger ist trotzdem online.',
+                    'The machine transmits no data while the ignition is off. Only the wind logger stays online.',
+                  )}
+                />
+                <DataRow label={t('Auslegerposition', 'Boom position')} value={boomLabel(machine.position.position, lang)} />
+                <DataRow label={t('Max. zulässige Windgeschwindigkeit', 'Max. permissible wind speed')} value={threshold !== null ? `${threshold} m/s` : '—'} />
                 <DataRow label={t('Letzte Übertragung Prognose', 'Last forecast transmission')} sub={t('Zeitpunkt des letzten Prognose-Updates', 'Time of the last forecast update')} value={formatSec(machine.forecast.timestamp)} />
                 <DataRow label={t('Außentemperatur', 'Outside temperature')} sub={t('Aktuelle Temperatur anhand des Standorts der Maschine', 'Current temperature based on the machine location')} value={machine.specs.outsideTemperature !== null ? `${machine.specs.outsideTemperature.toFixed(1)} °C` : '—'} />
                 <DataRow label={t('Status der Bordnetzbatterie', 'Auxiliary battery status')} sub={t('Aktueller Batteriestatus', 'Current battery status')} value="Ok" valueOk />
@@ -280,8 +290,7 @@ export function MachineDetail({
                     'The wind logger is the device mounted on the machine. It records wind speed and boom position and transmits the data to MyNotifier over cellular.',
                   )}
                 />
-                <DataRow label={t('Auslegerposition', 'Boom position')} value={boomLabel(machine.position.position, lang)} />
-                <DataRow label={t('Max. zulässige Windgeschwindigkeit', 'Max. permissible wind speed')} value={threshold !== null ? `${threshold} m/s` : '—'} last />
+                <DataRow label={t('Letzte Übertragung Windlogger', 'Last wind-logger transmission')} sub={t('Zeitpunkt der letzten vom Windlogger übertragenen Messung', "Time of the wind logger's last transmitted measurement")} value={formatSec(machine.wind.timestamp)} last />
               </div>
             </section>
 
