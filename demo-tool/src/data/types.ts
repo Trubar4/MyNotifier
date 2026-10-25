@@ -105,6 +105,7 @@ export interface MachineSpecs {
   mainBoomLength: number | null;       // m
   mainBoomAngle: number | null;        // ° (Winkel des Hauptauslegers)
   jibLength: number | null;            // m
+  jibAngle: number | null;             // ° (Winkel des Nadelauslegers)
   boomHeadHeight: number | null;       // m (Kopfhöhe Hauptausleger)
   jibHeadHeight: number | null;        // m (Kopfhöhe Nadelausleger; 0 ohne Nadel)
   windloggerImei: string;

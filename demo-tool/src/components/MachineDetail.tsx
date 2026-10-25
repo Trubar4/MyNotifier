@@ -283,6 +283,9 @@ export function MachineDetail({
                 <DataRow label={t('Status der Bordnetzbatterie', 'Auxiliary battery status')} sub={t('Aktueller Batteriestatus', 'Current battery status')} value="Ok" valueOk />
                 <DataRow label={t('Auslegerkonfiguration', 'Boom configuration')} sub={t('Letzte aufgezeichnete Auslegerkonfiguration', 'Last recorded boom configuration')} value={configLabel(machine.specs.boomConfiguration, lang)} />
                 <DataRow label={t('Hauptausleger', 'Main boom')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.mainBoomLength !== null ? `${machine.specs.mainBoomLength} m / ${fmt2(machine.specs.mainBoomAngle ?? 0)}°` : '—'} />
+                {configHasNeedle(machine.specs.boomConfiguration) && (
+                  <DataRow label={t('Nadelausleger', 'Jib')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.jibLength !== null ? `${machine.specs.jibLength} m / ${fmt2(machine.specs.jibAngle ?? 0)}°` : '—'} />
+                )}
                 <DataRow label={t('Auslegerkopfhöhe', 'Boom head height')} sub={t('Hauptausleger / Nadelausleger', 'Main boom / jib')} value={`${machine.specs.boomHeadHeight !== null ? fmt2(machine.specs.boomHeadHeight) + ' m' : '—'} / ${machine.specs.jibHeadHeight !== null ? fmt2(machine.specs.jibHeadHeight) + ' m' : '—'}`} />
                 <DataRow
                   label={t('Windlogger-IMEI', 'Wind logger IMEI')}
@@ -291,8 +294,8 @@ export function MachineDetail({
                   danger={wlFault}
                   badge={wlFault ? t('Sensor defekt', 'Sensor faulty') : undefined}
                   info={t(
-                    'Der Windlogger ist das an der Maschine verbaute Messgerät. Er erfasst Windgeschwindigkeit und Auslegerposition und überträgt die Daten per Mobilfunk an MyNotifier.',
-                    'The wind logger is the device mounted on the machine. It records wind speed and boom position and transmits the data to MyNotifier over cellular.',
+                    'Der Windlogger befindet sich am Hauptauslegerkopf und überträgt die vom Windsensor / von den Windsensoren gemessenen Windgeschwindigkeiten, solange der Batteriehauptschalter EIN ist.',
+                    'The wind logger is located at the main boom head and transmits the wind speeds measured by the wind sensor(s) as long as the main battery switch is ON.',
                   )}
                 />
                 <DataRow label={t('Letzte Übertragung Windlogger', 'Last wind-logger transmission')} sub={t('Zeitpunkt der letzten vom Windlogger übertragenen Messung', "Time of the wind logger's last transmitted measurement")} value={formatSec(machine.wind.timestamp)} danger={wlOffline} badge={wlOffline ? t('Offline', 'Offline') : undefined} last />
