@@ -527,9 +527,7 @@
 }
 .m-card__lastnotif--kritisch { background: var(--p-error-100, #ffd5d5); border-color: var(--p-error-500, #e52828); }
 .m-card__lastnotif--warnung { background: var(--p-warning-100, #fde6cc); border-color: var(--p-warning-300, #e3a735); }
-.m-card__lastnotif-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.m-card__lastnotif--kritisch .m-card__lastnotif-dot { background: var(--p-error-500, #e52828); }
-.m-card__lastnotif--warnung .m-card__lastnotif-dot { background: var(--p-warning-500, #b0542e); }
+.m-card__lastnotif-bell { flex-shrink: 0; display: block; }
 .m-card__lastnotif-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* State panel: position | wind */
