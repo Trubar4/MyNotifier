@@ -127,7 +127,7 @@ export function CheckoutModal({
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
-                  forecastWind={reason === 'exceedance' ? undefined : forecastPeakInWindow(m, windowH)}
+                  forecastWind={forecastPeakInWindow(m, windowH)}
                   showLastNotif={showLastNotif}
                   lastNotif={getLatestNotif?.(m.id)}
                 />

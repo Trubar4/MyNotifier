@@ -1,6 +1,6 @@
 import { RefreshCw, Ban } from 'lucide-react';
 import type { MachineConfig, Notification } from '../data/types';
-import { machineThreshold } from '../data/types';
+import { machineThreshold, forecastPeakTime } from '../data/types';
 import { useLang, boomLabel } from '../i18n';
 import { notificationHeadline } from './NotificationCard';
 
@@ -56,8 +56,13 @@ export function MachineCard({
 
   const threshold = machineThreshold(machine);
   const windNow = Math.max(machine.wind.needleBoom, machine.wind.mainBoom);
-  const windValue = forecastWind ? forecastWind.value : windNow;
-  const windExceeds = threshold !== null && windValue >= threshold;
+  // A current measurement only exists while the machine is active AND the wind logger is sending.
+  const hasLiveWind = isOnline && machine.windloggerStatus !== 'offline' && machine.windloggerStatus !== 'fault';
+  const measVal = hasLiveWind ? windNow : null;
+  const fcVal = forecastWind ? forecastWind.value : machine.forecast.max72h;
+  const fcAt = forecastWind ? forecastWind.at : forecastPeakTime(machine);
+  const measExceeds = measVal !== null && threshold !== null && measVal >= threshold;
+  const fcExceeds = threshold !== null && fcVal >= threshold;
 
   function formatForecastAt(d: Date): string {
     return d.toLocaleString(lang === 'en' ? 'en-GB' : 'de-DE', {
@@ -174,20 +179,22 @@ export function MachineCard({
           <div className="m-card__state-divider" />
 
           <div className="m-card__state-col">
-            <span className="m-card__state-label">
-              {forecastWind ? t('Windprognose', 'Wind forecast') : t('Windmessung', 'Wind measurement')}
-            </span>
+            <span className="m-card__state-label">{t('Windgeschwindigkeit', 'Wind speed')}</span>
             {hasLicense ? (
               <div className="m-card__wind">
-                <div className="m-card__wind-value">
-                  <span className={`m-card__wind-num ${windExceeds ? 'm-card__wind-num--danger' : ''}`}>
-                    {speedNum(windValue)}
+                <div className="m-card__wind-row">
+                  <span className="m-card__wind-key">{t('Messung', 'Measured')}</span>
+                  <span className={`m-card__wind-rowval ${measExceeds ? 'm-card__wind-num--danger' : ''}`}>
+                    {measVal !== null ? `${speedNum(measVal)} ${speedUnit}` : '—'}
                   </span>
-                  <span className="m-card__wind-unit">{speedUnit}</span>
                 </div>
-                {forecastWind && (
-                  <div className="m-card__wind-when">{formatForecastAt(forecastWind.at)}</div>
-                )}
+                <div className="m-card__wind-row">
+                  <span className="m-card__wind-key">{t('Prognose', 'Forecast')}</span>
+                  <span className={`m-card__wind-rowval ${fcExceeds ? 'm-card__wind-num--danger' : ''}`}>
+                    {speedNum(fcVal)} {speedUnit}
+                  </span>
+                </div>
+                {fcAt && <div className="m-card__wind-when">{formatForecastAt(fcAt)}</div>}
                 {threshold !== null && (
                   <div className="m-card__wind-max">
                     <span>{t('max. zulässig:', 'max. permissible:')}</span>

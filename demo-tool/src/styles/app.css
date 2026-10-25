@@ -621,6 +621,24 @@
   font: 700 16px/24px var(--font-text-b);
   color: var(--p-steel-700);
 }
+/* Two stacked wind values: Messung (top) and Prognose (bottom) */
+.m-card__wind-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  width: 100%;
+}
+.m-card__wind-key {
+  font: 400 12px/18px var(--font-text);
+  color: var(--p-steel-600);
+}
+.m-card__wind-rowval {
+  font: 900 18px/20px var(--font-head-b);
+  color: var(--p-black);
+  white-space: nowrap;
+}
+.m-card__wind-rowval.m-card__wind-num--danger { color: var(--r-error); }
 .m-card__wind-when {
   font: 400 12px/1.3 var(--font-text);
   color: var(--p-steel-600);
