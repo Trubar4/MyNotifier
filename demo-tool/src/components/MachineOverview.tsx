@@ -201,6 +201,8 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
         <CheckoutModal
           machines={machines}
           getNotifInfo={getMachineNotifInfo}
+          getLatestNotif={getLatestNotif}
+          showLastNotif={showLastNotif}
           onClose={() => setShowCheckout(false)}
           onOpen={(id) => { setShowCheckout(false); onOpenMachine(id); }}
           onOpenPositionSelector={(id) => setPositionSelectorMachineId(id)}

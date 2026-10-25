@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, CheckCircle } from 'lucide-react';
-import type { MachineConfig } from '../data/types';
+import type { MachineConfig, Notification } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
 import { machineThreshold } from '../data/types';
@@ -16,6 +16,8 @@ type CheckoutReason = 'offline' | 'forecast';
 interface CheckoutModalProps {
   machines: MachineConfig[];
   getNotifInfo: (machineId: string) => { critical: number; warning: number; assignedUser: string | null };
+  getLatestNotif?: (machineId: string) => Notification | undefined;
+  showLastNotif?: boolean;
   onClose: () => void;
   onOpen: (id: string) => void;
   onOpenPositionSelector: (id: string) => void;
@@ -52,7 +54,7 @@ function checkoutReason(m: MachineConfig, hours: WindowH): CheckoutReason | null
 }
 
 export function CheckoutModal({
-  machines, getNotifInfo, onClose,
+  machines, getNotifInfo, getLatestNotif, showLastNotif, onClose,
   onOpen, onOpenPositionSelector, onNotifClick,
 }: CheckoutModalProps) {
   const { t } = useLang();
@@ -116,6 +118,8 @@ export function CheckoutModal({
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
                   forecastWind={forecastPeakInWindow(m, windowH)}
+                  showLastNotif={showLastNotif}
+                  lastNotif={getLatestNotif?.(m.id)}
                 />
               );
             })
