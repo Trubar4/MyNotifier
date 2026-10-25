@@ -137,19 +137,24 @@ export function MachineCard({
           </div>
         )}
 
-        {/* Experimental: latest notification headline */}
-        {showLastNotif && lastNotif && hasLicense && (
-          <button
-            className={`m-card__lastnotif m-card__lastnotif--${lastNotif.level === 1 ? 'kritisch' : 'warnung'}`}
-            onClick={onNotifClick}
-            title={notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
-          >
-            <img src={BASE + 'icon-bell.svg'} alt="" width={18} height={18} className="m-card__lastnotif-bell" />
-            <span className="m-card__lastnotif-text">
-              {notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
-            </span>
-            <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="m-icon" style={{ transform: 'rotate(-90deg)', flexShrink: 0 }} />
-          </button>
+        {/* Experimental: latest notification headline (with a reserved spacer so
+            cards without an alert still align in the desktop grid) */}
+        {showLastNotif && (
+          lastNotif && hasLicense ? (
+            <button
+              className={`m-card__lastnotif m-card__lastnotif--${lastNotif.level === 1 ? 'kritisch' : 'warnung'}`}
+              onClick={onNotifClick}
+              title={notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
+            >
+              <img src={BASE + 'icon-bell.svg'} alt="" width={18} height={18} className="m-card__lastnotif-bell" />
+              <span className="m-card__lastnotif-text">
+                {notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
+              </span>
+              <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="m-icon" style={{ transform: 'rotate(-90deg)', flexShrink: 0 }} />
+            </button>
+          ) : (
+            <div className="m-card__lastnotif-spacer" aria-hidden="true" />
+          )
         )}
 
         {/* Machine state panel */}

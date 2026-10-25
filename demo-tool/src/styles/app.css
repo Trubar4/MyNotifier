@@ -391,9 +391,6 @@
   display: flex;
   flex-direction: column;
 }
-/* In the overview grid every card fills its cell so they share one height.
-   (Scoped to the grid so the check-out's flex list is unaffected.) */
-.machine-grid > .m-card { height: 100%; }
 
 /* Hidden-ish demo config trigger */
 
@@ -442,10 +439,7 @@
   background: var(--p-white);
   border: 1px solid var(--p-steel-300);
   padding: var(--s-3);
-  flex: 1; /* grow to fill the (equal-height) card */
 }
-/* Keep the action buttons aligned at the bottom when a card has spare height */
-.m-card__actions { margin-top: auto; }
 
 .m-card__header {
   display: flex;
@@ -523,6 +517,8 @@
   align-items: center;
   gap: var(--s-2);
   width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
   padding: var(--s-2) var(--s-3);
   border: 1px solid transparent;
   border-radius: var(--radius-1);
@@ -531,6 +527,8 @@
   font: 700 13px/18px var(--font-text-b);
   color: var(--p-black);
 }
+/* Reserved space for the alert strip on cards without one (desktop grid only) */
+.m-card__lastnotif-spacer { display: none; min-height: 38px; box-sizing: border-box; }
 .m-card__lastnotif--kritisch { background: var(--p-error-100, #ffd5d5); border-color: var(--p-error-500, #e52828); }
 .m-card__lastnotif--warnung { background: var(--p-warning-100, #fde6cc); border-color: var(--p-warning-300, #e3a735); }
 .m-card__lastnotif-bell { flex-shrink: 0; display: block; }
@@ -4904,14 +4902,16 @@
   /* Taller chart with the extra width */
   .reports-chart-area { height: 300px; }
 
-  /* Machine grid → multi-column, all cards the same height */
+  /* Machine grid → multi-column; cards align row by row */
   .machine-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: var(--s-5);
-    align-items: stretch;
-    grid-auto-rows: 1fr;
+    align-items: start;
   }
+  /* In the grid, reserve the alert-strip space on cards without one so the
+     panels/buttons below stay aligned across cards. */
+  .machine-grid .m-card__lastnotif-spacer { display: block; }
 
   /* Larger page titles on desktop */
   .page-title { font: 900 34px/40px var(--font-head-b); }
