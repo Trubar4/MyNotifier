@@ -8,6 +8,8 @@ interface DemoConfigMenuProps {
   machines: MachineConfig[];
   onPick: (machineId: string) => void;
   onClose: () => void;
+  lastNotifOnCard: boolean;
+  onToggleLastNotifOnCard: (v: boolean) => void;
 }
 
 /**
@@ -15,7 +17,7 @@ interface DemoConfigMenuProps {
  * opened from the avatar button. Lets the user pick a machine to
  * configure (status, licence, position, wind, forecast).
  */
-export function DemoConfigMenu({ machines, onPick, onClose }: DemoConfigMenuProps) {
+export function DemoConfigMenu({ machines, onPick, onClose, lastNotifOnCard, onToggleLastNotifOnCard }: DemoConfigMenuProps) {
   const { t } = useLang();
   return (
     <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -28,6 +30,24 @@ export function DemoConfigMenu({ machines, onPick, onClose }: DemoConfigMenuProp
         </div>
 
         <div className="config-modal__body">
+          <div className="demo-menu__experiments">
+            <h3 className="demo-menu__experiments-title">{t('Experimentelle Funktionen', 'Experimental features')}</h3>
+            <div className="settings-row">
+              <span className="settings-row__label">{t('Letzte Meldung auf Maschinenkarte', 'Latest alert on machine card')}</span>
+              <button
+                className={`toggle-switch ${lastNotifOnCard ? 'toggle-switch--on' : ''}`}
+                onClick={() => onToggleLastNotifOnCard(!lastNotifOnCard)}
+                role="switch"
+                aria-checked={lastNotifOnCard}
+              >
+                <span className="toggle-switch__thumb" />
+              </button>
+            </div>
+            <p className="demo-menu__experiments-hint">
+              {t('Zeigt die aktuellste offene Benachrichtigung je Maschine direkt in der Übersicht.', 'Shows the most recent open notification per machine directly in the overview.')}
+            </p>
+          </div>
+
           <div className="demo-menu__hint">
             <SlidersHorizontal size={16} />
             <span>

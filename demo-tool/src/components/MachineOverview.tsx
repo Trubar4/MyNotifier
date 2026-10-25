@@ -18,9 +18,11 @@ interface MachineOverviewProps {
   onUpdateMachine: (updated: MachineConfig) => void;
   onOpenMachine: (id: string) => void;
   onMachineNotifClick: (machineId: string) => void;
+  /** Experimental: show the latest notification headline on each card. */
+  showLastNotif?: boolean;
 }
 
-export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick }: MachineOverviewProps) {
+export function MachineOverview({ machines, notifications, onUpdateMachine, onOpenMachine, onMachineNotifClick, showLastNotif }: MachineOverviewProps) {
   const { t } = useLang();
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -37,6 +39,13 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
     const warning = machineNotifs.filter((n) => n.level === 2).length;
     const assignedUser = machineNotifs.find((n) => n.assignedTo)?.assignedTo ?? null;
     return { critical, warning, assignedUser };
+  }
+
+  /** Most relevant open notification for a machine (critical first, then newest). */
+  function getLatestNotif(machineId: string): Notification | undefined {
+    const open = notifications.filter((n) => n.machineId === machineId && !n.read);
+    if (!open.length) return undefined;
+    return [...open].sort((a, b) => a.level - b.level || b.timestamp.getTime() - a.timestamp.getTime())[0];
   }
 
   const query = search.toLowerCase().trim();
@@ -158,6 +167,8 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
                 onOpen={() => onOpenMachine(machine.id)}
                 onOpenPositionSelector={() => setPositionSelectorMachineId(machine.id)}
                 onNotifClick={() => onMachineNotifClick(machine.id)}
+                showLastNotif={showLastNotif}
+                lastNotif={getLatestNotif(machine.id)}
               />
             );
           })

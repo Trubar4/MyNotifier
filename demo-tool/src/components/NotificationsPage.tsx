@@ -25,7 +25,7 @@ type TabId = 'offen' | 'angenommen' | 'erledigt';
 
 export function NotificationsPage({
   notifications, machines, filterMachineId, onUpdateNotification, onUpdateMachine,
-  onClearFilter, onBack, highlightNotifId,
+  onClearFilter, onBack, highlightNotifId, onOpenMachine,
 }: NotificationsPageProps) {
   const { lang, t: tr } = useLang();
   const [tab, setTab] = useState<TabId>('offen');
@@ -136,6 +136,7 @@ export function NotificationsPage({
               onAdjust={(x) => setAnpassenNotif(x)}
               onRelease={(x) => onUpdateNotification({ ...x, assignedTo: null, assignedAt: null, assignedComment: null })}
               onReopen={(x) => onUpdateNotification({ ...x, read: false })}
+              onOpenMachine={onOpenMachine}
             />
           ))
         )}

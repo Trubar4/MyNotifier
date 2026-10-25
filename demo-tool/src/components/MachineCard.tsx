@@ -1,7 +1,8 @@
 import { RefreshCw, Ban } from 'lucide-react';
-import type { MachineConfig } from '../data/types';
+import type { MachineConfig, Notification } from '../data/types';
 import { machineThreshold } from '../data/types';
 import { useLang, boomLabel } from '../i18n';
+import { notificationHeadline } from './NotificationCard';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -19,6 +20,9 @@ interface MachineCardProps {
   /** When set (check-out), the wind panel shows this forecast peak + its time
    *  instead of the current wind measurement. */
   forecastWind?: { value: number; at: Date };
+  /** Experimental: show the latest notification headline on the card. */
+  lastNotif?: Notification;
+  showLastNotif?: boolean;
 }
 
 function formatStamp(date: Date): string {
@@ -42,6 +46,7 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
 export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
   onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel, forecastWind,
+  lastNotif, showLastNotif,
 }: MachineCardProps) {
   const { lang, t, speedNum, speedUnit, thresholdNum } = useLang();
   const hasLicense = machine.license === 'active';
@@ -130,6 +135,21 @@ export function MachineCard({
           <div className="m-card__assigned">
             <span>{t(`${assignedUser} hat die Aufgabe übernommen`, `${assignedUser} took over the task`)}</span>
           </div>
+        )}
+
+        {/* Experimental: latest notification headline */}
+        {showLastNotif && lastNotif && hasLicense && (
+          <button
+            className={`m-card__lastnotif m-card__lastnotif--${lastNotif.level === 1 ? 'kritisch' : 'warnung'}`}
+            onClick={onNotifClick}
+            title={notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
+          >
+            <span className="m-card__lastnotif-dot" />
+            <span className="m-card__lastnotif-text">
+              {notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
+            </span>
+            <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="m-icon" style={{ transform: 'rotate(-90deg)', flexShrink: 0 }} />
+          </button>
         )}
 
         {/* Machine state panel */}

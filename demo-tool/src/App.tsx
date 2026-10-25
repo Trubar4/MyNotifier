@@ -30,6 +30,13 @@ export default function App() {
   const [highlightNotifId, setHighlightNotifId] = useState<string | null>(null);
   const [showDemoConfig, setShowDemoConfig] = useState(false);
   const [demoConfigMachineId, setDemoConfigMachineId] = useState<string | null>(null);
+  const [lastNotifOnCard, setLastNotifOnCard] = useState<boolean>(() => {
+    try { return localStorage.getItem('mn-exp-lastnotif') === '1'; } catch { return false; }
+  });
+  function toggleLastNotifOnCard(v: boolean) {
+    setLastNotifOnCard(v);
+    try { localStorage.setItem('mn-exp-lastnotif', v ? '1' : '0'); } catch { /* ignore */ }
+  }
   const demoConfigMachine = demoConfigMachineId ? machines.find((m) => m.id === demoConfigMachineId) : null;
 
   const unreadNotifications = notifications.filter((n) => !n.read);
@@ -96,6 +103,7 @@ export default function App() {
             onUpdateMachine={handleUpdateMachine}
             onOpenMachine={handleOpenMachine}
             onMachineNotifClick={handleMachineNotifClick}
+            showLastNotif={lastNotifOnCard}
           />
         )}
         {activePage === 'machines' && detailMachine && (
@@ -171,6 +179,8 @@ export default function App() {
           machines={machines}
           onPick={(id) => { setDemoConfigMachineId(id); setShowDemoConfig(false); }}
           onClose={() => setShowDemoConfig(false)}
+          lastNotifOnCard={lastNotifOnCard}
+          onToggleLastNotifOnCard={toggleLastNotifOnCard}
         />
       )}
       {demoConfigMachine && (

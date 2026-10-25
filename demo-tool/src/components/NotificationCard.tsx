@@ -24,6 +24,39 @@ export function notifMode(n: Notification): NotifMode {
   return n.assignedTo ? 'angenommen' : 'offen';
 }
 
+/** The one-line headline for a notification — shared by the card and the machine card. */
+export function notificationHeadline(
+  n: Notification,
+  machine: MachineConfig | undefined,
+  h: { t: (de: string, en: string) => string; lang: 'de' | 'en'; speedNum: (mps: number) => string; speedUnit: string },
+): string {
+  const { t, lang, speedNum, speedUnit } = h;
+  const threshold = machine ? machineThreshold(machine) : null;
+  const isOnline = machine?.status === 'online';
+  switch (n.kind) {
+    case 'exceedance': {
+      const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
+      const over = threshold != null ? Math.max(0, fc - threshold) : fc;
+      return isOnline
+        ? t(`Überschreitung: ${speedNum(over)} ${speedUnit}`, `Exceedance: ${speedNum(over)} ${speedUnit}`)
+        : t(`Prognostizierte Überschreitung: ${speedNum(over)} ${speedUnit}`, `Forecast exceedance: ${speedNum(over)} ${speedUnit}`);
+    }
+    case 'forecast':
+      return t('Prognose über Schwellwert', 'Forecast above threshold');
+    case 'positionDeviation':
+      return t('Maschine inaktiv - Auslegerposition setzen', 'Machine inactive - set boom position');
+    case 'windloggerOffline':
+      return t(`Windlogger offline seit ${formatFull(n.timestamp)}`, `Wind logger offline since ${formatFull(n.timestamp)}`);
+    case 'noForecast':
+      return t(`Keine Windprognose seit ${formatFull(n.timestamp)}`, `No wind forecast since ${formatFull(n.timestamp)}`);
+    case 'windloggerFault':
+      return t(`Windlogger Sensor defekt seit ${formatFull(n.timestamp)}`, `Wind logger sensor faulty since ${formatFull(n.timestamp)}`);
+    case 'noData':
+    default:
+      return lang === 'en' ? (n.titleEn ?? n.title) : n.title;
+  }
+}
+
 interface NotificationCardProps {
   n: Notification;
   machine?: MachineConfig;
@@ -35,11 +68,13 @@ interface NotificationCardProps {
   onAdjust?: (n: Notification) => void;
   onRelease?: (n: Notification) => void;
   onReopen?: (n: Notification) => void;
+  /** Navigate to this machine's detail view (overview tab). */
+  onOpenMachine?: (machineId: string) => void;
 }
 
 export function NotificationCard({
   n, machine, expanded, onToggle, showMachineName = true,
-  onAssign, onDone, onAdjust, onRelease, onReopen,
+  onAssign, onDone, onAdjust, onRelease, onReopen, onOpenMachine,
 }: NotificationCardProps) {
   const { lang, t: tr, speedNum, speedUnit, fmtThreshold } = useLang();
   const mode = notifMode(n);
@@ -51,28 +86,7 @@ export function NotificationCard({
   const lastPosHours = machine ? hoursSince(machine.position.timestamp) : 0;
 
   function headline(): string {
-    switch (n.kind) {
-      case 'exceedance': {
-        const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
-        const over = threshold != null ? Math.max(0, fc - threshold) : fc;
-        return isOnline
-          ? tr(`Überschreitung: ${speedNum(over)} ${speedUnit}`, `Exceedance: ${speedNum(over)} ${speedUnit}`)
-          : tr(`Prognostizierte Überschreitung: ${speedNum(over)} ${speedUnit}`, `Forecast exceedance: ${speedNum(over)} ${speedUnit}`);
-      }
-      case 'forecast':
-        return tr('Prognose über Schwellwert', 'Forecast above threshold');
-      case 'positionDeviation':
-        return tr('Maschine inaktiv - Auslegerposition setzen', 'Machine inactive - set boom position');
-      case 'windloggerOffline':
-        return tr(`Windlogger offline seit ${formatFull(n.timestamp)}`, `Wind logger offline since ${formatFull(n.timestamp)}`);
-      case 'noForecast':
-        return tr(`Keine Windprognose seit ${formatFull(n.timestamp)}`, `No wind forecast since ${formatFull(n.timestamp)}`);
-      case 'windloggerFault':
-        return tr(`Windlogger Sensor defekt seit ${formatFull(n.timestamp)}`, `Wind logger sensor faulty since ${formatFull(n.timestamp)}`);
-      case 'noData':
-      default:
-        return lang === 'en' ? (n.titleEn ?? n.title) : n.title;
-    }
+    return notificationHeadline(n, machine, { t: tr, lang, speedNum, speedUnit });
   }
 
   return (
@@ -230,6 +244,14 @@ export function NotificationCard({
               <button className="m-btn m-btn--outline" onClick={() => onReopen?.(n)}>{tr('Wieder öffnen', 'Reopen')}</button>
             )}
           </div>
+
+          {showMachineName && machine && onOpenMachine && (
+            <button className="m-btn m-btn--link notif2__tomachine" onClick={() => onOpenMachine(machine.id)}>
+              <img src={BASE + 'details-doc.svg'} alt="" width={16} height={16} />
+              {tr('Zur Maschine', 'Go to machine')}
+              <img src={BASE + 'icon-chevron.svg'} alt="" width={12} height={7} className="m-icon" style={{ transform: 'rotate(-90deg)' }} />
+            </button>
+          )}
         </div>
       )}
 
