@@ -11,7 +11,7 @@ import { useLang } from '../i18n';
 type WindowH = 24 | 48 | 72;
 
 /** Why a machine shows up in the check-out. */
-type CheckoutReason = 'offline' | 'forecast';
+type CheckoutReason = 'exceedance' | 'offline' | 'forecast';
 
 interface CheckoutModalProps {
   machines: MachineConfig[];
@@ -36,19 +36,27 @@ function maxForecastInWindow(m: MachineConfig, hours: WindowH): number {
   return forecastPeakInWindow(m, hours).value;
 }
 
+/** Higher of the two current sensor readings. */
+function currentWind(m: MachineConfig): number {
+  return Math.max(m.wind.needleBoom, m.wind.mainBoom);
+}
+
 /**
- * A licensed machine needs a check-out action when either:
+ * A licensed machine needs a check-out action when:
+ *  - it is active and its CURRENT measurement already exceeds the max.
+ *    permissible wind → act now ('exceedance'); always listed, window-independent; or
  *  - it is offline → the position must be confirmed manually so later
  *    notifications are based on a known position ('offline'); or
- *  - it is online but its wind forecast in the selected window exceeds the
- *    max. permissible wind for its current position → the position should be
- *    adjusted pre-emptively ('forecast').
+ *  - it is active and its wind forecast in the selected window exceeds the
+ *    max. permissible wind → adjust pre-emptively ('forecast').
  * Unlicensed machines are not monitored and never appear.
  */
 function checkoutReason(m: MachineConfig, hours: WindowH): CheckoutReason | null {
   if (m.license !== 'active') return null;
-  if (m.status === 'offline') return 'offline';
   const threshold = machineThreshold(m);
+  // Active, already exceeding now → highest priority, always shown.
+  if (m.status === 'online' && threshold !== null && currentWind(m) >= threshold) return 'exceedance';
+  if (m.status === 'offline') return 'offline';
   if (threshold === null) return null; // no limit for the current position
   return maxForecastInWindow(m, hours) >= threshold ? 'forecast' : null;
 }
@@ -71,8 +79,8 @@ export function CheckoutModal({
           <span className="checkout-sheet__info" onClick={(e) => e.stopPropagation()}>
             <InfoPopover>
               {t(
-                'Der Check-Out listet Maschinen, bei denen vor dem Verlassen der Baustelle eine Handlung nötig ist:\n\n• Inaktive Maschinen: Position manuell bestätigen, damit die Benachrichtigungen auf einer bekannten Position beruhen.\n\n• Aktive Maschinen, deren Windprognose im gewählten Zeitfenster über der für die aktuelle Auslegerposition zulässigen Windgeschwindigkeit liegt: Position rechtzeitig anpassen.\n\nMaschinen ohne Lizenz werden nicht überwacht und erscheinen nicht.',
-                'Check-out lists machines that need action before you leave the site:\n\n• Inactive machines: confirm the position manually so notifications are based on a known position.\n\n• Active machines whose wind forecast in the selected window exceeds the max. permissible wind for the current boom position: adjust the position in good time.\n\nMachines without a licence are not monitored and do not appear.',
+                'Der Check-Out listet Maschinen, bei denen vor dem Verlassen der Baustelle eine Handlung nötig ist:\n\n• Aktuelle Überschreitung: Der Messwert liegt bereits über der zulässigen Windgeschwindigkeit – sofort Position anpassen (immer gelistet, unabhängig vom Zeitfenster).\n\n• Inaktive Maschinen: Position manuell bestätigen, damit die Benachrichtigungen auf einer bekannten Position beruhen.\n\n• Aktive Maschinen, deren Windprognose im gewählten Zeitfenster über der zulässigen Windgeschwindigkeit liegt: Position rechtzeitig anpassen.\n\nMaschinen ohne Lizenz werden nicht überwacht und erscheinen nicht.',
+                'Check-out lists machines that need action before you leave the site:\n\n• Current exceedance: the measured value already exceeds the permissible wind speed – adjust the position now (always listed, regardless of the time window).\n\n• Inactive machines: confirm the position manually so notifications are based on a known position.\n\n• Active machines whose wind forecast in the selected window exceeds the permissible wind speed: adjust the position in good time.\n\nMachines without a licence are not monitored and do not appear.',
               )}
             </InfoPopover>
           </span>
@@ -103,9 +111,11 @@ export function CheckoutModal({
           ) : (
             list.map(({ m, reason }) => {
               const info = getNotifInfo(m.id);
-              const label = reason === 'offline'
-                ? t('Position überprüfen (Inaktiv)', 'Check position (inactive)')
-                : t('Position anpassen (Prognose)', 'Adjust position (forecast)');
+              const label = reason === 'exceedance'
+                ? t('Position anpassen (Überschreitung)', 'Adjust position (exceedance)')
+                : reason === 'offline'
+                  ? t('Position überprüfen (Inaktiv)', 'Check position (inactive)')
+                  : t('Position anpassen (Prognose)', 'Adjust position (forecast)');
               return (
                 <MachineCard
                   key={m.id}
@@ -117,7 +127,7 @@ export function CheckoutModal({
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
-                  forecastWind={forecastPeakInWindow(m, windowH)}
+                  forecastWind={reason === 'exceedance' ? undefined : forecastPeakInWindow(m, windowH)}
                   showLastNotif={showLastNotif}
                   lastNotif={getLatestNotif?.(m.id)}
                 />
