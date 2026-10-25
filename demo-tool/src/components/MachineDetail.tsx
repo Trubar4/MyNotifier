@@ -71,7 +71,7 @@ export function MachineDetail({
   machine, notifications, notifSettings, onUpdateMachine, onUpdateNotification, onUpdateNotifSettings,
   initialPositionSelectorOpen, onPositionSelectorOpened,
 }: MachineDetailProps) {
-  const { lang, t } = useLang();
+  const { lang, t, fmtSpeed, fmtThreshold, fmtTemp, fmtLen } = useLang();
   const loc = lang === 'en' ? 'en-US' : 'de-DE';
   const fmt2 = (v: number) => v.toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const wlOffline = machine.windloggerStatus === 'offline';
@@ -200,7 +200,7 @@ export function MachineDetail({
                     <span className="windinfo__label">{t('Wind aktuell:', 'Current wind:')}</span>
                     <span className="windinfo__peak-time">{formatSec(machine.wind.timestamp)}</span>
                   </div>
-                  <span className="windinfo__value">{windNow.toFixed(1)} m/s</span>
+                  <span className="windinfo__value">{fmtSpeed(windNow)}</span>
                 </div>
                 <div className="windinfo__subtitle">{t('Windspitzen je Zeitpunkt:', 'Wind peaks by time:')}</div>
                 {[
@@ -214,7 +214,7 @@ export function MachineDetail({
                       {peak && <span className="windinfo__peak-time">{formatSec(peak.timestamp)}</span>}
                     </div>
                     <span className={`windinfo__peak-value windinfo__peak-value--${getWindLevel(peak?.speed ?? 0, threshold)}`}>
-                      {(peak?.speed ?? 0).toFixed(1)} m/s
+                      {fmtSpeed(peak?.speed ?? 0)}
                     </span>
                   </div>
                 ))}
@@ -277,16 +277,16 @@ export function MachineDetail({
                   )}
                 />
                 <DataRow label={t('Auslegerposition', 'Boom position')} value={boomLabel(machine.position.position, lang)} />
-                <DataRow label={t('Max. zulässige Windgeschwindigkeit', 'Max. permissible wind speed')} value={threshold !== null ? `${threshold} m/s` : '—'} />
+                <DataRow label={t('Max. zulässige Windgeschwindigkeit', 'Max. permissible wind speed')} value={threshold !== null ? fmtThreshold(threshold) : '—'} />
                 <DataRow label={t('Letzte Übertragung Prognose', 'Last forecast transmission')} sub={t('Zeitpunkt des letzten Prognose-Updates', 'Time of the last forecast update')} value={formatSec(machine.forecast.timestamp)} danger={fcStale} badge={fcStale ? t('Nicht mehr aktuell', 'Out of date') : undefined} />
-                <DataRow label={t('Außentemperatur', 'Outside temperature')} sub={t('Aktuelle Temperatur anhand des Standorts der Maschine', 'Current temperature based on the machine location')} value={machine.specs.outsideTemperature !== null ? `${machine.specs.outsideTemperature.toFixed(1)} °C` : '—'} />
+                <DataRow label={t('Außentemperatur', 'Outside temperature')} sub={t('Aktuelle Temperatur anhand des Standorts der Maschine', 'Current temperature based on the machine location')} value={machine.specs.outsideTemperature !== null ? fmtTemp(machine.specs.outsideTemperature) : '—'} />
                 <DataRow label={t('Status der Bordnetzbatterie', 'Auxiliary battery status')} sub={t('Aktueller Batteriestatus', 'Current battery status')} value="Ok" valueOk />
                 <DataRow label={t('Auslegerkonfiguration', 'Boom configuration')} sub={t('Letzte aufgezeichnete Auslegerkonfiguration', 'Last recorded boom configuration')} value={configLabel(machine.specs.boomConfiguration, lang)} />
-                <DataRow label={t('Hauptausleger', 'Main boom')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.mainBoomLength !== null ? `${machine.specs.mainBoomLength} m / ${fmt2(machine.specs.mainBoomAngle ?? 0)}°` : '—'} />
+                <DataRow label={t('Hauptausleger', 'Main boom')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.mainBoomLength !== null ? `${fmtLen(machine.specs.mainBoomLength)} / ${fmt2(machine.specs.mainBoomAngle ?? 0)}°` : '—'} />
                 {configHasNeedle(machine.specs.boomConfiguration) && (
-                  <DataRow label={t('Nadelausleger', 'Jib')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.jibLength !== null ? `${machine.specs.jibLength} m / ${fmt2(machine.specs.jibAngle ?? 0)}°` : '—'} />
+                  <DataRow label={t('Nadelausleger', 'Jib')} sub={t('Länge / Winkel', 'Length / angle')} value={machine.specs.jibLength !== null ? `${fmtLen(machine.specs.jibLength)} / ${fmt2(machine.specs.jibAngle ?? 0)}°` : '—'} />
                 )}
-                <DataRow label={t('Auslegerkopfhöhe', 'Boom head height')} sub={t('Hauptausleger / Nadelausleger', 'Main boom / jib')} value={`${machine.specs.boomHeadHeight !== null ? fmt2(machine.specs.boomHeadHeight) + ' m' : '—'} / ${machine.specs.jibHeadHeight !== null ? fmt2(machine.specs.jibHeadHeight) + ' m' : '—'}`} />
+                <DataRow label={t('Auslegerkopfhöhe', 'Boom head height')} sub={t('Hauptausleger / Nadelausleger', 'Main boom / jib')} value={`${machine.specs.boomHeadHeight !== null ? fmtLen(machine.specs.boomHeadHeight, 2) : '—'} / ${machine.specs.jibHeadHeight !== null ? fmtLen(machine.specs.jibHeadHeight, 2) : '—'}`} />
                 <DataRow
                   label={t('Windlogger-IMEI', 'Wind logger IMEI')}
                   sub={t('Aktuell gekoppelter Windlogger', 'Currently paired wind logger')}
@@ -357,7 +357,7 @@ export function MachineDetail({
 
               <div className="mdt-config__maxwind">
                 <span className="mdt-config__maxwind-label">{t('Maximal zulässige Windgeschwindigkeit:', 'Max. permissible wind speed:')}</span>
-                <span className="mdt-config__maxwind-value">{threshold !== null ? `${threshold} m/s` : '—'}</span>
+                <span className="mdt-config__maxwind-value">{threshold !== null ? fmtThreshold(threshold) : '—'}</span>
               </div>
               <p className="mdt-config__hint">{t('Manuelle Eingaben gelten nur bis neue Maschinendaten empfangen werden', 'Manual entries apply only until new machine data is received')}</p>
 
@@ -472,7 +472,7 @@ function DataRow({ label, sub, value, valueOk, last, info, danger, badge }: {
 
 /* ----- wind-speed bar chart (Übersicht) ----- */
 function WindChart({ hourly, threshold }: { hourly: ForecastHour[]; threshold: number | null }) {
-  const { lang, t } = useLang();
+  const { lang, t, fmtSpeed, fmtThreshold } = useLang();
   if (hourly.length === 0) return null;
   const maxSpeed = Math.max(...hourly.map((h) => h.speed), threshold ?? 0, 1);
   const thresholdPct = threshold !== null ? (threshold / maxSpeed) * 100 : null;
@@ -489,14 +489,14 @@ function WindChart({ hourly, threshold }: { hourly: ForecastHour[]; threshold: n
                 key={i}
                 className={`windchart__bar windchart__bar--${level}`}
                 style={{ height: `${(h.speed / maxSpeed) * 100}%` }}
-                title={`${h.timestamp.toLocaleString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit' })} Uhr: ${h.speed.toFixed(1)} m/s`}
+                title={`${h.timestamp.toLocaleString(lang === 'en' ? 'en-GB' : 'de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit' })}${lang === 'en' ? '' : ' Uhr'}: ${fmtSpeed(h.speed)}`}
               />
             );
           })}
         </div>
         {thresholdPct !== null && (
           <div className="windchart__threshold" style={{ bottom: `${thresholdPct}%` }}>
-            <span className="windchart__threshold-label">{threshold} m/s</span>
+            <span className="windchart__threshold-label">{fmtThreshold(threshold!)}</span>
           </div>
         )}
         {warningPct !== null && (

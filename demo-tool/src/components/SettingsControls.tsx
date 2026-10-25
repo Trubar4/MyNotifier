@@ -119,7 +119,7 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
   thresholdMs?: number | null;
   showChannels?: boolean;
 }) {
-  const { t } = useLang();
+  const { t, fmtSpeed } = useLang();
   const set = (patch: Partial<NotifyPrefs>) => onChange({ ...prefs, ...patch });
   const warnAt = thresholdMs != null ? (thresholdMs * prefs.vorwarnPercent) / 100 : null;
 
@@ -162,7 +162,7 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
           </div>
           <RangeSlider min={50} max={100} step={1} value={prefs.vorwarnPercent} onChange={(v) => set({ vorwarnPercent: v })} />
           <span className="m-settings-field__value">
-            {t('Warnung bei', 'Warning at')} {prefs.vorwarnPercent} %{warnAt != null ? ` · ${t('ab', 'from')} ${warnAt.toFixed(1)} m/s` : ''}
+            {t('Warnung bei', 'Warning at')} {prefs.vorwarnPercent} %{warnAt != null ? ` · ${t('ab', 'from')} ${fmtSpeed(warnAt)}` : ''}
           </span>
           <span className="m-settings-field__hint">{t('Höchstwerte für Ausleger — Unterschreitung der Vorgaben', 'Maximum values for the boom — falling below the specifications')}</span>
         </div>

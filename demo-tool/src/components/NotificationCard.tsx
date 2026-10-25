@@ -41,7 +41,7 @@ export function NotificationCard({
   n, machine, expanded, onToggle, showMachineName = true,
   onAssign, onDone, onAdjust, onRelease, onReopen,
 }: NotificationCardProps) {
-  const { lang, t: tr, nf1 } = useLang();
+  const { lang, t: tr, speedNum, speedUnit, fmtThreshold } = useLang();
   const mode = notifMode(n);
   const levelClass = n.level === 1 ? 'kritisch' : 'warnung';
   const machineHasNeedle = machine ? configHasNeedle(machine.specs.boomConfiguration) : false;
@@ -56,8 +56,8 @@ export function NotificationCard({
         const fc = n.forecastDisplay ?? machine?.forecast.max72h ?? 0;
         const over = threshold != null ? Math.max(0, fc - threshold) : fc;
         return isOnline
-          ? tr(`Überschreitung: ${nf1(over)} m/s`, `Exceedance: ${nf1(over)} m/s`)
-          : tr(`Prognostizierte Überschreitung: ${nf1(over)} m/s`, `Forecast exceedance: ${nf1(over)} m/s`);
+          ? tr(`Überschreitung: ${speedNum(over)} ${speedUnit}`, `Exceedance: ${speedNum(over)} ${speedUnit}`)
+          : tr(`Prognostizierte Überschreitung: ${speedNum(over)} ${speedUnit}`, `Forecast exceedance: ${speedNum(over)} ${speedUnit}`);
       }
       case 'forecast':
         return tr('Prognose über Schwellwert', 'Forecast above threshold');
@@ -130,12 +130,12 @@ export function NotificationCard({
             <>
               <div className="notif2__kv">
                 <span className="notif2__kv-label">{tr('Akt. max. zulässige Windgeschw.:', 'Current max. permissible wind speed:')}</span>
-                <span className="notif2__kv-value">{threshold !== null ? `${threshold} m/s` : '—'}</span>
+                <span className="notif2__kv-value">{threshold !== null ? fmtThreshold(threshold) : '—'}</span>
               </div>
               {(() => {
                 const currentWind = n.kind === 'exceedance' && isOnline;
                 const peakAt = n.forecastPeakAt ?? forecastPeakTime(machine);
-                const value = `${nf1(n.forecastDisplay ?? machine.forecast.max72h)} m/s${!currentWind && peakAt ? ` - ${formatFull(peakAt)}` : ''}`;
+                const value = `${speedNum(n.forecastDisplay ?? machine.forecast.max72h)} ${speedUnit}${!currentWind && peakAt ? ` - ${formatFull(peakAt)}` : ''}`;
                 // Source 3 is down → label the figure as the LAST available forecast + when it was received.
                 if (n.kind === 'noForecast') {
                   return (
@@ -201,7 +201,7 @@ export function NotificationCard({
                   <span className="notif2__field-label">{tr('Empfohlene Position:', 'Recommended position:')}</span>
                   <span className="notif2__field-value">
                     {boomLabel(recommended, lang)}
-                    {positionThreshold(recommended, machineHasNeedle) !== null ? ` (${positionThreshold(recommended, machineHasNeedle)} m/s)` : ''}
+                    {positionThreshold(recommended, machineHasNeedle) !== null ? ` (${fmtThreshold(positionThreshold(recommended, machineHasNeedle)!)})` : ''}
                   </span>
                 </div>
               )}

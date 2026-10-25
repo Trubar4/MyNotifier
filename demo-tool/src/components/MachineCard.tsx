@@ -43,7 +43,7 @@ export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
   onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel, forecastWind,
 }: MachineCardProps) {
-  const { lang, t, nf1 } = useLang();
+  const { lang, t, speedNum, speedUnit, thresholdNum } = useLang();
   const hasLicense = machine.license === 'active';
   const isOnline = machine.status === 'online';
   const totalNotif = notifCritical + notifWarning;
@@ -156,9 +156,9 @@ export function MachineCard({
               <div className="m-card__wind">
                 <div className="m-card__wind-value">
                   <span className={`m-card__wind-num ${windExceeds ? 'm-card__wind-num--danger' : ''}`}>
-                    {nf1(windValue)}
+                    {speedNum(windValue)}
                   </span>
-                  <span className="m-card__wind-unit">m/s</span>
+                  <span className="m-card__wind-unit">{speedUnit}</span>
                 </div>
                 {forecastWind && (
                   <div className="m-card__wind-when">{formatForecastAt(forecastWind.at)}</div>
@@ -166,8 +166,8 @@ export function MachineCard({
                 {threshold !== null && (
                   <div className="m-card__wind-max">
                     <span>{t('max. zulässig:', 'max. permissible:')}</span>
-                    <strong>{threshold}</strong>
-                    <span>m/s</span>
+                    <strong>{thresholdNum(threshold)}</strong>
+                    <span>{speedUnit}</span>
                   </div>
                 )}
               </div>

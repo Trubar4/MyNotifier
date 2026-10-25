@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Minus, Plus, BarChart3 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MachineConfig } from '../data/types';
@@ -49,7 +49,7 @@ function barColor(status: Status): string {
 }
 
 export function ReportsPage({ machines }: ReportsPageProps) {
-  const { lang, t } = useLang();
+  const { lang, t, convSpeed, speedUnit, nf1, units } = useLang();
   const loc = lang === 'en' ? 'en-GB' : 'de-DE';
   const licensedMachines = machines.filter(m => m.license === 'active');
 
@@ -62,18 +62,26 @@ export function ReportsPage({ machines }: ReportsPageProps) {
 
   const machine = machines.find(m => m.id === machineId);
   const threshold = machine ? machineThreshold(machine) : null;
+  // All report figures are in the active display unit (m/s or mph); the data
+  // itself stays metric, so convert every value as it comes out.
   // Always evaluate the higher of the two sensor values — regardless of sensor.
-  const windOf = (e: WindEntry) => Math.max(e.needleBoom, e.mainBoom);
+  const windOf = (e: WindEntry) => convSpeed(Math.max(e.needleBoom, e.mainBoom));
+  const round1 = (v: number) => Math.round(v * 10) / 10;
 
-  const [redThreshold, setRedThreshold] = useState<number>(() => threshold ?? 15);
-  const [orangeThreshold, setOrangeThreshold] = useState<number>(() => threshold ? Math.round(threshold * 0.8) : 12);
+  const [redThreshold, setRedThreshold] = useState<number>(() => round1(convSpeed(threshold ?? 15)));
+  const [orangeThreshold, setOrangeThreshold] = useState<number>(() => round1(convSpeed(threshold ? threshold * 0.8 : 12)));
+
+  // Reset the limits (in display units) whenever the machine or unit system changes.
+  useEffect(() => {
+    const m = machines.find(x => x.id === machineId);
+    const tm = m ? machineThreshold(m) : null;
+    setRedThreshold(round1(convSpeed(tm ?? 15)));
+    setOrangeThreshold(round1(convSpeed(tm ? tm * 0.8 : 12)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [machineId, units]);
 
   function handleMachineChange(id: string) {
     setMachineId(id);
-    const m = machines.find(x => x.id === id);
-    const t = m ? machineThreshold(m) : null;
-    setRedThreshold(t ?? 15);
-    setOrangeThreshold(t ? Math.round(t * 0.8) : 12);
     setStepNo(1);
   }
 
@@ -100,8 +108,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
     if (!machine) return;
     const rows = resolved.map(e => ({
       [t('Zeitpunkt', 'Time')]: formatDT(e.timestamp, resolution, loc),
-      [t('Hauptausleger (m/s)', 'Main boom (m/s)')]: e.mainBoom,
-      [t('Nadelausleger (m/s)', 'Jib (m/s)')]: e.needleBoom,
+      [t(`Hauptausleger (${speedUnit})`, `Main boom (${speedUnit})`)]: round1(convSpeed(e.mainBoom)),
+      [t(`Nadelausleger (${speedUnit})`, `Jib (${speedUnit})`)]: round1(convSpeed(e.needleBoom)),
       [t('Status', 'Status')]: windOf(e) >= redThreshold ? t('ÜBERSCHRITTEN', 'EXCEEDED') : windOf(e) >= orangeThreshold ? t('WARNUNG', 'WARNING') : 'OK',
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -178,7 +186,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
             <label className="rep-label">{t('Grenzwerte', 'Limits')}</label>
             <div className="rep-limits">
               <div className="rep-limit">
-                <span className="rep-limit-head"><span className="rep-dot rep-dot--red" />{t('Kritisch', 'Critical')} <span className="rep-limit-unit">m/s</span></span>
+                <span className="rep-limit-head"><span className="rep-dot rep-dot--red" />{t('Kritisch', 'Critical')} <span className="rep-limit-unit">{speedUnit}</span></span>
                 <div className="m-stepper">
                   <button onClick={() => stepper(setRedThreshold, -0.5)} aria-label={t('weniger', 'less')}><Minus size={16} /></button>
                   <input type="number" value={redThreshold} onChange={e => setRedThreshold(parseFloat(e.target.value) || 0)} />
@@ -186,7 +194,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                 </div>
               </div>
               <div className="rep-limit">
-                <span className="rep-limit-head"><span className="rep-dot rep-dot--orange" />{t('Warnung', 'Warning')} <span className="rep-limit-unit">m/s</span></span>
+                <span className="rep-limit-head"><span className="rep-dot rep-dot--orange" />{t('Warnung', 'Warning')} <span className="rep-limit-unit">{speedUnit}</span></span>
                 <div className="m-stepper">
                   <button onClick={() => stepper(setOrangeThreshold, -0.5)} aria-label={t('weniger', 'less')}><Minus size={16} /></button>
                   <input type="number" value={orangeThreshold} onChange={e => setOrangeThreshold(parseFloat(e.target.value) || 0)} />
@@ -231,7 +239,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
               </div>
               <div className="reports-chart-inner">
                 <div className="reports-threshold-line reports-threshold-line--red" style={{ bottom: `${(redThreshold / maxValue) * 100}%` }}>
-                  <span className="reports-threshold-line-label">{redThreshold}</span>
+                  <span className="reports-threshold-line-label">{nf1(redThreshold)}</span>
                 </div>
                 <div className="reports-threshold-line reports-threshold-line--orange" style={{ bottom: `${(orangeThreshold / maxValue) * 100}%` }} />
                 <div className="reports-bars">
@@ -244,7 +252,7 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                         key={i}
                         className="reports-bar"
                         style={{ height: `${h}%`, background: barColor(st), opacity: filterMatch(st) ? 1 : 0.15 }}
-                        title={`${formatDT(e.timestamp, resolution, loc)}: ${val.toFixed(1)} m/s`}
+                        title={`${formatDT(e.timestamp, resolution, loc)}: ${nf1(val)} ${speedUnit}`}
                       />
                     );
                   })}
@@ -288,8 +296,8 @@ export function ReportsPage({ machines }: ReportsPageProps) {
                   return (
                     <tr key={i} className={`reports-table__row--${st}`}>
                       <td>{formatDT(e.timestamp, resolution, loc)}</td>
-                      <td>{e.mainBoom.toFixed(1)}</td>
-                      <td>{e.needleBoom.toFixed(1)}</td>
+                      <td>{nf1(convSpeed(e.mainBoom))}</td>
+                      <td>{nf1(convSpeed(e.needleBoom))}</td>
                       <td className={`reports-table__status--${st}`}>
                         {st === 'danger' ? t('ÜBERSCHR.', 'EXCEED.') : st === 'warning' ? t('WARNUNG', 'WARNING') : 'OK'}
                       </td>

@@ -9,7 +9,7 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({ settings, onUpdateSettings }: SettingsPageProps) {
-  const { lang, setLang, t } = useLang();
+  const { lang, setLang, t, units, setUnits } = useLang();
 
   function updatePrefs(next: NotifyPrefs) {
     onUpdateSettings({ ...settings, prefs: next });
@@ -37,6 +37,26 @@ export function SettingsPage({ settings, onUpdateSettings }: SettingsPageProps) 
             aria-pressed={lang === 'en'}
           >
             English
+          </button>
+        </div>
+      </section>
+
+      <section className="m-settings-group">
+        <h2 className="m-settings-group__title">{t('Einheiten', 'Units')}</h2>
+        <div className="m-segment m-segment--2">
+          <button
+            className={`m-segment__btn ${units === 'metric' ? 'm-segment__btn--active' : ''}`}
+            onClick={() => setUnits('metric')}
+            aria-pressed={units === 'metric'}
+          >
+            {t('Metrisch (m/s, °C, m)', 'Metric (m/s, °C, m)')}
+          </button>
+          <button
+            className={`m-segment__btn ${units === 'imperial' ? 'm-segment__btn--active' : ''}`}
+            onClick={() => setUnits('imperial')}
+            aria-pressed={units === 'imperial'}
+          >
+            {t('Imperial (mph, °F, ft)', 'Imperial (mph, °F, ft)')}
           </button>
         </div>
       </section>

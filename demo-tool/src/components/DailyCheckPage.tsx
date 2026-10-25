@@ -48,7 +48,7 @@ function tomorrowAt6(): Date {
 }
 
 export function DailyCheckPage({ machines, notifications, onUpdateMachine }: DailyCheckPageProps) {
-  const { lang, t } = useLang();
+  const { lang, t, fmtSpeed, fmtThreshold } = useLang();
   const [until, setUntil] = useState<Date>(tomorrowAt6());
   const [positionSelectorMachineId, setPositionSelectorMachineId] = useState<string | null>(null);
   const [filterActionNeeded, setFilterActionNeeded] = useState(false);
@@ -176,7 +176,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
                 <span className="dailycheck-row__value">
                   {boomLabel(recommendedPos, lang)}
                   {recThreshold !== null && (
-                    <span className="dailycheck-row__sub"> ({recThreshold} m/s)</span>
+                    <span className="dailycheck-row__sub"> ({fmtThreshold(recThreshold)})</span>
                   )}
                 </span>
               </div>
@@ -187,7 +187,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
                 <span className="dailycheck-row__value">
                   {maxWind > 0 ? (
                     <>
-                      <strong>{maxWind.toFixed(1)} m/s</strong>
+                      <strong>{fmtSpeed(maxWind)}</strong>
                       {peakTime && <span className="dailycheck-row__sub"> {t('um', 'at')} {formatDateTime(peakTime)}</span>}
                       {buffer !== null && <span className="dailycheck-row__sub">, {buffer}% {t('Puffer', 'buffer')}</span>}
                     </>

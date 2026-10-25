@@ -38,7 +38,7 @@ export function PositionSelector({
   title, subtitle,
   allowNoAction, onNoAction,
 }: PositionSelectorProps) {
-  const { lang, t } = useLang();
+  const { lang, t, fmtSpeed, fmtThreshold } = useLang();
   const positions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
   const recommended = forecastMax != null ? recommendPosition(positions, forecastMax, hasNeedle) : null;
   const heading = title ?? t('Auslegerposition manuell setzen', 'Set boom position manually');
@@ -58,7 +58,7 @@ export function PositionSelector({
             <div className="position-selector-forecast">
               <div className="position-selector-forecast__head">
                 <span className="position-selector-forecast__label">{t('Prognose max. Windgeschwindigkeit', 'Forecast max. wind speed')}</span>
-                <span className="position-selector-forecast__value">{forecastMax.toFixed(1)} m/s</span>
+                <span className="position-selector-forecast__value">{fmtSpeed(forecastMax)}</span>
               </div>
               {forecastPeakAt && (
                 <span className="position-selector-forecast__time">
@@ -75,7 +75,7 @@ export function PositionSelector({
           {recommended != null && forecastMax != null && (
             <p className="position-selector-hint">
               {t('Mindestens empfohlen:', 'Minimum recommended:')} <strong>{boomLabel(recommended, lang)}</strong>
-              {positionThreshold(recommended, hasNeedle) !== null ? ` (${positionThreshold(recommended, hasNeedle)} m/s)` : ''}
+              {positionThreshold(recommended, hasNeedle) !== null ? ` (${fmtThreshold(positionThreshold(recommended, hasNeedle)!)})` : ''}
             </p>
           )}
 
@@ -96,7 +96,7 @@ export function PositionSelector({
                       {boomLabel(pos, lang)}
                     </span>
                     <span className={`position-selector-item__threshold ${inadequate ? 'position-selector-item__threshold--bad' : ''}`}>
-                      {t('Max.', 'Max.')} {thr !== null ? `${thr} m/s` : t('nicht definiert', 'not defined')}
+                      {t('Max.', 'Max.')} {thr !== null ? fmtThreshold(thr) : t('nicht definiert', 'not defined')}
                       {inadequate ? t(' · nicht ausreichend', ' · not sufficient') : ''}
                     </span>
                   </div>
