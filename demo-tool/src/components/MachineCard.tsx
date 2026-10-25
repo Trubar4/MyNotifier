@@ -144,7 +144,7 @@ export function MachineCard({
             onClick={onNotifClick}
             title={notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
           >
-            <img src={BASE + 'icon-bell.svg'} alt="" width={14} height={14} className="m-card__lastnotif-bell" />
+            <img src={BASE + 'icon-bell.svg'} alt="" width={18} height={18} className="m-card__lastnotif-bell" />
             <span className="m-card__lastnotif-text">
               {notificationHeadline(lastNotif, machine, { t, lang, speedNum, speedUnit })}
             </span>
