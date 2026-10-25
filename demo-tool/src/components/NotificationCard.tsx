@@ -62,7 +62,7 @@ export function NotificationCard({
       case 'forecast':
         return tr('Prognose über Schwellwert', 'Forecast above threshold');
       case 'positionDeviation':
-        return tr('Maschine offline - Auslegerposition setzen', 'Machine offline - set boom position');
+        return tr('Maschine inaktiv - Auslegerposition setzen', 'Machine inactive - set boom position');
       case 'windloggerOffline':
         return tr(`Windlogger offline seit ${formatFull(n.timestamp)}`, `Wind logger offline since ${formatFull(n.timestamp)}`);
       case 'noForecast':
@@ -94,7 +94,7 @@ export function NotificationCard({
         {machine && (
           <div className="notif2__status">
             <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
-            <span>{isOnline ? 'Online' : 'Offline'}</span>
+            <span>{isOnline ? tr('Aktiv', 'Active') : tr('Inaktiv', 'Inactive')}</span>
           </div>
         )}
       </div>

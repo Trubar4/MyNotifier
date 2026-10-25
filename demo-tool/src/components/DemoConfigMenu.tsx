@@ -44,7 +44,7 @@ export function DemoConfigMenu({ machines, onPick, onClose }: DemoConfigMenuProp
                 <span className="demo-menu__item-text">
                   <span className="demo-menu__item-name">{m.name} - {m.serialNumber}</span>
                   <span className="demo-menu__item-sub">
-                    {m.status === 'online' ? 'Online' : 'Offline'}
+                    {m.status === 'online' ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}
                     {' · '}
                     {m.license === 'active' ? t('Lizenz aktiv', 'Licence active') : m.license === 'expired' ? t('Lizenz abgelaufen', 'Licence expired') : t('Keine Lizenz', 'No licence')}
                   </span>

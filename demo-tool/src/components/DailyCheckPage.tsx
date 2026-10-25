@@ -154,7 +154,7 @@ export function DailyCheckPage({ machines, notifications, onUpdateMachine }: Dai
                 <span className="dailycheck-row__label">{t('Maschinenstatus', 'Machine status')}</span>
                 <span className={`dailycheck-row__value dailycheck-row__value--status ${isOnline ? 'dailycheck-row__value--online' : 'dailycheck-row__value--offline'}`}>
                   <img src={`${import.meta.env.BASE_URL}${isOnline ? 'icon-wifi.svg' : 'icon-wifi-off.svg'}`} alt="" width={14} height={14} className="m-icon" />
-                  {isOnline ? 'Online' : 'Offline'}
+                  {isOnline ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}
                 </span>
               </div>
 

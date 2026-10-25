@@ -101,7 +101,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
               <div className="m-filterdrop" role="menu">
                 {([
                   ['offlineNoManual', t('Ohne Positionsangabe', 'Without position')],
-                  ['offline', t('Offline', 'Offline')],
+                  ['offline', t('Inaktiv', 'Inactive')],
                   ['warnings', t('Mit Warnungen', 'With warnings')],
                 ] as [FilterMode, string][]).map(([key, label]) => (
                   <button

@@ -81,7 +81,7 @@ export function MachineCard({
           {hasLicense ? (
             <>
               <span className={`m-card__dot ${isOnline ? 'm-card__dot--online' : 'm-card__dot--offline'}`} />
-              <span>{isOnline ? 'Online' : 'Offline'}</span>
+              <span>{isOnline ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}</span>
             </>
           ) : (
             <span className="m-card__sn-right">SN: {machine.serialNumber}</span>

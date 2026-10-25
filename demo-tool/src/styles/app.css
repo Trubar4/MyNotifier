@@ -4411,7 +4411,7 @@
 .mdt-card {
   border: 1px solid var(--p-steel-400);
   background: var(--p-white);
-  overflow: hidden;
+  /* overflow must stay visible so (i) popovers in rows aren't clipped */
 }
 .mdt-card__header {
   background: var(--p-steel-100);

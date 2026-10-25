@@ -167,7 +167,7 @@ export function MachineDetail({
           </span>
           <span className={`mdetail__status ${isOnline ? 'is-online' : 'is-offline'}`}>
             <span className="mdetail__status-dot" />
-            {isOnline ? 'Online' : 'Offline'}
+            {isOnline ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}
           </span>
         </div>
       </div>
@@ -266,14 +266,22 @@ export function MachineDetail({
             <section className="mdt-card">
               <div className="mdt-card__header">{t('Detailansicht', 'Details')}</div>
               <div className="mdt-table">
-                <DataRow label={t('Maschinenstatus', 'Machine status')} sub={t('Aktueller Maschinenstatus', 'Current machine status')} value={isOnline ? 'Online' : 'Offline'} />
+                <DataRow
+                  label={t('Maschinenstatus', 'Machine status')}
+                  sub={t('Aktueller Maschinenstatus', 'Current machine status')}
+                  value={isOnline ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}
+                  info={t(
+                    'Aktiv = Zündung ein und verbunden (ein Fahrer arbeitet mit der Maschine). Inaktiv = Zündung aus oder kein Empfang – niemand arbeitet mit der Maschine. Der zuletzt übertragene Rüstzustand kann dann veraltet sein und sollte ggf. manuell bewertet werden.',
+                    'Active = ignition on and connected (an operator is working with the machine). Inactive = ignition off or no reception – nobody is working with the machine. The last transmitted setup may then be out of date and should be assessed manually if needed.',
+                  )}
+                />
                 <DataRow
                   label={t('Letzte Übertragung Maschine', 'Last machine transmission')}
                   sub={t('Zeitpunkt des letzten Empfangs von Maschinendaten', 'Time of the last receipt of machine data')}
                   value={formatSec(machine.position.reportedAt ?? machine.position.timestamp)}
                   info={t(
-                    'Die Maschine überträgt keine Daten, wenn die Zündung aus ist. Nur der Windlogger ist trotzdem online.',
-                    'The machine transmits no data while the ignition is off. Only the wind logger stays online.',
+                    'Die Maschine überträgt keine Daten, wenn die Zündung aus ist. Nur der Windlogger sendet dann weiterhin über sein eigenes Modul.',
+                    'The machine transmits no data while the ignition is off. Only the wind logger keeps sending via its own module.',
                   )}
                 />
                 <DataRow label={t('Auslegerposition', 'Boom position')} value={boomLabel(machine.position.position, lang)} />

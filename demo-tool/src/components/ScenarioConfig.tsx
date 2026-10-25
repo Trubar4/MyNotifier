@@ -116,7 +116,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
                   className={`config-chip ${status === s ? 'config-chip--active' : ''}`}
                   onClick={() => setStatus(s)}
                 >
-                  {s === 'online' ? 'Online' : 'Offline'}
+                  {s === 'online' ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}
                 </button>
               ))}
             </div>
@@ -198,7 +198,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
           {/* Gemeldete Position (wenn autoUpdate OFF) */}
           {!autoUpdate && (
             <div className="config-field">
-              <span className="config-field__label">{t('Gemeldete Position (Maschine war online)', 'Reported position (machine was online)')}</span>
+              <span className="config-field__label">{t('Gemeldete Position (Maschine war aktiv)', 'Reported position (machine was active)')}</span>
               <div className="config-field__row">
                 <button
                   className={`config-chip ${reportedPosition === 'none' ? 'config-chip--active' : ''}`}
@@ -222,7 +222,7 @@ export function ScenarioConfig({ machine, onSave, onClose }: ScenarioConfigProps
           {/* Datenalter */}
           {status === 'offline' && (
             <div className="config-field">
-              <span className="config-field__label">{t('Datenalter (Offline seit)', 'Data age (offline since)')}</span>
+              <span className="config-field__label">{t('Datenalter (Inaktiv seit)', 'Data age (inactive since)')}</span>
               <div className="config-field__row">
                 {(['live', '1h', '24h', '48h'] as const).map((a) => (
                   <button

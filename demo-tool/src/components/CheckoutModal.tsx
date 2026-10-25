@@ -69,8 +69,8 @@ export function CheckoutModal({
           <span className="checkout-sheet__info" onClick={(e) => e.stopPropagation()}>
             <InfoPopover>
               {t(
-                'Der Check-Out listet Maschinen, bei denen vor dem Verlassen der Baustelle eine Handlung nötig ist:\n\n• Offline-Maschinen: Position manuell bestätigen, damit die Benachrichtigungen auf einer bekannten Position beruhen.\n\n• Online-Maschinen, deren Windprognose im gewählten Zeitfenster über der für die aktuelle Auslegerposition zulässigen Windgeschwindigkeit liegt: Position rechtzeitig anpassen.\n\nMaschinen ohne Lizenz werden nicht überwacht und erscheinen nicht.',
-                'Check-out lists machines that need action before you leave the site:\n\n• Offline machines: confirm the position manually so notifications are based on a known position.\n\n• Online machines whose wind forecast in the selected window exceeds the max. permissible wind for the current boom position: adjust the position in good time.\n\nMachines without a licence are not monitored and do not appear.',
+                'Der Check-Out listet Maschinen, bei denen vor dem Verlassen der Baustelle eine Handlung nötig ist:\n\n• Inaktive Maschinen: Position manuell bestätigen, damit die Benachrichtigungen auf einer bekannten Position beruhen.\n\n• Aktive Maschinen, deren Windprognose im gewählten Zeitfenster über der für die aktuelle Auslegerposition zulässigen Windgeschwindigkeit liegt: Position rechtzeitig anpassen.\n\nMaschinen ohne Lizenz werden nicht überwacht und erscheinen nicht.',
+                'Check-out lists machines that need action before you leave the site:\n\n• Inactive machines: confirm the position manually so notifications are based on a known position.\n\n• Active machines whose wind forecast in the selected window exceeds the max. permissible wind for the current boom position: adjust the position in good time.\n\nMachines without a licence are not monitored and do not appear.',
               )}
             </InfoPopover>
           </span>
@@ -102,7 +102,7 @@ export function CheckoutModal({
             list.map(({ m, reason }) => {
               const info = getNotifInfo(m.id);
               const label = reason === 'offline'
-                ? t('Position überprüfen (Offline)', 'Check position (offline)')
+                ? t('Position überprüfen (Inaktiv)', 'Check position (inactive)')
                 : t('Position anpassen (Prognose)', 'Adjust position (forecast)');
               return (
                 <MachineCard
