@@ -771,11 +771,19 @@
   flex-direction: column;
   gap: var(--s-2);
 }
+.mdetail__titlerow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
 .mdetail__name {
   margin: 0;
   font: 900 20px/24px var(--font-head-b);
   color: var(--p-black);
 }
+.mdetail__headinfo { display: inline-flex; flex-shrink: 0; }
+/* (i) sits at the right end of the title → open the popover leftward so it fits */
+.mdetail__headinfo .info-popover { right: 0; left: auto; max-width: calc(100vw - 48px); }
 .mdetail__accent {
   width: 46px;
   height: 4px;

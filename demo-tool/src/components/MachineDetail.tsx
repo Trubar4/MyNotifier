@@ -159,7 +159,17 @@ export function MachineDetail({
     <div className="mdetail">
       {/* ===== Header: name + accent, Stand · Status ===== */}
       <div className="mdetail__head">
-        <h1 className="mdetail__name">{machine.name} - {machine.serialNumber}</h1>
+        <div className="mdetail__titlerow">
+          <h1 className="mdetail__name">{machine.name} - {machine.serialNumber}</h1>
+          <span className="mdetail__headinfo" onClick={(e) => e.stopPropagation()}>
+            <InfoPopover>
+              {t(
+                'MyNotifier nutzt drei unabhängige Datenquellen:\n\n• Maschine (LiTU): Rüstzustand und Auslegerposition – nur bei Zündung ein und Empfang.\n\n• Windlogger: misst die Windgeschwindigkeit über ein eigenes Mobilfunkmodul – auch bei ausgeschalteter Maschine.\n\n• Windprognose: externe Vorhersage für den Standort.\n\nJede Quelle kann unabhängig ausfallen; Status und Details siehst du im Tab „Maschine".',
+                'MyNotifier uses three independent data sources:\n\n• Machine (LiTU): setup and boom position – only while the ignition is on and connected.\n\n• Wind logger: measures wind speed via its own cellular module – even when the machine is switched off.\n\n• Wind forecast: external forecast for the location.\n\nEach source can fail independently; see the status and details in the "Machine" tab.',
+              )}
+            </InfoPopover>
+          </span>
+        </div>
         <span className="mdetail__accent" />
         <div className="mdetail__standrow">
           <span className="mdetail__stand">
