@@ -67,6 +67,8 @@ export function CheckoutModal({
 }: CheckoutModalProps) {
   const { t } = useLang();
   const [windowH, setWindowH] = useState<WindowH>(24);
+  const [informMachine, setInformMachine] = useState<MachineConfig | null>(null);
+  const [informedIds, setInformedIds] = useState<Set<string>>(new Set());
   const list = machines
     .map((m) => ({ m, reason: checkoutReason(m, windowH) }))
     .filter((x): x is { m: MachineConfig; reason: CheckoutReason } => x.reason !== null);
@@ -111,11 +113,13 @@ export function CheckoutModal({
           ) : (
             list.map(({ m, reason }) => {
               const info = getNotifInfo(m.id);
-              const label = reason === 'exceedance'
-                ? t('Position anpassen (Überschreitung)', 'Adjust position (exceedance)')
-                : reason === 'offline'
-                  ? t('Position überprüfen (Inaktiv)', 'Check position (inactive)')
-                  : t('Position anpassen (Prognose)', 'Adjust position (forecast)');
+              // Active machines (driver on site) → notify the driver to move the boom.
+              // Inactive machines (no live position) → set the position manually.
+              const notifyDriver = reason === 'exceedance' || reason === 'forecast';
+              const informed = informedIds.has(m.id);
+              const label = notifyDriver
+                ? (informed ? t('✓ Fahrer informiert', '✓ Driver notified') : t('Fahrer informieren', 'Notify driver'))
+                : t('Position setzen (Inaktiv)', 'Set position (inactive)');
               return (
                 <MachineCard
                   key={m.id}
@@ -127,6 +131,8 @@ export function CheckoutModal({
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
+                  onPrimaryAction={notifyDriver ? () => setInformMachine(m) : () => onOpenPositionSelector(m.id)}
+                  primaryActionDone={notifyDriver && informed}
                   forecastWind={forecastPeakInWindow(m, windowH)}
                   showLastNotif={showLastNotif}
                   lastNotif={getLatestNotif?.(m.id)}
@@ -136,6 +142,41 @@ export function CheckoutModal({
           )}
         </div>
       </div>
+
+      {informMachine && (
+        <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && setInformMachine(null)}>
+          <div className="config-modal" style={{ maxWidth: 420 }}>
+            <div className="config-modal__header">
+              <h2 className="config-modal__title">{t('Fahrer informieren', 'Notify driver')}</h2>
+              <button className="config-modal__close" onClick={() => setInformMachine(null)} aria-label={t('Schließen', 'Close')}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="config-modal__body">
+              <p style={{ margin: 0, font: '400 14px/20px var(--font-text)', color: 'var(--p-black)' }}>
+                {t(
+                  `Der Fahrer von ${informMachine.name} - ${informMachine.serialNumber} wird aufgefordert, den Ausleger in eine sichere Position zu bringen.`,
+                  `The driver of ${informMachine.name} - ${informMachine.serialNumber} will be asked to move the boom to a safe position.`,
+                )}
+              </p>
+              <div className="m-card__actions" style={{ marginTop: 'var(--s-4)' }}>
+                <button
+                  className="m-btn m-btn--primary"
+                  onClick={() => {
+                    setInformedIds((prev) => new Set(prev).add(informMachine.id));
+                    setInformMachine(null);
+                  }}
+                >
+                  {t('Jetzt informieren', 'Notify now')}
+                </button>
+                <button className="m-btn m-btn--outline" onClick={() => setInformMachine(null)}>
+                  {t('Abbrechen', 'Cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

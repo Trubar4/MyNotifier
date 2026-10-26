@@ -17,6 +17,10 @@ interface MachineCardProps {
   /** When set (e.g. in the check-out), the primary button shows this recommendation
    *  as its label and takes the full width; Details collapses to an icon button. */
   primaryActionLabel?: string;
+  /** Override for the check-out primary button (defaults to onOpenPositionSelector). */
+  onPrimaryAction?: () => void;
+  /** Render the check-out primary button as a completed (grey) state. */
+  primaryActionDone?: boolean;
   /** When set (check-out), the wind panel shows this forecast peak + its time
    *  instead of the current wind measurement. */
   forecastWind?: { value: number; at: Date };
@@ -46,7 +50,7 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
 export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
   onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel, forecastWind,
-  lastNotif, showLastNotif,
+  lastNotif, showLastNotif, onPrimaryAction, primaryActionDone,
 }: MachineCardProps) {
   const { lang, t, speedNum, speedUnit, thresholdNum } = useLang();
   const hasLicense = machine.license === 'active';
@@ -214,8 +218,11 @@ export function MachineCard({
           {hasLicense ? (
             primaryActionLabel ? (
               <>
-                <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpenPositionSelector}>
-                  <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
+                <button
+                  className={`m-btn ${primaryActionDone ? 'm-btn--secondary' : 'm-btn--primary'} m-btn--wide`}
+                  onClick={onPrimaryAction ?? onOpenPositionSelector}
+                >
+                  {!primaryActionDone && <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />}
                   {primaryActionLabel}
                 </button>
                 <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label={t('Details', 'Details')}>
