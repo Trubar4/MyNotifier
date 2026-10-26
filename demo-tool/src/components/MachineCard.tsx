@@ -1,4 +1,4 @@
-import { RefreshCw, Ban } from 'lucide-react';
+import { RefreshCw, Ban, Phone } from 'lucide-react';
 import type { MachineConfig, Notification } from '../data/types';
 import { machineThreshold, forecastPeakTime } from '../data/types';
 import { useLang, boomLabel } from '../i18n';
@@ -21,6 +21,8 @@ interface MachineCardProps {
   onPrimaryAction?: () => void;
   /** Render the check-out primary button as a completed (grey) state. */
   primaryActionDone?: boolean;
+  /** Icon for the check-out primary button: the crane (set position) or a phone (notify driver). */
+  primaryActionIcon?: 'crane' | 'notify';
   /** When set (check-out), the wind panel shows this forecast peak + its time
    *  instead of the current wind measurement. */
   forecastWind?: { value: number; at: Date };
@@ -50,7 +52,7 @@ function PositionIcon({ position }: { position: MachineConfig['position']['posit
 export function MachineCard({
   machine, notifCritical, notifWarning, assignedUser,
   onOpen, onOpenPositionSelector, onNotifClick, primaryActionLabel, forecastWind,
-  lastNotif, showLastNotif, onPrimaryAction, primaryActionDone,
+  lastNotif, showLastNotif, onPrimaryAction, primaryActionDone, primaryActionIcon = 'crane',
 }: MachineCardProps) {
   const { lang, t, speedNum, speedUnit, thresholdNum } = useLang();
   const hasLicense = machine.license === 'active';
@@ -222,7 +224,11 @@ export function MachineCard({
                   className={`m-btn ${primaryActionDone ? 'm-btn--secondary' : 'm-btn--primary'} m-btn--wide`}
                   onClick={onPrimaryAction ?? onOpenPositionSelector}
                 >
-                  {!primaryActionDone && <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />}
+                  {!primaryActionDone && (
+                    primaryActionIcon === 'notify'
+                      ? <Phone size={18} />
+                      : <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
+                  )}
                   {primaryActionLabel}
                 </button>
                 <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label={t('Details', 'Details')}>

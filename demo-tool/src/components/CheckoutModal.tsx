@@ -133,6 +133,7 @@ export function CheckoutModal({
                   primaryActionLabel={label}
                   onPrimaryAction={notifyDriver ? () => setInformMachine(m) : () => onOpenPositionSelector(m.id)}
                   primaryActionDone={notifyDriver && informed}
+                  primaryActionIcon={notifyDriver ? 'notify' : 'crane'}
                   forecastWind={forecastPeakInWindow(m, windowH)}
                   showLastNotif={showLastNotif}
                   lastNotif={getLatestNotif?.(m.id)}
