@@ -224,7 +224,8 @@ export function MachineCard({
               </>
             ) : (
               <>
-                <button className="m-btn m-btn--primary" onClick={onOpenPositionSelector}>
+                {/* Active machines: position is known (live), so no emphasis needed → grey. */}
+                <button className={`m-btn ${isOnline ? 'm-btn--secondary' : 'm-btn--primary'}`} onClick={onOpenPositionSelector}>
                   <img src={BASE + 'position-action.svg'} alt="" className="m-btn__icon-crane" />
                   {t('Position', 'Position')}
                 </button>

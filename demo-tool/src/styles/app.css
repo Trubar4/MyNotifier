@@ -677,6 +677,8 @@
 }
 .m-btn--primary { background: var(--r-brand); }
 .m-btn--primary:hover { filter: brightness(0.95); }
+.m-btn--secondary { background: var(--p-steel-200); color: var(--p-black); }
+.m-btn--secondary:hover { background: var(--p-steel-300); filter: none; }
 .m-btn--outline {
   background: var(--p-white);
   border: 1px solid var(--p-black);
