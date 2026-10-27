@@ -4746,6 +4746,31 @@
 .mdt-vmax--disabled { background: var(--p-steel-100); border-color: var(--p-steel-200); }
 .mdt-vmax--disabled input { color: var(--p-steel-500); -webkit-text-fill-color: var(--p-steel-500); }
 .mdt-vmax--disabled .mdt-vmax__unit { color: var(--p-steel-400); }
+
+/* VMax per position (4 cards) */
+.vmax-updated { margin: var(--s-1) 0 0; font: 400 12px/16px var(--font-text); color: var(--p-steel-600); }
+.vmax-head { display: flex; align-items: center; gap: var(--s-1); margin-top: var(--s-4); }
+.vmax-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+}
+.vmax-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border: 1px solid var(--p-steel-300);
+  background: var(--p-white);
+}
+.vmax-card--locked { background: var(--p-steel-50); }
+.vmax-card__icon { height: 44px; width: auto; max-width: 60px; object-fit: contain; display: block; }
+.vmax-card__name { font: 700 12px/16px var(--font-text-b); color: var(--p-black); text-align: center; }
+.vmax-card .mdt-vmax { width: 100%; }
+.vmax-card .mdt-vmax input { text-align: right; }
 .mdt-config__hint { font: 400 12px/16px var(--font-text); color: var(--p-steel-700); margin: 0; }
 .mdt-config__manual {
   display: flex;

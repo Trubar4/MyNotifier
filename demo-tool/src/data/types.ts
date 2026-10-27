@@ -128,8 +128,12 @@ export interface MachineConfig {
   windloggerStatus?: 'online' | 'offline' | 'fault';
   /** Data source 3 — wind forecast. Undefined = available. */
   forecastStatus?: 'ok' | 'unavailable';
-  /** Manually entered VMax from the operating manual (m/s); fallback while inactive. */
-  manualVmax?: number | null;
+  /** Manually entered VMax per boom position from the operating manual (m/s). */
+  manualVmax?: Partial<Record<BoomPosition, number>>;
+  /** "Laufend mit Maschinendaten überschreiben" — machine data keeps the VMax in sync. Default true. */
+  vmaxAutoUpdate?: boolean;
+  /** When the VMax values were last updated from machine data. */
+  vmaxUpdatedAt?: Date;
 }
 
 export type NotificationLevel = 1 | 2;

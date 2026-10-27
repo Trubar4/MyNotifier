@@ -4,7 +4,7 @@ import { Crosshair, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
-import { machineThreshold, configHasNeedle, forecastPeakTime, DEMO_USER } from '../data/types';
+import { BOOM_POSITION_LABELS, machineThreshold, positionThreshold, configHasNeedle, forecastPeakTime, DEMO_USER } from '../data/types';
 import { useLang, boomLabel, configLabel } from '../i18n';
 import { PositionSelector } from './PositionSelector';
 import { NotifyPrefsControls } from './SettingsControls';
@@ -386,38 +386,77 @@ export function MachineDetail({
               </div>
 
               <h3 className="mdt-config__subtitle">{t('Werte manuell setzen', 'Set values manually')}</h3>
-              <p className="mdt-config__hint">{t('Manuelle Eingaben gelten nur bis neue Maschinendaten empfangen werden', 'Manual entries apply only until new machine data is received')}</p>
 
-              {/* Manual VMax from the operating manual — the fallback used while inactive. */}
-              <label className="mdt-field">
-                <span className="mdt-field__label">
-                  {t('VMax laut Bedienungsanleitung', 'VMax per operating manual')}
-                  <span className="mdt-field__info" onClick={(e) => e.stopPropagation()}>
-                    <InfoPopover>
-                      {t(
-                        'Bei aktiven Maschinen wird der Wert mit der aktuellen Maschinenkonfiguration und Auslegerposition von oben verwendet. Wenn die Maschine inaktiv wird, gilt wieder dieser Wert.',
-                        'For active machines the value above (from the current configuration and boom position) is used. When the machine becomes inactive, this value applies again.',
-                      )}
-                    </InfoPopover>
-                  </span>
-                </span>
-                <div className={`mdt-vmax ${isOnline ? 'mdt-vmax--disabled' : ''}`}>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    inputMode="decimal"
-                    disabled={isOnline}
-                    value={machine.manualVmax != null ? String(Math.round(convSpeed(machine.manualVmax) * 10) / 10) : ''}
-                    placeholder={threshold != null ? String(Math.round(convSpeed(threshold) * 10) / 10) : ''}
-                    onChange={(e) => {
-                      const v = parseFloat(e.target.value);
-                      onUpdateMachine({ ...machine, manualVmax: isNaN(v) ? null : fromSpeed(v) });
-                    }}
-                  />
-                  <span className="mdt-vmax__unit">{speedUnit}</span>
-                </div>
-              </label>
+              {(() => {
+                const autoUpdate = machine.vmaxAutoUpdate !== false;
+                const hasNeedle = configHasNeedle(machine.specs.boomConfiguration);
+                const vmaxPositions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
+                const lastUpd = machine.vmaxUpdatedAt ?? machine.position.reportedAt ?? machine.position.timestamp;
+                const fmtNum = (mps: number) => String(Math.round(convSpeed(mps) * 10) / 10);
+                return (
+                  <>
+                    <div className="settings-row">
+                      <span className="settings-row__label">{t('Laufend mit Maschinendaten überschreiben', 'Keep in sync with machine data')}</span>
+                      <button
+                        className={`toggle-switch ${autoUpdate ? 'toggle-switch--on' : ''}`}
+                        role="switch"
+                        aria-checked={autoUpdate}
+                        onClick={() => {
+                          const next = !autoUpdate;
+                          onUpdateMachine({ ...machine, vmaxAutoUpdate: next, ...(next ? { vmaxUpdatedAt: new Date() } : {}) });
+                        }}
+                      >
+                        <span className="toggle-switch__thumb" />
+                      </button>
+                    </div>
+                    <p className="vmax-updated">{t('Letzte Aktualisierung am', 'Last updated on')} {formatStand(lastUpd)}{t(' Uhr', '')}</p>
+
+                    <div className="vmax-head">
+                      <span className="mdt-field__label">{t('VMax laut Bedienungsanleitung', 'VMax per operating manual')}</span>
+                      <span className="mdt-field__info" onClick={(e) => e.stopPropagation()}>
+                        <InfoPopover>
+                          {t(
+                            'Dieser Wert wird nur genutzt, wenn die Maschine nicht aktiv ist. Bei aktiven Maschinen gilt der live aus Konfiguration und Auslegerposition berechnete Wert.',
+                            'This value is only used while the machine is inactive. For active machines the value computed live from the configuration and boom position applies.',
+                          )}
+                        </InfoPopover>
+                      </span>
+                    </div>
+
+                    <div className="vmax-grid">
+                      {vmaxPositions.map((pos) => {
+                        const computed = positionThreshold(pos, hasNeedle);
+                        const manual = machine.manualVmax?.[pos];
+                        const shown = autoUpdate ? computed : (manual ?? computed);
+                        return (
+                          <div key={pos} className={`vmax-card ${autoUpdate ? 'vmax-card--locked' : ''}`}>
+                            <img src={`${import.meta.env.BASE_URL}positions/${pos}.svg`} alt="" className={`vmax-card__icon vmax-card__icon--${pos}`} />
+                            <span className="vmax-card__name">{boomLabel(pos, lang)}</span>
+                            <div className={`mdt-vmax ${autoUpdate ? 'mdt-vmax--disabled' : ''}`}>
+                              <input
+                                type="number"
+                                step="0.5"
+                                min="0"
+                                inputMode="decimal"
+                                disabled={autoUpdate}
+                                value={shown != null ? fmtNum(shown) : ''}
+                                placeholder={t('nicht definiert', 'not defined')}
+                                onChange={(e) => {
+                                  const v = parseFloat(e.target.value);
+                                  const next = { ...(machine.manualVmax ?? {}) };
+                                  if (isNaN(v)) delete next[pos]; else next[pos] = fromSpeed(v);
+                                  onUpdateMachine({ ...machine, manualVmax: next });
+                                }}
+                              />
+                              <span className="mdt-vmax__unit">{speedUnit}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                );
+              })()}
             </section>
 
             <NotifyPrefsControls
