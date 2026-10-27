@@ -128,6 +128,8 @@ export interface MachineConfig {
   windloggerStatus?: 'online' | 'offline' | 'fault';
   /** Data source 3 — wind forecast. Undefined = available. */
   forecastStatus?: 'ok' | 'unavailable';
+  /** Manually entered VMax from the operating manual (m/s); fallback while inactive. */
+  manualVmax?: number | null;
 }
 
 export type NotificationLevel = 1 | 2;

@@ -64,6 +64,8 @@ export function useLang() {
   const convSpeed = (mps: number) => (imperial ? mps * MPS_TO_MPH : mps);
   const speedNum = (mps: number) => nf1(convSpeed(mps));
   const fmtSpeed = (mps: number) => `${speedNum(mps)} ${speedUnit}`;
+  // Inverse of convSpeed: turn a value entered in the display unit back into m/s.
+  const fromSpeed = (displayVal: number) => (imperial ? displayVal / MPS_TO_MPH : displayVal);
   // Thresholds are whole m/s — keep them integer in metric, 1 decimal in imperial.
   const thresholdNum = (mps: number) => (imperial ? nf1(convSpeed(mps)) : nf(mps, 0));
   const fmtThreshold = (mps: number) => `${thresholdNum(mps)} ${speedUnit}`;
@@ -81,7 +83,7 @@ export function useLang() {
   return {
     lang, setLang, t, nf1, nf,
     units, setUnits,
-    speedUnit, convSpeed, speedNum, fmtSpeed, thresholdNum, fmtThreshold,
+    speedUnit, convSpeed, fromSpeed, speedNum, fmtSpeed, thresholdNum, fmtThreshold,
     tempUnit, convTemp, fmtTemp,
     lenUnit, convLen, fmtLen,
   };

@@ -71,7 +71,7 @@ export function MachineDetail({
   machine, notifications, notifSettings, onUpdateMachine, onUpdateNotification, onUpdateNotifSettings,
   initialPositionSelectorOpen, onPositionSelectorOpened,
 }: MachineDetailProps) {
-  const { lang, t, fmtSpeed, fmtThreshold, fmtTemp, fmtLen } = useLang();
+  const { lang, t, fmtSpeed, fmtThreshold, fmtTemp, fmtLen, speedUnit, convSpeed, fromSpeed } = useLang();
   const loc = lang === 'en' ? 'en-US' : 'de-DE';
   const fmt2 = (v: number) => v.toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const wlOffline = machine.windloggerStatus === 'offline';
@@ -373,10 +373,29 @@ export function MachineDetail({
             <section className="mdt-config">
               <h2 className="m-settings-group__title">{t('Maschinen Konfiguration', 'Machine configuration')}</h2>
 
+              {/* Result value with the basis it is computed from (live vs last transmitted) */}
               <div className="mdt-config__maxwind">
                 <span className="mdt-config__maxwind-label">{t('Maximal zulässige Windgeschwindigkeit:', 'Max. permissible wind speed:')}</span>
-                <span className="mdt-config__maxwind-value">{threshold !== null ? fmtThreshold(threshold) : '—'}</span>
+                <div className="mdt-config__maxwind-right">
+                  <span className="mdt-config__maxwind-value">{threshold !== null ? fmtThreshold(threshold) : '—'}</span>
+                  <span className={`mdt-config__basis ${isOnline ? 'is-active' : 'is-inactive'}`}>
+                    <span className="mdt-config__basis-dot" />
+                    {isOnline ? t('Aktiv', 'Active') : t('Inaktiv', 'Inactive')}
+                  </span>
+                  <span className="mdt-config__basis-info" onClick={(e) => e.stopPropagation()}>
+                    <InfoPopover>
+                      {isOnline
+                        ? t('Basis ist die Maschinenkonfiguration und die aktuelle Auslegerposition.', 'Based on the machine configuration and the current boom position.')
+                        : t(
+                            `Basis ist die letzte übertragene Maschinenkonfiguration und Auslegerposition vom ${formatSec(machine.position.reportedAt ?? machine.position.timestamp)}.`,
+                            `Based on the last transmitted machine configuration and boom position from ${formatSec(machine.position.reportedAt ?? machine.position.timestamp)}.`,
+                          )}
+                    </InfoPopover>
+                  </span>
+                </div>
               </div>
+
+              <h3 className="mdt-config__subtitle">{t('Werte manuell setzen', 'Set values manually')}</h3>
               <p className="mdt-config__hint">{t('Manuelle Eingaben gelten nur bis neue Maschinendaten empfangen werden', 'Manual entries apply only until new machine data is received')}</p>
 
               <label className="mdt-field">
@@ -404,6 +423,37 @@ export function MachineDetail({
                       <option key={p} value={p}>{boomLabel(p, lang)}</option>
                     ))}
                   </select>
+                </div>
+              </label>
+
+              {/* Manual VMax from the operating manual — the fallback used while inactive. */}
+              <label className="mdt-field">
+                <span className="mdt-field__label">
+                  {t('VMax laut Bedienungsanleitung', 'VMax per operating manual')}
+                  <span className="mdt-field__info" onClick={(e) => e.stopPropagation()}>
+                    <InfoPopover>
+                      {t(
+                        'Bei aktiven Maschinen wird der Wert mit der aktuellen Maschinenkonfiguration und Auslegerposition von oben verwendet. Wenn die Maschine inaktiv wird, gilt wieder dieser Wert.',
+                        'For active machines the value above (from the current configuration and boom position) is used. When the machine becomes inactive, this value applies again.',
+                      )}
+                    </InfoPopover>
+                  </span>
+                </span>
+                <div className={`mdt-vmax ${isOnline ? 'mdt-vmax--disabled' : ''}`}>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    inputMode="decimal"
+                    disabled={isOnline}
+                    value={machine.manualVmax != null ? String(Math.round(convSpeed(machine.manualVmax) * 10) / 10) : ''}
+                    placeholder={threshold != null ? String(Math.round(convSpeed(threshold) * 10) / 10) : ''}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      onUpdateMachine({ ...machine, manualVmax: isNaN(v) ? null : fromSpeed(v) });
+                    }}
+                  />
+                  <span className="mdt-vmax__unit">{speedUnit}</span>
                 </div>
               </label>
             </section>
