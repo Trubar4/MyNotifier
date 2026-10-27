@@ -4,7 +4,7 @@ import { Crosshair, BellOff } from 'lucide-react';
 import type {
   MachineConfig, BoomPosition, Notification, NotificationSettings, NotifyPrefs, ForecastHour,
 } from '../data/types';
-import { BOOM_POSITION_LABELS, machineThreshold, configHasNeedle, forecastPeakTime, DEMO_USER } from '../data/types';
+import { machineThreshold, configHasNeedle, forecastPeakTime, DEMO_USER } from '../data/types';
 import { useLang, boomLabel, configLabel } from '../i18n';
 import { PositionSelector } from './PositionSelector';
 import { NotifyPrefsControls } from './SettingsControls';
@@ -60,12 +60,6 @@ const TABS: { id: DetailTab; de: string; en: string }[] = [
   { id: 'settings', de: 'Settings', en: 'Settings' },
 ];
 
-const BOOM_CONFIG_OPTIONS = [
-  'mit Nadelausleger (feststehend)',
-  'mit Nadelausleger (wippbar)',
-  'ohne Nadelausleger',
-  'Hauptausleger',
-];
 
 export function MachineDetail({
   machine, notifications, notifSettings, onUpdateMachine, onUpdateNotification, onUpdateNotifSettings,
@@ -124,10 +118,6 @@ export function MachineDetail({
       position: { ...machine.position, position: pos, timestamp: new Date(), manuallySet: true },
     });
     setShowPositionSelector(false);
-  }
-
-  function handleConfigChange(cfg: string) {
-    onUpdateMachine({ ...machine, specs: { ...machine.specs, boomConfiguration: cfg } });
   }
 
   const machineEnabled = machine.id in notifSettings.machineOverrides
@@ -397,34 +387,6 @@ export function MachineDetail({
 
               <h3 className="mdt-config__subtitle">{t('Werte manuell setzen', 'Set values manually')}</h3>
               <p className="mdt-config__hint">{t('Manuelle Eingaben gelten nur bis neue Maschinendaten empfangen werden', 'Manual entries apply only until new machine data is received')}</p>
-
-              <label className="mdt-field">
-                <span className="mdt-field__label">{t('Auslegerkonfiguration', 'Boom configuration')}</span>
-                <div className="mdt-select">
-                  <select value={machine.specs.boomConfiguration} onChange={(e) => handleConfigChange(e.target.value)}>
-                    {[...new Set([machine.specs.boomConfiguration, ...BOOM_CONFIG_OPTIONS])].map((o) => (
-                      <option key={o} value={o}>{configLabel(o, lang)}</option>
-                    ))}
-                  </select>
-                </div>
-              </label>
-              {machine.position.manuallySet && (
-                <p className="mdt-config__manual">ⓘ {t('Manuell angepasst:', 'Manually adjusted:')} {formatSec(machine.position.timestamp)}</p>
-              )}
-
-              <label className="mdt-field">
-                <span className="mdt-field__label">{t('Auslegerposition', 'Boom position')}</span>
-                <div className="mdt-select">
-                  <select
-                    value={machine.position.position}
-                    onChange={(e) => handleSetPosition(e.target.value as BoomPosition)}
-                  >
-                    {(Object.keys(BOOM_POSITION_LABELS) as BoomPosition[]).map((p) => (
-                      <option key={p} value={p}>{boomLabel(p, lang)}</option>
-                    ))}
-                  </select>
-                </div>
-              </label>
 
               {/* Manual VMax from the operating manual — the fallback used while inactive. */}
               <label className="mdt-field">

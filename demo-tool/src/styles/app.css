@@ -539,7 +539,8 @@
   display: flex;
   gap: var(--s-1);
   background: var(--p-steel-50);
-  min-height: 120px;
+  /* Matches the licensed two-row wind panel so "no licence" cards aren't shorter */
+  min-height: 140px;
 }
 .m-card__state-col {
   flex: 1;
