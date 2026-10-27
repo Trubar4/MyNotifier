@@ -57,6 +57,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: 18.5,
       boomConfiguration: 'Hauptausleger + Nadelausleger',
+      boomConfigDetail: 'Hauptausleger 1512 + feststehender Nadelausleger 0806',
       mainBoomLength: 84,
       mainBoomAngle: 0,
       jibLength: 42,
@@ -102,6 +103,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: 14.2,
       boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      boomConfigDetail: 'Hauptausleger 1812',
       mainBoomLength: 96,
       mainBoomAngle: 0,
       jibLength: null,
@@ -148,6 +150,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: 11.8,
       boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      boomConfigDetail: 'Hauptausleger 1406',
       mainBoomLength: 72,
       mainBoomAngle: 0,
       jibLength: null,
@@ -193,6 +196,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: null,
       boomConfiguration: 'Ausleger abgelegt',
+      boomConfigDetail: 'Hauptausleger 2109 + feststehender Nadelausleger 1206',
       mainBoomLength: 108,
       mainBoomAngle: 0,
       jibLength: 60,
@@ -240,6 +244,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: 15.4,
       boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      boomConfigDetail: 'Hauptausleger 1510',
       mainBoomLength: 78,
       mainBoomAngle: 0,
       jibLength: null,
@@ -286,6 +291,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: 13.1,
       boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      boomConfigDetail: 'Hauptausleger 1708',
       mainBoomLength: 90,
       mainBoomAngle: 0,
       jibLength: null,
@@ -332,6 +338,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     specs: {
       outsideTemperature: 16.2,
       boomConfiguration: 'Hauptausleger ohne Nadelausleger',
+      boomConfigDetail: 'Hauptausleger 1912',
       mainBoomLength: 102,
       mainBoomAngle: 0,
       jibLength: null,

@@ -393,6 +393,15 @@ export function MachineDetail({
                 const vmaxPositions = Object.keys(BOOM_POSITION_LABELS) as BoomPosition[];
                 const lastUpd = machine.vmaxUpdatedAt ?? machine.position.reportedAt ?? machine.position.timestamp;
                 const fmtNum = (mps: number) => String(Math.round(convSpeed(mps) * 10) / 10);
+                const cfgDetail = machine.specs.boomConfigDetail
+                  ? (lang === 'en'
+                      ? machine.specs.boomConfigDetail
+                          .replace('feststehender Nadelausleger', 'fixed jib')
+                          .replace('wippbarer Nadelausleger', 'luffing jib')
+                          .replace('Nadelausleger', 'jib')
+                          .replace('Hauptausleger', 'Main boom')
+                      : machine.specs.boomConfigDetail)
+                  : null;
                 return (
                   <>
                     <div className="settings-row">
@@ -409,7 +418,10 @@ export function MachineDetail({
                         <span className="toggle-switch__thumb" />
                       </button>
                     </div>
-                    <p className="vmax-updated">{t('Letzte Aktualisierung am', 'Last updated on')} {formatStand(lastUpd)}{t(' Uhr', '')}</p>
+                    <p className="vmax-updated">
+                      {t('Letzte Aktualisierung am', 'Last updated on')} {formatStand(lastUpd)}{t(' Uhr', '')}
+                      {cfgDetail ? <> {t('mit', 'with')} „{cfgDetail}"</> : null}
+                    </p>
 
                     <div className="vmax-head">
                       <span className="mdt-field__label">{t('VMax laut Bedienungsanleitung', 'VMax per operating manual')}</span>

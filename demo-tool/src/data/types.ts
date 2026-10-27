@@ -102,6 +102,7 @@ export interface NotificationData {
 export interface MachineSpecs {
   outsideTemperature: number | null;   // °C
   boomConfiguration: string;           // z.B. "Hauptausleger + Nadelausleger"
+  boomConfigDetail?: string;           // detaillierte Konfiguration, z.B. "Hauptausleger 1512 + feststehender Nadelausleger 0806"
   mainBoomLength: number | null;       // m
   mainBoomAngle: number | null;        // ° (Winkel des Hauptauslegers)
   jibLength: number | null;            // m
