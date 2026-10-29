@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, ListChecks } from 'lucide-react';
 import type { MachineConfig, Notification } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
@@ -73,9 +73,16 @@ export function CheckoutModal({
   const [informedIds, setInformedIds] = useState<Set<string>>(new Set());
   const [positionMachine, setPositionMachine] = useState<MachineConfig | null>(null);
   const [positionSetIds, setPositionSetIds] = useState<Set<string>>(new Set());
+  const [openOnly, setOpenOnly] = useState(true);
   const list = machines
     .map((m) => ({ m, reason: checkoutReason(m, windowH) }))
     .filter((x): x is { m: MachineConfig; reason: CheckoutReason } => x.reason !== null);
+
+  // A to-do is "done" once the driver was contacted (active) or the position was set (inactive).
+  const isDone = (m: MachineConfig, reason: CheckoutReason) =>
+    reason === 'offline' ? positionSetIds.has(m.id) : informedIds.has(m.id);
+  const openCount = list.filter(({ m, reason }) => !isDone(m, reason)).length;
+  const shown = openOnly ? list.filter(({ m, reason }) => !isDone(m, reason)) : list;
 
   return (
     <div className="checkout-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -96,26 +103,42 @@ export function CheckoutModal({
           </button>
         </div>
 
-        <div className="checkout-sheet__tabs">
-          {([24, 48, 72] as WindowH[]).map((h) => (
-            <button
-              key={h}
-              className={`m-segment__btn ${windowH === h ? 'm-segment__btn--active' : ''}`}
-              onClick={() => setWindowH(h)}
-            >
-              {h}H
-            </button>
-          ))}
+        <div className="checkout-sheet__controls">
+          <div className="checkout-sheet__tabs">
+            {([24, 48, 72] as WindowH[]).map((h) => (
+              <button
+                key={h}
+                className={`m-segment__btn ${windowH === h ? 'm-segment__btn--active' : ''}`}
+                onClick={() => setWindowH(h)}
+              >
+                {h}H
+              </button>
+            ))}
+          </div>
+          <button
+            className={`checkout-todo-chip ${openOnly ? 'is-on' : ''}`}
+            onClick={() => setOpenOnly((v) => !v)}
+            aria-pressed={openOnly}
+            title={t('Nur offene ToDos anzeigen', 'Show open to-dos only')}
+          >
+            <ListChecks size={16} />
+            {t('Offene ToDos', 'Open to-dos')}
+            <span className="checkout-todo-chip__count">{openCount}</span>
+          </button>
         </div>
 
         <div className="checkout-sheet__list">
-          {list.length === 0 ? (
+          {shown.length === 0 ? (
             <div className="checkout-sheet__empty">
               <CheckCircle size={28} />
-              <span>{t(`Keine Maschine benötigt im ${windowH}h-Fenster eine Handlung.`, `No machine requires action in the ${windowH}h window.`)}</span>
+              <span>
+                {list.length > 0 && openOnly
+                  ? t('Alle ToDos erledigt.', 'All to-dos done.')
+                  : t(`Keine Maschine benötigt im ${windowH}h-Fenster eine Handlung.`, `No machine requires action in the ${windowH}h window.`)}
+              </span>
             </div>
           ) : (
-            list.map(({ m, reason }) => {
+            shown.map(({ m, reason }) => {
               const info = getNotifInfo(m.id);
               // Active machines (driver on site) → notify the driver to move the boom.
               // Inactive machines (no live position) → set the position manually.
