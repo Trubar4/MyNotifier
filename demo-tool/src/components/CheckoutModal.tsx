@@ -69,7 +69,6 @@ export function CheckoutModal({
 }: CheckoutModalProps) {
   const { t } = useLang();
   const [windowH, setWindowH] = useState<WindowH>(24);
-  const [informMachine, setInformMachine] = useState<MachineConfig | null>(null);
   const [informedIds, setInformedIds] = useState<Set<string>>(new Set());
   const [positionMachine, setPositionMachine] = useState<MachineConfig | null>(null);
   const [positionSetIds, setPositionSetIds] = useState<Set<string>>(new Set());
@@ -142,11 +141,13 @@ export function CheckoutModal({
               const info = getNotifInfo(m.id);
               // Active machines (driver on site) → notify the driver to move the boom.
               // Inactive machines (no live position) → set the position manually.
+              // Active machines (driver on site) → the operator confirms they informed the driver.
+              // Inactive machines (no live position) → set the position manually.
               const notifyDriver = reason === 'exceedance' || reason === 'forecast';
               const informed = informedIds.has(m.id);
               const positionSet = positionSetIds.has(m.id);
               const label = notifyDriver
-                ? (informed ? t('✓ Fahrer kontaktiert', '✓ Driver contacted') : t('Fahrer kontaktieren', 'Contact driver'))
+                ? t('Habe den Fahrer informiert', 'I informed the driver')
                 : (positionSet ? t('✓ Position gesetzt', '✓ Position set') : t('Position setzen (Inaktiv)', 'Set position (inactive)'));
               return (
                 <MachineCard
@@ -159,9 +160,15 @@ export function CheckoutModal({
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
-                  onPrimaryAction={notifyDriver ? () => setInformMachine(m) : () => setPositionMachine(m)}
+                  onPrimaryAction={notifyDriver
+                    ? () => setInformedIds((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(m.id)) next.delete(m.id); else next.add(m.id);
+                        return next;
+                      })
+                    : () => setPositionMachine(m)}
                   primaryActionDone={notifyDriver ? informed : positionSet}
-                  primaryActionIcon={notifyDriver ? 'notify' : 'crane'}
+                  primaryActionCheckbox={notifyDriver}
                   forecastWind={forecastPeakInWindow(m, windowH)}
                   showLastNotif={showLastNotif}
                   lastNotif={getLatestNotif?.(m.id)}
@@ -171,41 +178,6 @@ export function CheckoutModal({
           )}
         </div>
       </div>
-
-      {informMachine && (
-        <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && setInformMachine(null)}>
-          <div className="config-modal" style={{ maxWidth: 420 }}>
-            <div className="config-modal__header">
-              <h2 className="config-modal__title">{t('Fahrer kontaktieren', 'Contact driver')}</h2>
-              <button className="config-modal__close" onClick={() => setInformMachine(null)} aria-label={t('Schließen', 'Close')}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="config-modal__body">
-              <p style={{ margin: 0, font: '400 14px/20px var(--font-text)', color: 'var(--p-black)' }}>
-                {t(
-                  `Bitte kontaktieren Sie den Fahrer von ${informMachine.name} - ${informMachine.serialNumber} selbst, damit der Ausleger in eine sichere Position gebracht wird.`,
-                  `Please contact the driver of ${informMachine.name} - ${informMachine.serialNumber} yourself so the boom is moved to a safe position.`,
-                )}
-              </p>
-              <div className="m-card__actions" style={{ marginTop: 'var(--s-4)' }}>
-                <button
-                  className="m-btn m-btn--primary"
-                  onClick={() => {
-                    setInformedIds((prev) => new Set(prev).add(informMachine.id));
-                    setInformMachine(null);
-                  }}
-                >
-                  {t('Erledigt', 'Done')}
-                </button>
-                <button className="m-btn m-btn--outline" onClick={() => setInformMachine(null)}>
-                  {t('Abbrechen', 'Cancel')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {positionMachine && (
         <PositionSelector
