@@ -252,7 +252,7 @@ export function MachineCard({
             <>
               <button className="m-btn m-btn--primary m-btn--wide" onClick={onOpen}>
                 <img src={BASE + 'license-acquire.svg'} alt="" width={18} height={18} />
-                {t('Lizenz jetzt erwerben', 'Acquire licence now')}
+                {t('Lizenz verlängern', 'Renew licence')}
               </button>
               <button className="m-btn m-btn--outline m-btn--icon" onClick={onOpen} aria-label={t('Details', 'Details')}>
                 <img src={BASE + 'details-doc.svg'} alt="" width={18} height={18} />

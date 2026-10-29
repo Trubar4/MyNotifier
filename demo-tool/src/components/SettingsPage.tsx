@@ -61,7 +61,15 @@ export function SettingsPage({ settings, onUpdateSettings }: SettingsPageProps) 
         </div>
       </section>
 
-      <NotifyPrefsControls prefs={settings.prefs} onChange={updatePrefs} showChannels />
+      <NotifyPrefsControls
+        prefs={settings.prefs}
+        onChange={updatePrefs}
+        showChannels
+        activeExceedanceDisabled={settings.disableActiveExceedance !== false}
+        onToggleActiveExceedance={(v) => onUpdateSettings({ ...settings, disableActiveExceedance: v })}
+        activeForecastDisabled={settings.disableActiveForecast === true}
+        onToggleActiveForecast={(v) => onUpdateSettings({ ...settings, disableActiveForecast: v })}
+      />
     </div>
   );
 }

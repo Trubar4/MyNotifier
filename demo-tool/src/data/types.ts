@@ -206,6 +206,22 @@ export interface NotificationSettings {
   machineOverrides: Record<string, boolean>;      // receive on/off per machine
   prefs: NotifyPrefs;                              // global preferences
   machinePrefs: Record<string, NotifyPrefs>;      // per-machine override (presence = override enabled)
+  /** Suppress current-exceedance warnings for active machines (operator is responsible). Default true. */
+  disableActiveExceedance?: boolean;
+  /** Suppress forecast-over-threshold warnings for active machines. Default false. */
+  disableActiveForecast?: boolean;
+}
+
+/** Is this notification suppressed by the "active machines" warning settings? */
+export function isActiveWarningSuppressed(
+  n: Pick<Notification, 'kind'>,
+  machine: MachineConfig | undefined,
+  settings: NotificationSettings,
+): boolean {
+  if (machine?.status !== 'online') return false;
+  if (n.kind === 'exceedance' && settings.disableActiveExceedance !== false) return true; // default on
+  if (n.kind === 'forecast' && settings.disableActiveForecast === true) return true;       // default off
+  return false;
 }
 
 export const DEMO_USER = 'Max Mustermann';

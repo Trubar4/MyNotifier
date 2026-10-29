@@ -33,6 +33,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     machineId: 'lr1130-137187',
     level: 2,
     kind: 'forecast',
+    forecastDisplay: 11.0,
     title: 'Windwarnung — Bestätigung erforderlich',
     titleEn: 'Wind warning — confirmation required',
     body: 'Die für {{ts}} Uhr prognostizierte Windgeschwindigkeit am Standort 88400 Biberach wird für die Parkposition (max. zulässige Windgeschwindigkeit: 20 m/s) nicht überschritten. Durch den gesetzten Schwellenwert von 50% erfolgt dennoch eine Warnung.',
@@ -167,4 +168,6 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     email: true,
   },
   machinePrefs: {},
+  disableActiveExceedance: true,
+  disableActiveForecast: false,
 };

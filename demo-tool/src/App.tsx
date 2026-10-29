@@ -12,6 +12,7 @@ import { ReportsPage } from './components/ReportsPage';
 import { DemoConfigMenu } from './components/DemoConfigMenu';
 import { ScenarioConfig } from './components/ScenarioConfig';
 import type { MachineConfig, Notification, NotificationSettings } from './data/types';
+import { isActiveWarningSuppressed } from './data/types';
 import { DEFAULT_MACHINES } from './data/machines';
 import { DEFAULT_NOTIFICATIONS, DEFAULT_NOTIFICATION_SETTINGS } from './data/notifications';
 import { useLang } from './i18n';
@@ -39,7 +40,12 @@ export default function App() {
   }
   const demoConfigMachine = demoConfigMachineId ? machines.find((m) => m.id === demoConfigMachineId) : null;
 
-  const unreadNotifications = notifications.filter((n) => !n.read);
+  // Hide warnings that the "active machines" settings suppress (operator is responsible).
+  const machineById = new Map(machines.map((m) => [m.id, m]));
+  const visibleNotifications = notifications.filter(
+    (n) => !isActiveWarningSuppressed(n, machineById.get(n.machineId), notifSettings),
+  );
+  const unreadNotifications = visibleNotifications.filter((n) => !n.read);
   const hasCriticalUnread = unreadNotifications.some((n) => n.level === 1);
   const detailMachine = detailMachineId ? machines.find((m) => m.id === detailMachineId) : null;
 
@@ -99,7 +105,7 @@ export default function App() {
         {activePage === 'machines' && !detailMachine && (
           <MachineOverview
             machines={machines}
-            notifications={notifications}
+            notifications={visibleNotifications}
             onUpdateMachine={handleUpdateMachine}
             onOpenMachine={handleOpenMachine}
             onMachineNotifClick={handleMachineNotifClick}
@@ -109,7 +115,7 @@ export default function App() {
         {activePage === 'machines' && detailMachine && (
           <MachineDetail
             machine={detailMachine}
-            notifications={notifications.filter((n) => n.machineId === detailMachine.id)}
+            notifications={visibleNotifications.filter((n) => n.machineId === detailMachine.id)}
             notifSettings={notifSettings}
             onBack={() => { setDetailMachineId(null); setOpenPositionSelector(false); }}
             onUpdateMachine={handleUpdateMachine}
@@ -121,7 +127,7 @@ export default function App() {
         )}
         {activePage === 'notifications' && (
           <NotificationsPage
-            notifications={notifications}
+            notifications={visibleNotifications}
             machines={machines}
             filterMachineId={notifFilterMachineId}
             onUpdateNotification={handleUpdateNotification}
@@ -147,7 +153,7 @@ export default function App() {
         {activePage === 'dailycheck' && (
           <DailyCheckPage
             machines={machines}
-            notifications={notifications}
+            notifications={visibleNotifications}
             onUpdateMachine={handleUpdateMachine}
           />
         )}

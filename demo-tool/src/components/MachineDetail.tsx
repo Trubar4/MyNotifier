@@ -324,7 +324,7 @@ export function MachineDetail({
                 ) : (
                   <button className="m-btn m-btn--primary m-btn--block">
                     <img src={`${import.meta.env.BASE_URL}license-acquire.svg`} alt="" width={18} height={18} />
-                    {t('LIZENZ JETZT ERWERBEN', 'ACQUIRE LICENCE NOW')}
+                    {t('LIZENZ VERLÄNGERN', 'RENEW LICENCE')}
                   </button>
                 )}
               </div>

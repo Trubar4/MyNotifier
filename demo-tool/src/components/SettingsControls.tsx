@@ -113,11 +113,19 @@ export function DayPills({ value, onChange }: {
  * `thresholdMs` (optional) shows the resulting absolute warning value for a machine.
  * `showChannels` adds the repeat slider + SMS/E-Mail toggles (global screen).
  */
-export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels }: {
+export function NotifyPrefsControls({
+  prefs, onChange, thresholdMs, showChannels,
+  activeExceedanceDisabled, onToggleActiveExceedance,
+  activeForecastDisabled, onToggleActiveForecast,
+}: {
   prefs: NotifyPrefs;
   onChange: (next: NotifyPrefs) => void;
   thresholdMs?: number | null;
   showChannels?: boolean;
+  activeExceedanceDisabled?: boolean;
+  onToggleActiveExceedance?: (v: boolean) => void;
+  activeForecastDisabled?: boolean;
+  onToggleActiveForecast?: (v: boolean) => void;
 }) {
   const { t, fmtSpeed } = useLang();
   const set = (patch: Partial<NotifyPrefs>) => onChange({ ...prefs, ...patch });
@@ -167,6 +175,54 @@ export function NotifyPrefsControls({ prefs, onChange, thresholdMs, showChannels
           <span className="m-settings-field__hint">{t('Höchstwerte für Ausleger — Unterschreitung der Vorgaben', 'Maximum values for the boom — falling below the specifications')}</span>
         </div>
       </section>
+
+      {showChannels && onToggleActiveExceedance && onToggleActiveForecast && (
+        <section className="m-settings-group">
+          <h2 className="m-settings-group__title">{t('Warnungen für aktive Maschinen', 'Warnings for active machines')}</h2>
+          <div className="settings-row">
+            <span className="settings-row__label">
+              {t('Überschreitungswarnungen für aktive Maschinen deaktivieren', 'Disable exceedance warnings for active machines')}
+              <span className="settings-toggle-info" onClick={(e) => e.stopPropagation()}>
+                <InfoPopover>
+                  {t(
+                    'Für aktive Maschinen werden keine Warnungen für aktuelle Windüberschreitungen generiert, da der Maschinenbediener verantwortlich ist.',
+                    'For active machines, no warnings are generated for current wind exceedances, since the machine operator is responsible.',
+                  )}
+                </InfoPopover>
+              </span>
+            </span>
+            <button
+              className={`toggle-switch ${activeExceedanceDisabled ? 'toggle-switch--on' : ''}`}
+              role="switch"
+              aria-checked={!!activeExceedanceDisabled}
+              onClick={() => onToggleActiveExceedance(!activeExceedanceDisabled)}
+            >
+              <span className="toggle-switch__thumb" />
+            </button>
+          </div>
+          <div className="settings-row">
+            <span className="settings-row__label">
+              {t('Prognosen für aktive Maschinen deaktivieren', 'Disable forecasts for active machines')}
+              <span className="settings-toggle-info" onClick={(e) => e.stopPropagation()}>
+                <InfoPopover>
+                  {t(
+                    'Für aktive Maschinen werden keine Warnungen für prognostizierte Windüberschreitungen generiert, da der Maschinenbediener verantwortlich ist.',
+                    'For active machines, no warnings are generated for forecast wind exceedances, since the machine operator is responsible.',
+                  )}
+                </InfoPopover>
+              </span>
+            </span>
+            <button
+              className={`toggle-switch ${activeForecastDisabled ? 'toggle-switch--on' : ''}`}
+              role="switch"
+              aria-checked={!!activeForecastDisabled}
+              onClick={() => onToggleActiveForecast(!activeForecastDisabled)}
+            >
+              <span className="toggle-switch__thumb" />
+            </button>
+          </div>
+        </section>
+      )}
 
       {showChannels && (
         <>
