@@ -26,7 +26,7 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
     name: 'LR 1130.1 UNPLUGGED',
     serialNumber: '137187',
     type: 'LR 1130.1',
-    status: 'online',
+    status: 'offline',
     license: 'active',
     position: {
       position: 'parkposition',
@@ -89,9 +89,9 @@ export const DEFAULT_MACHINES: MachineConfig[] = [
       timestamp: hoursAgo(1),
     },
     forecast: {
-      max72h: 16.0,
+      max72h: 9.0,
       timestamp: hoursAgo(2),
-      hourly: generateHourlyForecast(16.0, 40),
+      hourly: generateHourlyForecast(9.0, 40),
     },
     location: {
       lat: 48.7758,
