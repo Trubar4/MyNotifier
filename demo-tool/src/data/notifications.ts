@@ -83,7 +83,7 @@ export const DEFAULT_NOTIFICATIONS: Notification[] = [
     machineId: 'lr1250-135350',
     level: 2,
     kind: 'positionDeviation',
-    forecastDisplay: 22.0,
+    forecastDisplay: 9.0,
     forecastPeakAt: hoursFromNow(31),
     title: 'Positionsabweichung erkannt',
     titleEn: 'Position deviation detected',
