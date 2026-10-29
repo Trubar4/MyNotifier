@@ -3,9 +3,10 @@ import { X, CheckCircle } from 'lucide-react';
 import type { MachineConfig, Notification } from '../data/types';
 
 const BASE = import.meta.env.BASE_URL;
-import { machineThreshold } from '../data/types';
+import { machineThreshold, configHasNeedle, forecastPeakTime } from '../data/types';
 import { MachineCard } from './MachineCard';
 import { InfoPopover } from './InfoPopover';
+import { PositionSelector } from './PositionSelector';
 import { useLang } from '../i18n';
 
 type WindowH = 24 | 48 | 72;
@@ -21,6 +22,7 @@ interface CheckoutModalProps {
   onClose: () => void;
   onOpen: (id: string) => void;
   onOpenPositionSelector: (id: string) => void;
+  onUpdateMachine: (updated: MachineConfig) => void;
   onNotifClick: (id: string) => void;
 }
 
@@ -63,12 +65,14 @@ function checkoutReason(m: MachineConfig, hours: WindowH): CheckoutReason | null
 
 export function CheckoutModal({
   machines, getNotifInfo, getLatestNotif, showLastNotif, onClose,
-  onOpen, onOpenPositionSelector, onNotifClick,
+  onOpen, onOpenPositionSelector, onUpdateMachine, onNotifClick,
 }: CheckoutModalProps) {
   const { t } = useLang();
   const [windowH, setWindowH] = useState<WindowH>(24);
   const [informMachine, setInformMachine] = useState<MachineConfig | null>(null);
   const [informedIds, setInformedIds] = useState<Set<string>>(new Set());
+  const [positionMachine, setPositionMachine] = useState<MachineConfig | null>(null);
+  const [positionSetIds, setPositionSetIds] = useState<Set<string>>(new Set());
   const list = machines
     .map((m) => ({ m, reason: checkoutReason(m, windowH) }))
     .filter((x): x is { m: MachineConfig; reason: CheckoutReason } => x.reason !== null);
@@ -117,9 +121,10 @@ export function CheckoutModal({
               // Inactive machines (no live position) → set the position manually.
               const notifyDriver = reason === 'exceedance' || reason === 'forecast';
               const informed = informedIds.has(m.id);
+              const positionSet = positionSetIds.has(m.id);
               const label = notifyDriver
                 ? (informed ? t('✓ Fahrer kontaktiert', '✓ Driver contacted') : t('Fahrer kontaktieren', 'Contact driver'))
-                : t('Position setzen (Inaktiv)', 'Set position (inactive)');
+                : (positionSet ? t('✓ Position gesetzt', '✓ Position set') : t('Position setzen (Inaktiv)', 'Set position (inactive)'));
               return (
                 <MachineCard
                   key={m.id}
@@ -131,8 +136,8 @@ export function CheckoutModal({
                   onOpenPositionSelector={() => onOpenPositionSelector(m.id)}
                   onNotifClick={() => onNotifClick(m.id)}
                   primaryActionLabel={label}
-                  onPrimaryAction={notifyDriver ? () => setInformMachine(m) : () => onOpenPositionSelector(m.id)}
-                  primaryActionDone={notifyDriver && informed}
+                  onPrimaryAction={notifyDriver ? () => setInformMachine(m) : () => setPositionMachine(m)}
+                  primaryActionDone={notifyDriver ? informed : positionSet}
                   primaryActionIcon={notifyDriver ? 'notify' : 'crane'}
                   forecastWind={forecastPeakInWindow(m, windowH)}
                   showLastNotif={showLastNotif}
@@ -177,6 +182,29 @@ export function CheckoutModal({
             </div>
           </div>
         </div>
+      )}
+
+      {positionMachine && (
+        <PositionSelector
+          title={t('Auslegerposition setzen', 'Set boom position')}
+          subtitle={t(
+            `${positionMachine.name} - ${positionMachine.serialNumber}`,
+            `${positionMachine.name} - ${positionMachine.serialNumber}`,
+          )}
+          currentPosition={positionMachine.position.position}
+          forecastMax={positionMachine.forecast.max72h}
+          forecastPeakAt={forecastPeakTime(positionMachine)}
+          hasNeedle={configHasNeedle(positionMachine.specs.boomConfiguration)}
+          onSelect={(pos) => {
+            onUpdateMachine({
+              ...positionMachine,
+              position: { ...positionMachine.position, position: pos, manuallySet: true, timestamp: new Date() },
+            });
+            setPositionSetIds((prev) => new Set(prev).add(positionMachine.id));
+            setPositionMachine(null);
+          }}
+          onClose={() => setPositionMachine(null)}
+        />
       )}
     </div>
   );

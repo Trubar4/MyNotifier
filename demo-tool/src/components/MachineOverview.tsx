@@ -206,6 +206,7 @@ export function MachineOverview({ machines, notifications, onUpdateMachine, onOp
           onClose={() => setShowCheckout(false)}
           onOpen={(id) => { setShowCheckout(false); onOpenMachine(id); }}
           onOpenPositionSelector={(id) => setPositionSelectorMachineId(id)}
+          onUpdateMachine={onUpdateMachine}
           onNotifClick={(id) => { setShowCheckout(false); onMachineNotifClick(id); }}
         />
       )}
