@@ -118,7 +118,7 @@ export function CheckoutModal({
               const notifyDriver = reason === 'exceedance' || reason === 'forecast';
               const informed = informedIds.has(m.id);
               const label = notifyDriver
-                ? (informed ? t('✓ Fahrer informiert', '✓ Driver notified') : t('Fahrer informieren', 'Notify driver'))
+                ? (informed ? t('✓ Fahrer kontaktiert', '✓ Driver contacted') : t('Fahrer kontaktieren', 'Contact driver'))
                 : t('Position setzen (Inaktiv)', 'Set position (inactive)');
               return (
                 <MachineCard
@@ -148,7 +148,7 @@ export function CheckoutModal({
         <div className="config-overlay" onClick={(e) => e.target === e.currentTarget && setInformMachine(null)}>
           <div className="config-modal" style={{ maxWidth: 420 }}>
             <div className="config-modal__header">
-              <h2 className="config-modal__title">{t('Fahrer informieren', 'Notify driver')}</h2>
+              <h2 className="config-modal__title">{t('Fahrer kontaktieren', 'Contact driver')}</h2>
               <button className="config-modal__close" onClick={() => setInformMachine(null)} aria-label={t('Schließen', 'Close')}>
                 <X size={20} />
               </button>
@@ -156,8 +156,8 @@ export function CheckoutModal({
             <div className="config-modal__body">
               <p style={{ margin: 0, font: '400 14px/20px var(--font-text)', color: 'var(--p-black)' }}>
                 {t(
-                  `Der Fahrer von ${informMachine.name} - ${informMachine.serialNumber} wird aufgefordert, den Ausleger in eine sichere Position zu bringen.`,
-                  `The driver of ${informMachine.name} - ${informMachine.serialNumber} will be asked to move the boom to a safe position.`,
+                  `Bitte kontaktieren Sie den Fahrer von ${informMachine.name} - ${informMachine.serialNumber} selbst, damit der Ausleger in eine sichere Position gebracht wird.`,
+                  `Please contact the driver of ${informMachine.name} - ${informMachine.serialNumber} yourself so the boom is moved to a safe position.`,
                 )}
               </p>
               <div className="m-card__actions" style={{ marginTop: 'var(--s-4)' }}>
@@ -168,7 +168,7 @@ export function CheckoutModal({
                     setInformMachine(null);
                   }}
                 >
-                  {t('Jetzt informieren', 'Notify now')}
+                  {t('Erledigt', 'Done')}
                 </button>
                 <button className="m-btn m-btn--outline" onClick={() => setInformMachine(null)}>
                   {t('Abbrechen', 'Cancel')}
